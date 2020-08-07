@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.ComparatorFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="@string/price_comparison" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:id="@+id/sv_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:showIn="@layout/activity_main">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="50dp"
+            android:orientation="vertical">
+
+            <LinearLayout style="@style/LayoutCard">
+
+                <TextView
+                    style="@style/TextLabel"
+                    android:text="@string/label_first" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextInputLayout"
+                        android:hint="@string/text_price">
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_price_first"
+                            style="@style/AppCompatEditText"
+                            android:digits="0123456789,"
+                            android:imeOptions="actionNext"
+                            android:inputType="numberDecimal"
+                            android:maxLength="10" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextInputLayout"
+                        android:hint="@string/text_size">
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_size_first"
+                            style="@style/AppCompatEditText"
+                            android:digits="0123456789"
+                            android:imeOptions="actionNext"
+                            android:inputType="number"
+                            android:maxLength="10" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
+            <LinearLayout style="@style/LayoutCard">
+
+                <TextView
+                    style="@style/TextLabel"
+                    android:text="@string/label_second" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextInputLayout"
+                        android:hint="@string/text_price">
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_price_second"
+                            style="@style/AppCompatEditText"
+                            android:digits="0123456789,"
+                            android:imeOptions="actionNext"
+                            android:inputType="numberDecimal"
+                            android:maxLength="10" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextInputLayout"
+                        android:hint="@string/text_size">
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_size_second"
+                            style="@style/AppCompatEditText"
+                            android:digits="0123456789"
+                            android:imeOptions="actionSend"
+                            android:inputType="number"
+                            android:maxLength="10" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="12dp">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/bt_submit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:text="@string/button_submit"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
+            <LinearLayout
+                android:id="@+id/ll_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingTop="12dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:id="@+id/tv_result_percentage"
+                    style="@style/TextResult"
+                    android:text="@string/result_percentage"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_result_first"
+                    style="@style/TextResult"
+                    android:text="@string/result_first" />
+
+                <TextView
+                    android:id="@+id/tv_result_second"
+                    style="@style/TextResult"
+                    android:text="@string/result_second" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

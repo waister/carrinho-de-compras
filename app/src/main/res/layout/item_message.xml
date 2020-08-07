@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_message"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/black"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_message_left"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/messages_margin_end"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
+
+        <TextView
+            android:id="@+id/tv_left_who"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:textColor="#80FFFFFF"
+            android:textSize="12sp"
+            tools:text="Admin write:" />
+
+        <TextView
+            android:id="@+id/tv_left_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoLink="all"
+            android:background="@drawable/message_left_bg"
+            android:minWidth="105dp"
+            android:textColor="#E6FFFFFF"
+            android:textIsSelectable="true"
+            android:textSize="15sp"
+            tools:text="This is a sucks message write directly on XML file." />
+
+        <TextView
+            android:id="@+id/tv_left_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="#66FFFFFF"
+            android:textSize="10sp"
+            tools:ignore="SmallSp"
+            tools:text="01/01/2001 at 01:01" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_message_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/messages_margin_end"
+        android:gravity="start"
+        android:layout_gravity="end"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
+
+        <TextView
+            android:id="@+id/tv_right_who"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:textColor="#80FFFFFF"
+            android:textSize="12sp"
+            tools:text="You write:" />
+
+        <TextView
+            android:id="@+id/tv_right_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoLink="all"
+            android:background="@drawable/message_right_bg"
+            android:minWidth="105dp"
+            android:textColor="#CCFFFFFF"
+            android:textIsSelectable="true"
+            android:textSize="15sp"
+            tools:text="Thanks" />
+
+        <TextView
+            android:id="@+id/tv_right_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="#66FFFFFF"
+            android:textSize="10sp"
+            tools:ignore="SmallSp"
+            tools:text="01/01/2001 at 01:01" />
+    </LinearLayout>
+</LinearLayout>

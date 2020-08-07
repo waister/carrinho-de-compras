@@ -1,0 +1,59 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'realm-android'
+apply plugin: 'com.google.firebase.crashlytics'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion '30.0.0'
+    defaultConfig {
+        applicationId "com.renobile.carrinho"
+        minSdkVersion 19
+        targetSdkVersion 30
+        versionCode 5
+        versionName "2.0.2"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+
+        buildConfigField 'String', 'API_APP_NAME', '"carrinhodecompras"'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    implementation "org.jetbrains.anko:anko-commons:$anko_version"
+    implementation "org.jetbrains.anko:anko-sdk25:$anko_version"
+    implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.orhanobut:hawk:2.0.1'
+    implementation 'com.redmadrobot:inputmask:2.3.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    testImplementation 'junit:junit:4.12'
+
+    implementation 'com.github.kittinunf.fuel:fuel-android:1.16.0'
+    implementation 'com.google.android.gms:play-services-ads:19.3.0'
+    implementation 'com.google.firebase:firebase-core:17.4.4'
+    implementation 'com.google.firebase:firebase-messaging:20.2.4'
+    implementation 'com.google.firebase:firebase-crashlytics:17.1.1'
+    implementation 'com.google.firebase:firebase-analytics:17.4.4'
+    implementation 'com.android.billingclient:billing:3.0.0'
+    implementation 'com.eightbitlab:bottomnavigationbar:0.9.5'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.google.android.play:core:1.8.0'
+}
+
+apply plugin: 'com.google.gms.google-services'

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorPrimaryLight">#BBDEFB</color>
+    <color name="colorAccent">#1976D2</color>
+
+    <color name="colorTextPrimary">#212121</color>
+    <color name="colorTextSecondary">#757575</color>
+    <color name="screenBackground">#1A1A1A</color>
+    <color name="colorDivider">#34000000</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="divider">#D8D8D8</color>
+    <color name="barsBackground">#af000000</color>
+    <color name="colorGreen">#3B9441</color>
+    <color name="screenBackgroundProgress">#DD1A1A1A</color>
+    <color name="colorDividerLight">#0DFFFFFF</color>
+    <color name="colorCardBackground">#F5F5F7</color>
+    <color name="transparent">#00000000</color>
+    <color name="colorStatusRed">#db4437</color>
+</resources>

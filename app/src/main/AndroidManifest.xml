@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.renobile.carrinho">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.android.vending.BILLING" />
+
+    <application
+        android:name=".application.CustomApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6521704558504566~9096119106" />
+
+        <activity
+            android:name=".activity.SplashActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SplashTheme"
+            android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.CartsHistoryActivity"
+            android:label="@string/archived_carts" />
+        <activity
+            android:name=".activity.ListsHistoryActivity"
+            android:label="@string/archived_lists" />
+        <activity
+            android:name=".activity.CartDetailsActivity"
+            android:label="@string/archived_cart"
+            android:theme="@style/BaseTheme" />
+        <activity
+            android:name=".activity.ListDetailsActivity"
+            android:label="@string/archived_list"
+            android:theme="@style/BaseTheme" />
+        <activity
+            android:name=".activity.RemoveAdsActivity"
+            android:label="@string/remove_ads"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.NotificationsActivity"
+            android:label="@string/notifications"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.AboutActivity"
+            android:label="@string/about_app"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.NotificationDetailsActivity"
+            android:label="@string/notification_details"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <service
+            android:name=".service.MyFirebaseMessagingService"
+            android:exported="true"
+            android:permission="android.permission.INTERNET">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

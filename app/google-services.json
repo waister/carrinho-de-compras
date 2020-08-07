@@ -1,0 +1,87 @@
+{
+  "project_info": {
+    "project_number": "360207745333",
+    "firebase_url": "https://carrinho-de-compras-8baec.firebaseio.com",
+    "project_id": "carrinho-de-compras-8baec",
+    "storage_bucket": "carrinho-de-compras-8baec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360207745333:android:411cb4478547c642f30c7c",
+        "android_client_info": {
+          "package_name": "br.com.gazoza.alcoolougasolina"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360207745333-vkuni8hghcn138cmaomn07q1rh2f1pql.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.gazoza.alcoolougasolina",
+            "certificate_hash": "6b36b317e3803955f7acd53c59c387dd1fdec63d"
+          }
+        },
+        {
+          "client_id": "360207745333-tpps9qo9s5nuf14jvgmnb8jikralvja3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxZcZSIx3JV1e_po6e_0h8LrGL3rARe-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360207745333-tpps9qo9s5nuf14jvgmnb8jikralvja3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-6521704558504566~2883906768"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360207745333:android:c9570d005b66992e",
+        "android_client_info": {
+          "package_name": "com.renobile.carrinho"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360207745333-b50b3noam8iefakcm8d8a5er0b9ti70o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.renobile.carrinho",
+            "certificate_hash": "d0d7123842f4bd1c107f4b93c6dfe1ba9a14b87d"
+          }
+        },
+        {
+          "client_id": "360207745333-tpps9qo9s5nuf14jvgmnb8jikralvja3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxZcZSIx3JV1e_po6e_0h8LrGL3rARe-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360207745333-tpps9qo9s5nuf14jvgmnb8jikralvja3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-6521704558504566~9096119106"
+    }
+  ],
+  "configuration_version": "1"
+}
