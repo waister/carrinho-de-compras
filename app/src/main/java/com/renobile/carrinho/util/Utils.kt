@@ -20,7 +20,6 @@ import com.github.kittinunf.result.Result
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.InterstitialAd
 import com.google.android.material.snackbar.Snackbar
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
@@ -134,22 +133,22 @@ fun String?.getStringValid(): String {
 }
 
 fun printFuelLog(request: Request, response: Response, result: Result<String, FuelError>) {
-    Log.w("FUEL_API_CALL", "API was called to route: ${request.path}")
+    Log.w("FUEL_API_CALL", "API was called to route: ${request.url}")
 
     if (BuildConfig.DEBUG) {
-        val path = request.path
+        val url = request.url
 
-        println("\n------------ FUEL_REQUEST_START - $path\n")
+        println("\n--- FUEL_REQUEST_START - $url\n")
         println(request)
-        println("\n------------ FUEL_REQUEST_END - $path\n")
+        println("\n--- FUEL_REQUEST_END - $url\n")
 
-        println("\n------------ FUEL_RESPONSE_START - $path\n")
+        println("\n--- FUEL_RESPONSE_START - $url\n")
         println(response)
-        println("\n------------ FUEL_RESPONSE_END - $path\n")
+        println("\n--- FUEL_RESPONSE_END - $url\n")
 
-        println("\n------------ FUEL_RESULT_START - $path\n")
+        println("\n--- FUEL_RESULT_START - $url\n")
         println(result)
-        println("\n------------ FUEL_RESULT_END - $path\n")
+        println("\n--- FUEL_RESULT_END - $url\n")
     }
 }
 
@@ -166,24 +165,6 @@ fun haveVideoPlan(): Boolean {
 fun haveBillingPlan(): Boolean = Hawk.get(PREF_HAVE_PLAN, !BuildConfig.DEBUG)
 
 fun havePlan(): Boolean = haveBillingPlan() || haveVideoPlan()
-
-fun Activity?.createInterstitialAd(): InterstitialAd? {
-    var interstitialAd: InterstitialAd? = null
-
-    if (this != null && !havePlan()) {
-        val adUnitId = if (BuildConfig.DEBUG)
-            "ca-app-pub-3940256099942544/1033173712"
-        else
-            Hawk.get(PREF_ADMOB_INTERSTITIAL_ID, "")
-
-        if (adUnitId.isNotEmpty()) {
-            interstitialAd = InterstitialAd(this)
-            interstitialAd.adUnitId = adUnitId
-        }
-    }
-
-    return interstitialAd
-}
 
 fun Activity?.loadAdBanner(adViewContainer: LinearLayout?, adUnitId: String, adSize: AdSize? = null) {
     if (this == null || adViewContainer == null || havePlan()) return

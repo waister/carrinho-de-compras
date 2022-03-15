@@ -12,10 +12,9 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import com.android.billingclient.api.*
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.reward.RewardItem
-import com.google.android.gms.ads.reward.RewardedVideoAd
-import com.google.android.gms.ads.reward.RewardedVideoAdListener
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
@@ -36,11 +35,10 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
     private var adMobRemoveAds: String = ""
     private var planVideoDuration: Long = 0
     private var showBackButton: Boolean = false
-    private lateinit var mRewardedVideoAd: RewardedVideoAd
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         showBackButton = arguments?.getBoolean(PARAM_SHOW_BACK, false) ?: false
 
@@ -75,80 +73,81 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
     private fun checkPurchase() {
         if (activity == null) return
 
-        if (billingClient == null) {
 
-            billingClient = BillingClient
-                    .newBuilder(context!!)
+//        ll_plans?.post {
+        println("----------------------- REMOVE ALL 1")
+//            ll_plans?.removeAllViews()
+            ll_plans?.removeAllViewsInLayout()
+        println("----------------------- REMOVE ALL 2")
+
+            if (billingClient == null) {
+
+                billingClient = BillingClient
+                    .newBuilder(requireContext())
                     .setListener(this)
                     .enablePendingPurchases()
                     .build()
 
-            billingClient!!.startConnection(this)
+                billingClient!!.startConnection(this)
 
-        } else {
+            } else {
 
-            var planSelected = ""
-            var planTime = 0L
-            var havePlan = false
-            val purchasesResult = billingClient!!.queryPurchases(BillingClient.SkuType.SUBS)
-            val list = purchasesResult.purchasesList
+                billingClient!!.queryPurchasesAsync(BillingClient.SkuType.SUBS) { _, list ->
+                    var planSelected = ""
+                    var planTime = 0L
+                    var havePlan = false
 
-            if (list != null) {
-                for (purchase in list) {
-                    if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                        havePlan = true
-                        planSelected = purchase.sku
-                        planTime = purchase.purchaseTime
-                        purchaseToken = purchase.purchaseToken
-                    }
-                }
-            }
-
-            if (havePlan)
-                rl_progress_light?.visibility = View.GONE
-
-            val skuList = arrayListOf<String>()
-            skuList.add(Hawk.get(PREF_BILL_PLAN_YEAR, ""))
-
-            val params = SkuDetailsParams.newBuilder()
-                    .setSkusList(skuList)
-                    .setType(BillingClient.SkuType.SUBS)
-                    .build()
-
-            Log.w("RemoveAdsFragment", "Request billing params: $params")
-
-            billingClient!!.querySkuDetailsAsync(params) { _, skuDetailsList ->
-                if (skuDetailsList != null && activity != null) {
-
-                    var selectedSkuDetails: SkuDetails? = null
-
-                    for (skuDetails in skuDetailsList) {
-                        if (planSelected == skuDetails.sku) {
-                            selectedSkuDetails = skuDetails
+                    for (purchase in list) {
+                        if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                            havePlan = true
+                            planSelected = purchase.skus[0]
+                            planTime = purchase.purchaseTime
+                            purchaseToken = purchase.purchaseToken
                         }
                     }
 
-                    ll_plans?.removeAllViews()
+                    if (havePlan)
+                        rl_progress_light?.visibility = View.GONE
 
-                    if (selectedSkuDetails == null) {
-                        for (skuDetails in skuDetailsList) {
-                            addItemView(skuDetails)
-                        }
+                    val skuList = arrayListOf<String>()
+                    skuList.add(Hawk.get(PREF_BILL_PLAN_YEAR, ""))
 
-                        if (adMobRemoveAds.isNotEmpty())
+                    val params = SkuDetailsParams.newBuilder()
+                        .setSkusList(skuList)
+                        .setType(BillingClient.SkuType.SUBS)
+                        .build()
+
+                    Log.w("RemoveAdsFragment", "Request billing params: $params")
+
+                    billingClient!!.querySkuDetailsAsync(params) { _, skuDetailsList ->
+                        if (skuDetailsList != null && activity != null) {
+                            var selectedSkuDetails: SkuDetails? = null
+
+                            for (skuDetails in skuDetailsList) {
+                                if (planSelected == skuDetails.sku) {
+                                    selectedSkuDetails = skuDetails
+                                }
+                            }
+
+                            if (selectedSkuDetails == null) {
+                                for (skuDetails in skuDetailsList) {
+                                    addItemView(skuDetails)
+                                }
+                            } else {
+                                tv_thanks?.visibility = View.VISIBLE
+
+                                addItemView(selectedSkuDetails, planTime)
+
+                            }
+
+                            rl_progress_light?.visibility = View.GONE
+
                             addWatchToBy()
-
-                    } else {
-                        tv_thanks?.visibility = View.VISIBLE
-
-                        addItemView(selectedSkuDetails, planTime)
-
+                        }
                     }
-
-                    rl_progress_light?.visibility = View.GONE
                 }
             }
-        }
+//        }
     }
 
     private fun addItemView(skuDetails: SkuDetails?, planTime: Long = 0L) {
@@ -178,8 +177,10 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
             btManage.visibility = View.VISIBLE
 
             btManage.setOnClickListener {
-                activity?.browse("https://play.google.com/store/account/subscriptions" +
-                        "?sku=${skuDetails.sku}&package=${activity!!.packageName}")
+                activity?.browse(
+                    "https://play.google.com/store/account/subscriptions" +
+                            "?sku=${skuDetails.sku}&package=${requireActivity().packageName}"
+                )
             }
 
         } else {
@@ -188,15 +189,16 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
 
             btSubscribe.setOnClickListener {
                 val flowParams = BillingFlowParams.newBuilder()
-                        .setSkuDetails(skuDetails)
-                        .build()
+                    .setSkuDetails(skuDetails)
+                    .build()
 
-                billingClient!!.launchBillingFlow(activity!!, flowParams)
+                billingClient!!.launchBillingFlow(requireActivity(), flowParams)
             }
 
         }
 
         ll_plans?.addView(viewItem)
+//        ll_plans?.post { ll_plans?.addView(viewItem) }
     }
 
     override fun onBillingServiceDisconnected() {
@@ -214,7 +216,7 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
     }
 
     private fun addWatchToBy() {
-        if (activity == null) return
+        if (activity == null && adMobRemoveAds.isNotEmpty()) return
 
         val inflater = LayoutInflater.from(activity)
 
@@ -250,7 +252,41 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
             if (activity != null) {
                 planVideoDuration = Hawk.get(PREF_PLAN_VIDEO_DURATION, FIVE_DAYS)
 
-                mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(activity)
+                rl_progress_light?.visibility = View.VISIBLE
+
+                val request = AdRequest.Builder().build()
+                val ctx = requireContext()
+
+                RewardedAd.load(ctx, adMobRemoveAds, request, object : RewardedAdLoadCallback() {
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        Log.w(TAG, "RewardedAd : onAdFailedToLoad(): ${adError.message}")
+
+                        rl_progress_light?.visibility = View.GONE
+
+                        activity?.alert(R.string.error_load_video, R.string.ops) { okButton {} }?.show()
+                    }
+
+                    override fun onAdLoaded(loadedAd: RewardedAd) {
+                        rl_progress_light?.visibility = View.GONE
+
+                        loadedAd.show(requireActivity()) {
+                            Log.w(TAG, "RewardedAd : onRewarded() reward item amount: ${it.amount}")
+                            Log.w(TAG, "RewardedAd : onRewarded() reward item type: ${it.type}")
+
+                            Hawk.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
+
+                            activity?.longToast(R.string.watch_to_by_success)
+
+                            val intent = Intent(activity, SplashActivity::class.java)
+                            intent.putExtra(PARAM_TYPE, API_PREMIUM)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            startActivity(intent)
+                        }
+                    }
+                })
+
+
+                /*mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(activity)
                 mRewardedVideoAd.rewardedVideoAdListener = object : RewardedVideoAdListener {
                     override fun onRewardedVideoAdClosed() {
                         Log.w(TAG, "onRewardedVideoAdClosed()")
@@ -301,15 +337,17 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
 
                         activity?.alert(R.string.error_load_video, R.string.ops) { okButton {} }?.show()
                     }
-                }
+                }*/
 
-                rl_progress_light?.visibility = View.VISIBLE
-
-                mRewardedVideoAd.loadAd(adMobRemoveAds, AdRequest.Builder().build())
+//                mRewardedVideoAd.loadAd(adMobRemoveAds, AdRequest.Builder().build())
             }
         }
 
+        println("---------------- addWatchToBy 6 :: viewItem: $viewItem")
+
         ll_plans?.addView(viewItem)
+//        ll_plans?.post { ll_plans?.addView(viewItem) }
+        println("---------------- addWatchToBy 7")
     }
 
 }

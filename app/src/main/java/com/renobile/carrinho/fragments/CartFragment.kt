@@ -119,7 +119,7 @@ class CartFragment : Fragment() {
 
         etName.requestFocus()
 
-        val builder = AlertDialog.Builder(activity!!)
+        val builder = AlertDialog.Builder(requireActivity())
                 .setView(view)
                 .setCancelable(false)
                 .setTitle(R.string.create_cart)
@@ -248,11 +248,11 @@ class CartFragment : Fragment() {
         val divider = DividerItemDecoration(activity, layoutManager.orientation)
         rvProducts.addItemDecoration(divider)
 
-        historyAdapterCart = CartProductsAdapter(activity!!.baseContext)
+        historyAdapterCart = CartProductsAdapter(requireActivity())
         rvProducts.adapter = historyAdapterCart
 
         rvProducts.addOnItemTouchListener(
-                CartProductsAdapter(activity!!.baseContext, object : CartProductsAdapter.OnItemClickListener {
+                CartProductsAdapter(requireActivity(), object : CartProductsAdapter.OnItemClickListener {
                     override fun onItemClick(view: View, position: Int) {
                         val product = products!![position]
 
@@ -350,7 +350,7 @@ class CartFragment : Fragment() {
             success = R.string.product_edited
         }
 
-        val alert = AlertDialog.Builder(activity!!)
+        val alert = AlertDialog.Builder(requireActivity())
                 .setCancelable(false)
                 .setView(view)
                 .setTitle(title)
@@ -383,7 +383,7 @@ class CartFragment : Fragment() {
                         list.add(it.name)
                 }
 
-                val adapter = ArrayAdapter(activity!!, R.layout.simple_dropdown_item, list)
+                val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, list)
                 etName.setAdapter(adapter)
             }
 

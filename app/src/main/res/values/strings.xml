@@ -39,6 +39,7 @@
     <string name="archived_list">Lista arquivada</string>
     <string name="archived_cart">Carrinho arquivado</string>
     <string name="search_products">Procurar produtos</string>
+    <string name="search_carts">Procurar carrinhos</string>
     <string name="product_details">%1$d unidade%2$s a %3$s cada</string>
     <string name="product_details_no_price">%1$d unidade%2$s</string>
     <string name="products_empty">Nenhum produto adicionado</string>

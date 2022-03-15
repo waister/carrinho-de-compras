@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.CartsAdapter
 import com.renobile.carrinho.domain.Cart
+import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.PARAM_CART_ID
 import io.realm.Case
 import io.realm.Realm
@@ -52,17 +53,19 @@ class CartsHistoryActivity : AppCompatActivity() {
         rv_carts.adapter = cartsAdapter
 
         rv_carts.addOnItemTouchListener(
-                CartsAdapter(this, object : CartsAdapter.OnItemClickListener {
-                    override fun onItemClick(view: View, position: Int) {
-                        val cart = carts!![position]
+            CartsAdapter(this, object : CartsAdapter.OnItemClickListener {
+                override fun onItemClick(view: View, position: Int) {
+                    val cart = carts!![position]
 
-                        if (cart != null) {
-                           startActivity(intentFor<CartDetailsActivity>(
-                                   PARAM_CART_ID to cart.id
-                           ))
-                        }
+                    if (cart != null) {
+                        startActivity(
+                            intentFor<CartDetailsActivity>(
+                                PARAM_CART_ID to cart.id
+                            )
+                        )
                     }
-                })
+                }
+            })
         )
     }
 
@@ -73,7 +76,7 @@ class CartsHistoryActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.fragment_cart, menu)
+        menuInflater.inflate(R.menu.cats_history_activity, menu)
 
         searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
 
@@ -95,12 +98,34 @@ class CartsHistoryActivity : AppCompatActivity() {
         var query = realm.where(Cart::class.java).greaterThan("dateClose", 0)
 
         if (terms.isNotEmpty()) {
-            query = query?.contains("name", terms, Case.INSENSITIVE)
+            query = query?.contains("keywords", terms, Case.INSENSITIVE)
         }
 
-        val products = query?.findAll()
+        val carts = query?.findAll()
 
-        return products?.sort("id", Sort.DESCENDING)
+        carts?.forEach { cart ->
+            if (cart.keywords.isEmpty()) {
+                val products = realm.where(Product::class.java)
+                    .equalTo("cartId", cart.id)
+                    .findAll()
+
+                var keywords = cart.name
+
+                products.forEach { product ->
+                    keywords += "," + product.name
+                }
+
+                if (keywords.isNotEmpty()) {
+                    realm.executeTransaction {
+                        cart.keywords = keywords.lowercase()
+
+                        realm.copyToRealmOrUpdate(cart)
+                    }
+                }
+            }
+        }
+
+        return carts?.sort("id", Sort.DESCENDING)
     }
 
     fun doneSearch(terms: String): Boolean {

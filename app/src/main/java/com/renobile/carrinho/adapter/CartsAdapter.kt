@@ -6,13 +6,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
 import com.renobile.carrinho.domain.Cart
+import com.renobile.carrinho.util.formatDate
 import com.renobile.carrinho.util.formatPrice
 import io.realm.RealmResults
 import org.jetbrains.anko.find
 
-class CartsAdapter(private val context: Context,
-                   private val listener: OnItemClickListener? = null) :
-        RecyclerView.Adapter<CartsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
+class CartsAdapter(
+    private val context: Context,
+    private val listener: OnItemClickListener? = null
+) :
+    RecyclerView.Adapter<CartsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
 
     private var carts: RealmResults<Cart>? = null
 
@@ -23,7 +26,7 @@ class CartsAdapter(private val context: Context,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context)
-                .inflate(R.layout.item_products, parent, false)
+            .inflate(R.layout.item_products, parent, false)
 
         return ViewHolder(view)
     }
@@ -46,13 +49,22 @@ class CartsAdapter(private val context: Context,
 
         fun setData(cart: Cart?) {
             if (cart != null) {
+                val productsEnd = if (cart.products == 1) "" else "s"
+                val unitsEnd = if (cart.units == 1) "" else "s"
+
+                var details = context.getString(
+                    R.string.products_details,
+                    cart.products,
+                    productsEnd,
+                    cart.units,
+                    unitsEnd
+                )
+
+                details += "\nData: ${cart.dateOpen.formatDate()}"
+
                 tvName.text = cart.name
                 tvTotal.text = cart.valueTotal.formatPrice()
-                tvDetails.text = context.getString(R.string.products_details,
-                        cart.products,
-                        if (cart.products == 1) "" else "s",
-                        cart.units,
-                        if (cart.units == 1) "" else "s")
+                tvDetails.text = details
             }
         }
     }
@@ -61,9 +73,10 @@ class CartsAdapter(private val context: Context,
         fun onItemClick(view: View, position: Int)
     }
 
-    private var mGestureDetector: GestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapUp(e: MotionEvent): Boolean = true
-    })
+    private var mGestureDetector: GestureDetector =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapUp(e: MotionEvent): Boolean = true
+        })
 
     override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
         val childView = view.findChildViewUnder(e.x, e.y)

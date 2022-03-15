@@ -3,7 +3,6 @@ package com.renobile.carrinho.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
@@ -11,9 +10,11 @@ import com.android.billingclient.api.Purchase
 import com.eightbitlab.bottomnavigationbar.BottomBarItem
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
@@ -23,9 +24,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.browse
 
+
 class MainActivity : AppCompatActivity() {
 
-    private val fragments = mutableListOf<Fragment>()
     private var selectedTabName = FRAGMENT_MAIN
     private var billingClient: BillingClient? = null
     private var adBannerLoaded = false
@@ -43,19 +44,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        MobileAds.initialize(this) {}
-
         bn_navigation.addTab(BottomBarItem(R.drawable.ic_cart_outline, R.string.cart))
         bn_navigation.addTab(BottomBarItem(R.drawable.ic_format_list_checks, R.string.list))
         bn_navigation.addTab(BottomBarItem(R.drawable.ic_select_compare, R.string.compare))
         bn_navigation.addTab(BottomBarItem(R.drawable.ic_crown, R.string.premium))
         bn_navigation.addTab(BottomBarItem(R.drawable.ic_dots_horizontal, R.string.more))
-
-        fragments.add(CartFragment())
-        fragments.add(ListFragment())
-        fragments.add(ComparatorFragment())
-        fragments.add(RemoveAdsFragment())
-        fragments.add(MoreFragment())
 
         bn_navigation.setOnSelectListener { position ->
             val tabName = when (position) {
@@ -66,7 +59,7 @@ class MainActivity : AppCompatActivity() {
                 else -> FRAGMENT_MAIN
             }
 
-            viewFragment(fragments[position], tabName)
+            viewFragment(position, tabName)
         }
 
         when (intent.getStringExtra(PARAM_TYPE)) {
@@ -82,64 +75,83 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initAdMob() {
-        MobileAds.initialize(this) {}
+        if (havePlan()) return
 
-        val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR)
-        val configuration = RequestConfiguration.Builder().setTestDeviceIds(deviceId).build()
-        MobileAds.setRequestConfiguration(configuration)
+        MobileAds.initialize(this) {
+            val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR)
+            val configuration = RequestConfiguration.Builder().setTestDeviceIds(deviceId).build()
+            MobileAds.setRequestConfiguration(configuration)
 
-        loadAdBanner(ll_banner, Hawk.get(PREF_ADMOB_AD_MAIN_ID, ""))
+            loadAdBanner(ll_banner, "ca-app-pub-6521704558504566/7944661753")
 
-        interstitialAd = createInterstitialAd()
-        interstitialAd?.loadAd(AdRequest.Builder().build())
+            createInterstitialAd()
+        }
     }
 
-    private fun viewFragment(fragment: Fragment, name: String) {
+    private fun createInterstitialAd() {
+        if (havePlan()) return
+
+        val id = if (BuildConfig.DEBUG)
+            "ca-app-pub-3940256099942544/1033173712"
+        else
+            "ca-app-pub-6521704558504566/4051651496"
+        val request = AdRequest.Builder().build()
+
+        InterstitialAd.load(this, id, request, object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                interstitialAd = null
+            }
+
+            override fun onAdLoaded(loadedAd: InterstitialAd) {
+                interstitialAd = loadedAd
+            }
+        })
+    }
+
+    private fun viewFragment(index: Int, name: String) {
+        val fragment = when (index) {
+            1 -> ListFragment()
+            2 -> ComparatorFragment()
+            3 -> RemoveAdsFragment()
+            4 -> MoreFragment()
+            else -> CartFragment()
+        }
+
         selectedTabName = name
 
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.fl_fragments, fragment, name)
         fragmentTransaction.commit()
     }
 
     private fun forceSelectTab(position: Int) {
-        var fragment: Fragment = CartFragment()
+        viewFragment(position, FRAGMENT_MAIN)
 
-        when (position) {
-            POSITION_LIST -> fragment = ListFragment()
-            POSITION_COMPARATOR -> fragment = ComparatorFragment()
-            POSITION_REMOVE_ADS -> fragment = RemoveAdsFragment()
-            POSITION_MORE -> fragment = MoreFragment()
-        }
-
-        viewFragment(fragment, FRAGMENT_MAIN)
         bn_navigation.selectTab(position, true)
+    }
+
+    fun showInterstitialAd() {
+        interstitialAd?.show(this)
     }
 
     override fun onBackPressed() {
         if (selectedTabName != FRAGMENT_MAIN) {
             forceSelectTab(POSITION_CART)
-        } else {
-            showInterstitialAd()
 
+            showInterstitialAd()
+        } else {
             super.onBackPressed()
         }
-    }
-
-    fun showInterstitialAd() {
-        if (interstitialAd != null && interstitialAd!!.isLoaded)
-            interstitialAd!!.show()
     }
 
     private fun checkPurchase() {
         if (billingClient == null) {
 
             billingClient = BillingClient
-                    .newBuilder(this)
-                    .setListener { _, _ -> checkPurchase() }
-                    .enablePendingPurchases()
-                    .build()
+                .newBuilder(this)
+                .setListener { _, _ -> checkPurchase() }
+                .enablePendingPurchases()
+                .build()
 
             billingClient?.startConnection(object : BillingClientStateListener {
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
@@ -152,23 +164,21 @@ class MainActivity : AppCompatActivity() {
 
         } else {
 
-            var havePlan = false
-            val result = billingClient!!.queryPurchases(BillingClient.SkuType.SUBS)
-            val list = result.purchasesList
+            billingClient!!.queryPurchasesAsync(BillingClient.SkuType.SUBS) { _, list ->
+                var havePlan = false
 
-            if (list != null) {
                 for (purchase in list) {
                     if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED)
                         havePlan = true
                 }
-            }
 
-            Hawk.put(PREF_HAVE_PLAN, havePlan)
+                Hawk.put(PREF_HAVE_PLAN, havePlan)
 
-            if (havePlan && adBannerLoaded) {
-                val intent = Intent(this, SplashActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(intent)
+                if (havePlan && adBannerLoaded) {
+                    val intent = Intent(this, SplashActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(intent)
+                }
             }
         }
     }
@@ -194,7 +204,10 @@ class MainActivity : AppCompatActivity() {
                         val versionMin = apiObj.getIntVal(API_VERSION_MIN)
 
                         if (BuildConfig.VERSION_CODE < versionMin) {
-                            alert(getString(R.string.update_needed), getString(R.string.updated_title)) {
+                            alert(
+                                getString(R.string.update_needed),
+                                getString(R.string.updated_title)
+                            ) {
                                 positiveButton(R.string.updated_positive) {
                                     browse(storeAppLink())
                                 }
@@ -202,7 +215,10 @@ class MainActivity : AppCompatActivity() {
                                 onCancelled { finish() }
                             }.show()
                         } else if (BuildConfig.VERSION_CODE < versionLast) {
-                            alert(getString(R.string.update_available), getString(R.string.updated_title)) {
+                            alert(
+                                getString(R.string.update_available),
+                                getString(R.string.updated_title)
+                            ) {
                                 positiveButton(R.string.updated_positive) {
                                     browse(storeAppLink())
                                 }

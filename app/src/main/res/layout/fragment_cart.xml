@@ -78,10 +78,10 @@
             android:layout_below="@+id/tv_empty"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
-            android:textAllCaps="true"
             android:text="@string/create_cart"
+            android:textAllCaps="true"
             android:textColor="@color/colorPrimary"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -90,6 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/add_product"
         android:src="@drawable/ic_plus" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

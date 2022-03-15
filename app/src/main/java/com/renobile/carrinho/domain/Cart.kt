@@ -13,5 +13,6 @@ open class Cart : RealmObject() {
     var products: Int = 0
     var units: Int = 0
     var valueTotal: Double = 0.0
+    var keywords: String = ""
 
 }
