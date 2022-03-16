@@ -4,7 +4,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-const val APP_HOST = "https://duduapps.com/"
+const val APP_HOST = "https://maggapps.com/"
 
 const val API_ROUTE_IDENTIFY = "/identify"
 const val API_ROUTE_SEND_MESSAGE = "/message/send"
@@ -47,14 +47,15 @@ const val API_FEEDBACK = "feedback"
 const val API_COMPARATOR = "comparator"
 const val API_ABOUT_APP = "about_app"
 const val API_WAKEUP = "wakeup"
-
 const val API_APP_NAME = "app_name"
+const val API_PLAN_VIDEO_DURATION = "plan_video_duration"
+const val API_BILL_PLAN_YEAR = "bill_plan_year"
+
 const val API_ADMOB_ID = "admob_id"
 const val API_ADMOB_AD_MAIN_ID = "admob_ad_main_id"
 const val API_ADMOB_INTERSTITIAL_ID = "admob_interstitial_id"
 const val API_ADMOB_REMOVE_ADS_ID = "admob_remove_ads_id"
-const val API_PLAN_VIDEO_DURATION = "plan_video_duration"
-const val API_BILL_PLAN_YEAR = "bill_plan_year"
+const val API_ADMOB_OPEN_APP_ID = "admob_open_app_id"
 
 
 fun JSONObject?.getStringVal(tag: String, default: String = ""): String {

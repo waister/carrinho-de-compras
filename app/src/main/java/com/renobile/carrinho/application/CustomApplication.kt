@@ -2,6 +2,7 @@ package com.renobile.carrinho.application
 
 import androidx.multidex.MultiDexApplication
 import com.github.kittinunf.fuel.core.FuelManager
+import com.google.android.gms.ads.MobileAds
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.domain.RealmMigration
@@ -15,6 +16,10 @@ class CustomApplication : MultiDexApplication() {
         super.onCreate()
 
         Hawk.init(this).build()
+
+        MobileAds.initialize(this) {}
+
+        AppOpenManager(this)
 
         Realm.init(this)
         Realm.setDefaultConfiguration(
@@ -36,7 +41,7 @@ class CustomApplication : MultiDexApplication() {
             API_VERSION to BuildConfig.VERSION_CODE,
             API_PLATFORM to API_ANDROID,
             API_DEBUG to (if (BuildConfig.DEBUG) "1" else "0"),
-            API_V to 5
+            API_V to 8
         )
     }
 

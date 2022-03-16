@@ -401,8 +401,14 @@ fun saveAppData(result: Result<String, FuelError>) {
             Hawk.put(PREF_ADMOB_AD_MAIN_ID, apiObj.getStringVal(API_ADMOB_AD_MAIN_ID))
             Hawk.put(PREF_ADMOB_INTERSTITIAL_ID, apiObj.getStringVal(API_ADMOB_INTERSTITIAL_ID))
             Hawk.put(PREF_ADMOB_REMOVE_ADS_ID, apiObj.getStringVal(API_ADMOB_REMOVE_ADS_ID))
+            Hawk.put(PREF_ADMOB_OPEN_APP_ID, apiObj.getStringVal(API_ADMOB_OPEN_APP_ID))
             Hawk.put(PREF_BILL_PLAN_YEAR, apiObj.getStringVal(API_BILL_PLAN_YEAR))
             Hawk.put(PREF_PLAN_VIDEO_DURATION, apiObj.getLongVal(API_PLAN_VIDEO_DURATION))
         }
     }
+}
+
+fun appLog(tag: String, msg: String) {
+    if (BuildConfig.DEBUG)
+        Log.i("MAGGAPPS_LOG", "➡➡➡ $tag: $msg")
 }
