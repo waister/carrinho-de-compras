@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -173,7 +174,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 API_ABOUT_APP -> R.string.about_app
                 else -> R.string.channel_updates
             }
-            val channel = NotificationChannel(channelId, getString(name), NotificationManager.IMPORTANCE_HIGH)
+            val channel =
+                NotificationChannel(channelId, getString(name), NotificationManager.IMPORTANCE_HIGH)
             manager.createNotificationChannel(channel)
             builder.setChannelId(channelId)
         }
@@ -184,9 +186,21 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         if (vibrate.isNotEmpty()) {
             val pattern = longArrayOf(0, 100, 0, 100)
-            val vibrator = applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vm = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                vm.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(VIBRATOR_SERVICE) as Vibrator
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createWaveform(pattern, VibrationEffect.DEFAULT_AMPLITUDE))
+                vibrator.vibrate(
+                    VibrationEffect.createWaveform(
+                        pattern,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
             } else {
                 @Suppress("DEPRECATION")
                 vibrator.vibrate(pattern, -1)

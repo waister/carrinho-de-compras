@@ -27,6 +27,7 @@ class ListsHistoryActivity : AppCompatActivity() {
     private var lists: RealmResults<PurchaseList>? = null
     private var listsAdapter: ListsAdapter? = null
     private var searchView: SearchView? = null
+    private var searchTerms: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,11 +92,11 @@ class ListsHistoryActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getLists(terms: String = ""): RealmResults<PurchaseList>? {
+    private fun getLists(): RealmResults<PurchaseList>? {
         var query = realm.where(PurchaseList::class.java).greaterThan("dateClose", 0)
 
-        if (terms.isNotEmpty()) {
-            query = query?.contains("name", terms, Case.INSENSITIVE)
+        if (searchTerms.isNotEmpty()) {
+            query = query?.contains("name", searchTerms, Case.INSENSITIVE)
         }
 
         val products = query?.findAll()
@@ -104,10 +105,12 @@ class ListsHistoryActivity : AppCompatActivity() {
     }
 
     fun doneSearch(terms: String): Boolean {
-        if (listsAdapter != null && tv_empty != null) {
-            renderData(terms)
+        searchTerms = terms
 
-            if (terms.isNotEmpty()) {
+        if (listsAdapter != null && tv_empty != null) {
+            renderData()
+
+            if (searchTerms.isNotEmpty()) {
                 return true
             }
         }
@@ -120,8 +123,8 @@ class ListsHistoryActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun renderData(terms: String = "") {
-        lists = getLists(terms)
+    private fun renderData() {
+        lists = getLists()
 
         if (lists!!.size == 0) {
             tv_empty.visibility = View.VISIBLE

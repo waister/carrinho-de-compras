@@ -141,7 +141,10 @@
     <string name="next_version">Próxima versão</string>
     <string name="previous_version">Versão anterior</string>
     <string name="plans_message">Assinando um plano, você deixa de ver anúncios no app e ainda ajuda a manter o app funcionando.</string>
+    <string name="plan_success_title">Plano ativado 😍</string>
+    <string name="plan_success_body">Sua assinatura premium foi ativada com sucesso, agora basta reiniciar o app para ativar.</string>
     <string name="notification_details">Detalhes da notificação</string>
+    <string name="restart_app">Reiniciar app</string>
     <string name="text_price">Preço</string>
     <string name="text_size">Gramas ou ML</string>
     <string name="button_submit">Calcular preços</string>

@@ -42,6 +42,7 @@ class CartFragment : Fragment() {
     private var products: RealmResults<Product>? = null
     private var historyAdapterCart: CartProductsAdapter? = null
     private var searchView: SearchView? = null
+    private var searchTerms: String = ""
     private var toolbar: Toolbar? = null
     private lateinit var clRoot: CoordinatorLayout
     private lateinit var tvTotal: TextView
@@ -295,12 +296,12 @@ class CartFragment : Fragment() {
         renderData()
     }
 
-    private fun getProducts(terms: String = ""): RealmResults<Product>? {
+    private fun getProducts(): RealmResults<Product>? {
         var query = realm.where(Product::class.java)
                 .equalTo("cartId", cartId)
 
-        if (terms.isNotEmpty()) {
-            query = query?.contains("name", terms, Case.INSENSITIVE)
+        if (searchTerms.isNotEmpty()) {
+            query = query?.contains("name", searchTerms, Case.INSENSITIVE)
         }
 
         val products = query?.findAll()
@@ -309,10 +310,12 @@ class CartFragment : Fragment() {
     }
 
     fun doneSearch(terms: String): Boolean {
-        if (historyAdapterCart != null) {
-            renderData(terms)
+        searchTerms = terms
 
-            if (terms.isNotEmpty()) {
+        if (historyAdapterCart != null) {
+            renderData()
+
+            if (searchTerms.isNotEmpty()) {
                 return true
             }
         }
@@ -477,7 +480,7 @@ class CartFragment : Fragment() {
         }?.show()
     }
 
-    private fun renderData(terms: String = "") {
+    private fun renderData() {
         if (realm.isClosed)
             realm = Realm.getDefaultInstance()
 
@@ -504,7 +507,7 @@ class CartFragment : Fragment() {
 
             cartId = cart!!.id
 
-            products = getProducts(terms)
+            products = getProducts()
 
             val items = getProducts()
             var volumes = 0

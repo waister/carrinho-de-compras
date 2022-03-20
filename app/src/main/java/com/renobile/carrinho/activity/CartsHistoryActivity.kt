@@ -28,6 +28,7 @@ class CartsHistoryActivity : AppCompatActivity() {
     private var carts: RealmResults<Cart>? = null
     private var cartsAdapter: CartsAdapter? = null
     private var searchView: SearchView? = null
+    private var searchTerms: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,11 +95,11 @@ class CartsHistoryActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getCarts(terms: String = ""): RealmResults<Cart>? {
+    private fun getCarts(): RealmResults<Cart>? {
         var query = realm.where(Cart::class.java).greaterThan("dateClose", 0)
 
-        if (terms.isNotEmpty()) {
-            query = query?.contains("keywords", terms, Case.INSENSITIVE)
+        if (searchTerms.isNotEmpty()) {
+            query = query?.contains("keywords", searchTerms, Case.INSENSITIVE)
         }
 
         val carts = query?.findAll()
@@ -129,10 +130,12 @@ class CartsHistoryActivity : AppCompatActivity() {
     }
 
     fun doneSearch(terms: String): Boolean {
-        if (cartsAdapter != null && tv_empty != null) {
-            renderData(terms)
+        searchTerms = terms
 
-            if (terms.isNotEmpty()) {
+        if (cartsAdapter != null && tv_empty != null) {
+            renderData()
+
+            if (searchTerms.isNotEmpty()) {
                 return true
             }
         }
@@ -145,8 +148,8 @@ class CartsHistoryActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun renderData(terms: String = "") {
-        carts = getCarts(terms)
+    private fun renderData() {
+        carts = getCarts()
 
         if (carts!!.size == 0) {
             tv_empty.visibility = View.VISIBLE

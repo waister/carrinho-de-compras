@@ -31,8 +31,7 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
     }
 
     override fun onStart(owner: LifecycleOwner) {
-        if (!havePlan())
-            showAdIfAvailable()
+        showAdIfAvailable()
 
         super.onStart(owner)
     }
@@ -52,6 +51,14 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
     private fun fetchAd() {
         if (isAdAvailable()) {
             appLog(LOG_TAG, "No ad loaded or expired")
+
+            return
+        }
+
+        val adUnitId = Hawk.get(PREF_ADMOB_OPEN_APP_ID, "")
+
+        if (adUnitId.isEmpty()) {
+            appLog(LOG_TAG, "No ad unit id configured")
 
             return
         }
@@ -77,7 +84,6 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
         }
 
         val request: AdRequest = AdRequest.Builder().build()
-        val adUnitId = Hawk.get(PREF_ADMOB_OPEN_APP_ID, "")
         val orientation = AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT
 
         appLog(LOG_TAG, "Ad unit id: $adUnitId")
@@ -86,7 +92,7 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
     }
 
     private fun isAdAvailable(): Boolean {
-        if (appOpenAd != null) {
+        if (!havePlan() && appOpenAd != null) {
             val validateInHours = 4
             val dateDifference = (Date()).time - this.loadTime
             val numMilliSecondsPerHour: Long = 3600000

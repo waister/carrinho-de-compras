@@ -1,49 +1,44 @@
 package com.renobile.carrinho.fragments
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.android.billingclient.api.*
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.*
+import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.orhanobut.hawk.Hawk
-import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.SplashActivity
 import com.renobile.carrinho.util.*
 import kotlinx.android.synthetic.main.fragment_remove_ads.*
-import kotlinx.android.synthetic.main.inc_progress_light.*
-import org.jetbrains.anko.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.browse
+import org.jetbrains.anko.okButton
 
-class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientStateListener {
+class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientStateListener,
+    OnUserEarnedRewardListener {
 
     companion object {
-        const val TAG = "RemoveAdsActivity"
+        const val TAG = "RemoveAdsFragment"
     }
 
     private var billingClient: BillingClient? = null
     private var purchaseToken: String? = null
     private var adMobRemoveAds: String = ""
-    private var planVideoDuration: Long = 0
-    private var showBackButton: Boolean = false
+    private var planCount: Int = 0
+    private var isRewardedAlertShown: Boolean = false
+    private var rewardedAd: RewardedAd? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        showBackButton = arguments?.getBoolean(PARAM_SHOW_BACK, false) ?: false
-
-        return inflater.inflate(R.layout.fragment_remove_ads, container, false)
-    }
+    ): View? = inflater.inflate(R.layout.fragment_remove_ads, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,131 +47,151 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
     }
 
     private fun initViews() {
-        if (showBackButton) {
-            toolbar?.setNavigationIcon(R.drawable.ic_arrow_left)
-            toolbar?.setNavigationOnClickListener {
-                activity?.onBackPressed()
-            }
-        }
-
-        rl_progress_light?.visibility = View.VISIBLE
+        rl_progress?.visibility = View.VISIBLE
         tv_thanks?.visibility = View.GONE
+        cv_watch?.visibility = View.GONE
+        cv_billing?.visibility = View.GONE
 
-        adMobRemoveAds = if (BuildConfig.DEBUG)
-            "ca-app-pub-3940256099942544/5224354917"
-        else
-            Hawk.get(PREF_ADMOB_REMOVE_ADS_ID, "")
+        adMobRemoveAds = Hawk.get(PREF_ADMOB_REMOVE_ADS_ID, "")
+
+        appLog(TAG, "adMobRemoveAds: $adMobRemoveAds")
 
         checkPurchase()
     }
 
-    private fun checkPurchase() {
+    private fun checkPurchase(relaunch: Boolean = false) {
         if (activity == null) return
 
+        if (billingClient == null) {
 
-//        ll_plans?.post {
-        println("----------------------- REMOVE ALL 1")
-//            ll_plans?.removeAllViews()
-            ll_plans?.removeAllViewsInLayout()
-        println("----------------------- REMOVE ALL 2")
+            billingClient = BillingClient
+                .newBuilder(requireContext())
+                .setListener(this)
+                .enablePendingPurchases()
+                .build()
 
-            if (billingClient == null) {
+            billingClient!!.startConnection(this)
 
-                billingClient = BillingClient
-                    .newBuilder(requireContext())
-                    .setListener(this)
-                    .enablePendingPurchases()
-                    .build()
+        } else {
 
-                billingClient!!.startConnection(this)
+            var planSelected = ""
+            var planTime = 0L
+            var havePlan = false
+            val purchasesResult = billingClient!!.queryPurchases(BillingClient.SkuType.SUBS)
+            val list = purchasesResult.purchasesList
 
+            appLog(TAG, "purchasesList: $list")
+
+            if (list != null) {
+                for (purchase in list) {
+                    if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                        havePlan = true
+                        planSelected = purchase.skus[0]
+                        planTime = purchase.purchaseTime
+                        purchaseToken = purchase.purchaseToken
+                    }
+                }
             } else {
+                rl_progress?.visibility = View.GONE
 
-                billingClient!!.queryPurchasesAsync(BillingClient.SkuType.SUBS) { _, list ->
-                    var planSelected = ""
-                    var planTime = 0L
-                    var havePlan = false
+                loadWatchToBy()
+            }
 
-                    for (purchase in list) {
-                        if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                            havePlan = true
-                            planSelected = purchase.skus[0]
-                            planTime = purchase.purchaseTime
-                            purchaseToken = purchase.purchaseToken
+            appLog(TAG, "havePlan: $havePlan")
+            appLog(TAG, "haveVideoPlan(): ${haveVideoPlan()}")
+            appLog(TAG, "haveBillingPlan(): ${haveBillingPlan()}")
+            appLog(TAG, "havePlan(): ${havePlan()}")
+
+            if (havePlan) {
+                requireActivity().runOnUiThread {
+                    tv_thanks?.visibility = View.VISIBLE
+                    rl_progress?.visibility = View.GONE
+                }
+                appLog(TAG, "relaunch: $relaunch")
+
+                if (relaunch) {
+                    restartApp()
+                    return
+                }
+            }
+
+            val params = SkuDetailsParams.newBuilder()
+                .setSkusList(getSkuList())
+                .setType(BillingClient.SkuType.SUBS)
+                .build()
+
+            appLog(TAG, "Request billing params: $params")
+
+            billingClient!!.querySkuDetailsAsync(params) { _, skuDetailsList ->
+                appLog(TAG, "skuDetailsList: $skuDetailsList")
+                appLog(TAG, "activity: $activity")
+
+                if (skuDetailsList != null && activity != null) {
+
+                    var selectedSkuDetails: SkuDetails? = null
+
+                    for (skuDetails in skuDetailsList) {
+                        if (planSelected == skuDetails.sku) {
+                            selectedSkuDetails = skuDetails
                         }
                     }
 
-                    if (havePlan)
-                        rl_progress_light?.visibility = View.GONE
+//                    ll_plans?.removeAllViews()
 
-                    val skuList = arrayListOf<String>()
-                    skuList.add(Hawk.get(PREF_BILL_PLAN_YEAR, ""))
+                    if (selectedSkuDetails == null) {
+                        for (skuDetails in skuDetailsList) {
+                            addItemView(skuDetails)
 
-                    val params = SkuDetailsParams.newBuilder()
-                        .setSkusList(skuList)
-                        .setType(BillingClient.SkuType.SUBS)
-                        .build()
-
-                    Log.w("RemoveAdsFragment", "Request billing params: $params")
-
-                    billingClient!!.querySkuDetailsAsync(params) { _, skuDetailsList ->
-                        if (skuDetailsList != null && activity != null) {
-                            var selectedSkuDetails: SkuDetails? = null
-
-                            for (skuDetails in skuDetailsList) {
-                                if (planSelected == skuDetails.sku) {
-                                    selectedSkuDetails = skuDetails
-                                }
-                            }
-
-                            if (selectedSkuDetails == null) {
-                                for (skuDetails in skuDetailsList) {
-                                    addItemView(skuDetails)
-                                }
-                            } else {
-                                tv_thanks?.visibility = View.VISIBLE
-
-                                addItemView(selectedSkuDetails, planTime)
-
-                            }
-
-                            rl_progress_light?.visibility = View.GONE
-
-                            addWatchToBy()
+                            planCount++
                         }
+
+                        loadWatchToBy()
+
+                    } else {
+                        requireActivity().runOnUiThread {
+                            tv_thanks?.visibility = View.VISIBLE
+                        }
+
+                        addItemView(selectedSkuDetails, planTime)
+                    }
+
+                    requireActivity().runOnUiThread {
+                        rl_progress?.visibility = View.GONE
                     }
                 }
             }
-//        }
+        }
+    }
+
+    private fun getSkuList(): ArrayList<String> {
+        val skuList = arrayListOf<String>()
+
+        val year = Hawk.get(PREF_BILL_PLAN_YEAR, "")
+
+        if (year.isNotEmpty()) skuList.add(year)
+
+        return skuList
     }
 
     private fun addItemView(skuDetails: SkuDetails?, planTime: Long = 0L) {
         if (skuDetails == null || activity == null) return
 
-        val inflater = LayoutInflater.from(activity) ?: return
-
-        @SuppressLint("InflateParams")
-        val viewItem = inflater.inflate(R.layout.item_remove_ads, null) ?: return
-
-        val tvTitle = viewItem.find<TextView>(R.id.tv_title)
-        val tvPrice = viewItem.find<TextView>(R.id.tv_price)
-        val tvDescription = viewItem.find<TextView>(R.id.tv_description)
-        val tvDate = viewItem.find<TextView>(R.id.tv_date)
-        val btSubscribe = viewItem.find<AppCompatButton>(R.id.bt_subscribe)
-        val btManage = viewItem.find<AppCompatButton>(R.id.bt_manage)
-
-        tvTitle.text = skuDetails.title.formatPlanTitle()
-        tvPrice.text = skuDetails.price
-        tvDescription.text = skuDetails.description
+        requireActivity().runOnUiThread {
+            tv_billing_title.text = skuDetails.title.formatPlanTitle()
+            tv_billing_price.text = skuDetails.price
+            tv_billing_description.text = skuDetails.description
+        }
 
         if (planTime != 0L) {
 
-            tvDate.text = getString(R.string.subscribed_in, planTime.formatDate())
+            requireActivity().runOnUiThread {
+                tv_billing_date.text = getString(R.string.subscribed_in, planTime.formatDate())
 
-            btSubscribe.visibility = View.GONE
-            btManage.visibility = View.VISIBLE
+                bt_billing_subscribe.visibility = View.GONE
+                bt_billing_manage.visibility = View.VISIBLE
+            }
 
-            btManage.setOnClickListener {
+            bt_billing_manage.setOnClickListener {
                 activity?.browse(
                     "https://play.google.com/store/account/subscriptions" +
                             "?sku=${skuDetails.sku}&package=${requireActivity().packageName}"
@@ -185,9 +200,13 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
 
         } else {
 
-            tvDate.visibility = View.GONE
+            requireActivity().runOnUiThread {
+                tv_billing_date.visibility = View.GONE
+            }
 
-            btSubscribe.setOnClickListener {
+            bt_billing_subscribe.setOnClickListener {
+                appLog(TAG, "skuDetails: $skuDetails")
+
                 val flowParams = BillingFlowParams.newBuilder()
                     .setSkuDetails(skuDetails)
                     .build()
@@ -197,157 +216,172 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
 
         }
 
-        ll_plans?.addView(viewItem)
-//        ll_plans?.post { ll_plans?.addView(viewItem) }
+        requireActivity().runOnUiThread {
+            cv_billing.visibility = View.VISIBLE
+        }
     }
 
     override fun onBillingServiceDisconnected() {
+        appLog(TAG, "onBillingServiceDisconnected()")
         context?.alert(R.string.error_unknown_send_message, R.string.ops) { okButton {} }?.show()
     }
 
-    override fun onBillingSetupFinished(billingResult: BillingResult) {
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-            checkPurchase()
-        }
-    }
-
-    override fun onPurchasesUpdated(p0: BillingResult, p1: MutableList<Purchase>?) {
+    override fun onBillingSetupFinished(result: BillingResult) {
+        appLog(TAG, "onBillingSetupFinished()")
         checkPurchase()
     }
 
-    private fun addWatchToBy() {
-        if (activity == null && adMobRemoveAds.isNotEmpty()) return
+    override fun onPurchasesUpdated(result: BillingResult, list: MutableList<Purchase>?) {
+        val relaunch = result.responseCode == BillingClient.BillingResponseCode.OK
+        appLog(TAG, "onBillingSetupFinished() - relaunch: $relaunch")
+        checkPurchase(relaunch)
+    }
 
-        val inflater = LayoutInflater.from(activity)
-
-        @SuppressLint("InflateParams")
-        val viewItem = inflater.inflate(R.layout.item_remove_ads, null)
-
-        val tvTitle = viewItem.find<TextView>(R.id.tv_title)
-        val tvPrice = viewItem.find<TextView>(R.id.tv_price)
-        val tvDescription = viewItem.find<TextView>(R.id.tv_description)
-        val tvDate = viewItem.find<TextView>(R.id.tv_date)
-        val btSubscribe = viewItem.find<AppCompatButton>(R.id.bt_subscribe)
-
-        val panVideoDuration = Hawk.get(PREF_PLAN_VIDEO_DURATION, FIVE_DAYS)
-        val panVideoDurationDays = panVideoDuration / ONE_DAY
-        var description = getString(R.string.watch_to_by_body, panVideoDurationDays)
-        var buttonText = R.string.watch_to_by_button
+    private fun loadWatchToBy() {
+        appLog(TAG, "loadWatchToBy() - havePlan(): ${havePlan()}")
+        appLog(TAG, "loadWatchToBy() - haveVideoPlan(): ${haveVideoPlan()}")
 
         if (haveVideoPlan()) {
-            val expiration = Hawk.get(PREF_PLAN_VIDEO_MILLIS, 0L) + panVideoDuration
-            val remaining = ((expiration - System.currentTimeMillis()) / ONE_DAY) + 1
-            description = getString(R.string.watch_to_by_body_paid, remaining)
-            buttonText = R.string.watch_to_by_button_again
+            if (planCount == 0)
+                requireActivity().runOnUiThread {
+                    tv_thanks?.visibility = View.VISIBLE
+                }
+
+            return
         }
 
-        tvTitle.setText(R.string.watch_to_by_title)
-        tvPrice.setText(R.string.watch_to_by_price)
-        tvDescription.text = description
-        btSubscribe.setText(buttonText)
+        appLog(TAG, "loadWatchToBy() - adMobRemoveAds: $adMobRemoveAds")
 
-        tvDate.visibility = View.GONE
+        if (havePlan() || adMobRemoveAds.isEmpty()) return
 
-        btSubscribe.setOnClickListener {
-            if (activity != null) {
-                planVideoDuration = Hawk.get(PREF_PLAN_VIDEO_DURATION, FIVE_DAYS)
+        requireActivity().runOnUiThread {
+            bt_watch_start.alpha = 0.5f
+            pb_watch_loading.visibility = View.VISIBLE
 
-                rl_progress_light?.visibility = View.VISIBLE
+            MobileAds.initialize(requireContext()) {
+                appLog(TAG, "Mobile ads initialized")
+
+                val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR)
+                val configuration =
+                    RequestConfiguration.Builder().setTestDeviceIds(deviceId).build()
+                MobileAds.setRequestConfiguration(configuration)
 
                 val request = AdRequest.Builder().build()
-                val ctx = requireContext()
 
-                RewardedAd.load(ctx, adMobRemoveAds, request, object : RewardedAdLoadCallback() {
-                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                        Log.w(TAG, "RewardedAd : onAdFailedToLoad(): ${adError.message}")
+                RewardedAd.load(
+                    requireContext(),
+                    adMobRemoveAds,
+                    request,
+                    object : RewardedAdLoadCallback() {
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            appLog(TAG, "Filed to load ad: ${adError.message}")
 
-                        rl_progress_light?.visibility = View.GONE
+                            alertErrorLoad()
 
-                        activity?.alert(R.string.error_load_video, R.string.ops) { okButton {} }?.show()
-                    }
+                            rewardedAd = null
 
-                    override fun onAdLoaded(loadedAd: RewardedAd) {
-                        rl_progress_light?.visibility = View.GONE
-
-                        loadedAd.show(requireActivity()) {
-                            Log.w(TAG, "RewardedAd : onRewarded() reward item amount: ${it.amount}")
-                            Log.w(TAG, "RewardedAd : onRewarded() reward item type: ${it.type}")
-
-                            Hawk.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
-
-                            activity?.longToast(R.string.watch_to_by_success)
-
-                            val intent = Intent(activity, SplashActivity::class.java)
-                            intent.putExtra(PARAM_TYPE, API_PREMIUM)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                            startActivity(intent)
+                            if (isAdded) {
+                                requireActivity().runOnUiThread {
+                                    pb_watch_loading.visibility = View.GONE
+                                    bt_watch_start.alpha = 0.5f
+                                }
+                            }
                         }
-                    }
-                })
 
+                        override fun onAdLoaded(ad: RewardedAd) {
+                            appLog(TAG, "Ad was loaded")
 
-                /*mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(activity)
-                mRewardedVideoAd.rewardedVideoAdListener = object : RewardedVideoAdListener {
-                    override fun onRewardedVideoAdClosed() {
-                        Log.w(TAG, "onRewardedVideoAdClosed()")
-                    }
+                            pb_watch_loading.visibility = View.GONE
+                            bt_watch_start.alpha = 1f
 
-                    override fun onRewardedVideoAdLeftApplication() {
-                        Log.w(TAG, "onRewardedVideoAdLeftApplication()")
-                    }
+                            rewardedAd = ad
 
-                    override fun onRewardedVideoAdLoaded() {
-                        Log.w(TAG, "onRewardedVideoAdLoaded()")
+                            rewardedAd?.fullScreenContentCallback =
+                                object : FullScreenContentCallback() {
+                                    override fun onAdDismissedFullScreenContent() {
+                                        appLog(TAG, "Ad was dismissed")
 
-                        mRewardedVideoAd.show()
+                                        alertRestartApp()
+                                    }
 
-                        rl_progress_light?.visibility = View.GONE
-                    }
+                                    override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
+                                        appLog(TAG, "Ad failed to show: ${adError?.message}")
 
-                    override fun onRewardedVideoAdOpened() {
-                        Log.w(TAG, "onRewardedVideoAdOpened()")
-                    }
+                                        alertErrorLoad()
+                                    }
 
-                    override fun onRewardedVideoCompleted() {
-                        Log.w(TAG, "onRewardedVideoCompleted()")
-                    }
+                                    override fun onAdShowedFullScreenContent() {
+                                        appLog(TAG, "Ad showed fullscreen content")
 
-                    override fun onRewarded(reward: RewardItem?) {
-                        Log.w(TAG, "onRewarded() reward item amount: ${reward?.amount}")
-                        Log.w(TAG, "onRewarded() reward item type: ${reward?.type}")
+                                        rewardedAd = null
 
-                        Hawk.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
+                                        rl_progress?.visibility = View.GONE
+                                    }
+                                }
+                        }
+                    })
+            }
 
-                        activity?.longToast(R.string.watch_to_by_success)
+        }
 
-                        val intent = Intent(activity, SplashActivity::class.java)
-                        intent.putExtra(PARAM_TYPE, API_PREMIUM)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(intent)
-                    }
+        val panVideoDuration = Hawk.get(PREF_PLAN_VIDEO_DURATION, ONE_DAY)
+        val panVideoDurationDays = panVideoDuration / ONE_DAY
+        val description = getString(R.string.watch_to_by_body, panVideoDurationDays)
 
-                    override fun onRewardedVideoStarted() {
-                        Log.w(TAG, "onRewardedVideoStarted()")
-                    }
+        bt_watch_start.setOnClickListener {
+            val canShow = activity != null && rewardedAd != null
+            appLog(TAG, "Subscribe button clicked - can show: $canShow")
 
-                    override fun onRewardedVideoAdFailedToLoad(errorCode: Int) {
-                        Log.w(TAG, "onRewardedVideoAdFailedToLoad() error code: $errorCode")
-
-                        rl_progress_light?.visibility = View.GONE
-
-                        activity?.alert(R.string.error_load_video, R.string.ops) { okButton {} }?.show()
-                    }
-                }*/
-
-//                mRewardedVideoAd.loadAd(adMobRemoveAds, AdRequest.Builder().build())
+            if (canShow) {
+                rewardedAd?.show(requireActivity(), this)
+            } else {
+                appLog(TAG, "The rewarded ad wasn't ready yet")
             }
         }
 
-        println("---------------- addWatchToBy 6 :: viewItem: $viewItem")
+        requireActivity().runOnUiThread {
+            tv_watch_description.text = description
 
-        ll_plans?.addView(viewItem)
-//        ll_plans?.post { ll_plans?.addView(viewItem) }
-        println("---------------- addWatchToBy 7")
+            cv_watch.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onUserEarnedReward(rewardedAd: RewardItem) {
+        val amount = rewardedAd.amount
+        val type = rewardedAd.type
+        appLog(TAG, "User earned the reward amount: $amount")
+        appLog(TAG, "User earned the reward type: $type")
+
+        Hawk.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
+    }
+
+    private fun alertRestartApp() {
+        if (activity != null && !isRewardedAlertShown && haveVideoPlan()) {
+            isRewardedAlertShown = true
+
+            AlertDialog.Builder(requireActivity())
+                .setCancelable(false)
+                .setTitle(R.string.plan_success_title)
+                .setMessage(R.string.plan_success_body)
+                .setPositiveButton(R.string.restart_app) { _, _ ->
+                    restartApp()
+                }
+                .create()
+                .show()
+        }
+    }
+
+    private fun restartApp() {
+        val intent = Intent(activity, SplashActivity::class.java)
+        intent.putExtra(PARAM_TYPE, API_PREMIUM)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+
+        activity?.finish()
+    }
+
+    private fun alertErrorLoad() {
+        activity?.alert(R.string.error_load_video, R.string.ops) { okButton {} }?.show()
     }
 
 }

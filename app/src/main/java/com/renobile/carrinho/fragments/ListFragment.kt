@@ -42,6 +42,7 @@ class ListFragment : Fragment() {
     private var products: RealmResults<Product>? = null
     private var listProductsAdapter: ListProductsAdapter? = null
     private var searchView: SearchView? = null
+    private var searchTerms: String = ""
     private var toolbar: Toolbar? = null
     private lateinit var clRoot: CoordinatorLayout
     private lateinit var tvTotal: TextView
@@ -119,7 +120,7 @@ class ListFragment : Fragment() {
 
         etName.requestFocus()
 
-        val builder = AlertDialog.Builder(activity!!)
+        val builder = AlertDialog.Builder(requireActivity())
                 .setView(view)
                 .setCancelable(false)
                 .setTitle(R.string.create_list)
@@ -250,11 +251,11 @@ class ListFragment : Fragment() {
         val divider = DividerItemDecoration(activity, layoutManager.orientation)
         rvProducts.addItemDecoration(divider)
 
-        listProductsAdapter = ListProductsAdapter(activity!!.baseContext)
+        listProductsAdapter = ListProductsAdapter(requireActivity())
         rvProducts.adapter = listProductsAdapter
 
         rvProducts.addOnItemTouchListener(
-                ListProductsAdapter(activity!!.baseContext, object : ListProductsAdapter.OnItemClickListener {
+                ListProductsAdapter(requireActivity(), object : ListProductsAdapter.OnItemClickListener {
                     override fun onItemClick(view: View, position: Int) {
                         val product = products!![position]
 
@@ -297,12 +298,12 @@ class ListFragment : Fragment() {
         renderData()
     }
 
-    private fun getProducts(terms: String = ""): RealmResults<Product>? {
+    private fun getProducts(): RealmResults<Product>? {
         var query = realm.where(Product::class.java)
                 .equalTo("listId", listId)
 
-        if (terms.isNotEmpty()) {
-            query = query?.contains("name", terms, Case.INSENSITIVE)
+        if (searchTerms.isNotEmpty()) {
+            query = query?.contains("name", searchTerms, Case.INSENSITIVE)
         }
 
         val products = query?.findAll()
@@ -311,10 +312,12 @@ class ListFragment : Fragment() {
     }
 
     fun doneSearch(terms: String): Boolean {
-        if (listProductsAdapter != null) {
-            renderData(terms)
+        searchTerms = terms
 
-            if (terms.isNotEmpty()) {
+        if (listProductsAdapter != null) {
+            renderData()
+
+            if (searchTerms.isNotEmpty()) {
                 return true
             }
         }
@@ -352,7 +355,7 @@ class ListFragment : Fragment() {
             success = R.string.product_edited
         }
 
-        val alert = AlertDialog.Builder(activity!!)
+        val alert = AlertDialog.Builder(requireActivity())
                 .setCancelable(false)
                 .setView(view)
                 .setTitle(title)
@@ -385,7 +388,7 @@ class ListFragment : Fragment() {
                         list.add(it.name)
                 }
 
-                val adapter = ArrayAdapter(activity!!, R.layout.simple_dropdown_item, list)
+                val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, list)
                 etName.setAdapter(adapter)
             }
 
@@ -478,7 +481,7 @@ class ListFragment : Fragment() {
         }?.show()
     }
 
-    private fun renderData(terms: String = "") {
+    private fun renderData() {
         if (realm.isClosed)
             realm = Realm.getDefaultInstance()
 
@@ -505,7 +508,7 @@ class ListFragment : Fragment() {
 
             listId = purchaseList!!.id
 
-            products = getProducts(terms)
+            products = getProducts()
 
             val items = getProducts()
             var volumes = 0
