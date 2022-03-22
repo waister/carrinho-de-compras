@@ -44,6 +44,7 @@ class CartFragment : Fragment() {
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
     private var toolbar: Toolbar? = null
+    private var optionsMenu: Menu? = null
     private lateinit var clRoot: CoordinatorLayout
     private lateinit var tvTotal: TextView
     private lateinit var tvQuantities: TextView
@@ -83,6 +84,7 @@ class CartFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_cart, menu)
 
+        optionsMenu = menu
         searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
 
         val searchManager = activity?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
@@ -504,6 +506,9 @@ class CartFragment : Fragment() {
         } else {
 
             supportActionBar?.title = getString(R.string.label_cart, cart!!.name)
+
+            optionsMenu?.findItem(R.id.action_send)?.isVisible = true
+            optionsMenu?.findItem(R.id.action_clear)?.isVisible = true
 
             cartId = cart!!.id
 

@@ -44,6 +44,7 @@ class ListFragment : Fragment() {
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
     private var toolbar: Toolbar? = null
+    private var optionsMenu: Menu? = null
     private lateinit var clRoot: CoordinatorLayout
     private lateinit var tvTotal: TextView
     private lateinit var tvQuantities: TextView
@@ -83,6 +84,7 @@ class ListFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_list, menu)
 
+        optionsMenu = menu
         searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
 
         val searchManager = activity?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
@@ -505,6 +507,9 @@ class ListFragment : Fragment() {
         } else {
 
             supportActionBar?.title = getString(R.string.label_list, purchaseList!!.name)
+
+            optionsMenu?.findItem(R.id.action_send)?.isVisible = true
+            optionsMenu?.findItem(R.id.action_clear)?.isVisible = true
 
             listId = purchaseList!!.id
 
