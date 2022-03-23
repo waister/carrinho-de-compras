@@ -105,6 +105,10 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    fun showInterstitialAd() {
+        interstitialAd?.show(this)
+    }
+
     private fun viewFragment(index: Int, name: String) {
         val fragment = when (index) {
             1 -> ListFragment()
@@ -125,20 +129,6 @@ class MainActivity : AppCompatActivity() {
         viewFragment(position, FRAGMENT_MAIN)
 
         bn_navigation.selectTab(position, true)
-    }
-
-    fun showInterstitialAd() {
-        interstitialAd?.show(this)
-    }
-
-    override fun onBackPressed() {
-        if (selectedTabName != FRAGMENT_MAIN) {
-            forceSelectTab(POSITION_CART)
-
-            showInterstitialAd()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private fun checkPurchase() {

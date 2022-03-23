@@ -329,8 +329,11 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
         val description = getString(R.string.watch_to_by_body, panVideoDurationDays)
 
         bt_watch_start.setOnClickListener {
-            val canShow = activity != null && rewardedAd != null
-            appLog(TAG, "Subscribe button clicked - can show: $canShow")
+            val canShow = activity != null && rewardedAd != null && isVisible
+            appLog(TAG, "Activity is null: ${activity == null}")
+            appLog(TAG, "Rewarded ad is null: ${rewardedAd == null}")
+            appLog(TAG, "Fragment is visible: $isVisible")
+            appLog(TAG, "Can show rewarded ad: $canShow")
 
             if (canShow) {
                 rewardedAd?.show(requireActivity(), this)

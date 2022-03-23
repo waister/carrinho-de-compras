@@ -72,7 +72,7 @@ class SplashActivity : AppCompatActivity() {
 
                 alert(R.string.error_on_update_message, R.string.error_on_update) {
                     positiveButton(R.string.try_again) { checkAppVersion() }
-                    negativeButton(R.string.exit_app) { finish() }
+                    negativeButton(R.string.update_later) { initApp() }
                 }.show()
             }
         }

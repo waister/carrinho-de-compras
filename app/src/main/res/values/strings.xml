@@ -180,5 +180,5 @@
     <string name="loading_settings">Carregando configurações…</string>
     <string name="error_on_update">Não atualizado</string>
     <string name="error_on_update_message">Você não completou o processo de atualização do app.</string>
-    <string name="exit_app">Sair do APP</string>
+    <string name="update_later">Atualizar depois</string>
 </resources>

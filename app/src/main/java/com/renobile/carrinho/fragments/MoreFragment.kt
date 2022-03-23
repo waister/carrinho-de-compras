@@ -46,7 +46,7 @@ class MoreFragment : Fragment() {
 
         buttonView.setText(title)
 
-        val drawable = ContextCompat.getDrawable(context!!, icon)
+        val drawable = ContextCompat.getDrawable(requireActivity(), icon)
         buttonView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
 
         buttonView.setOnClickListener {
