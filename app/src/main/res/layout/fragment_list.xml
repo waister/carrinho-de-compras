@@ -19,15 +19,7 @@
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/purchase_list">
-
-            <TextView
-                android:id="@+id/toolbar_title"
-                style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-        </androidx.appcompat.widget.Toolbar>
+            app:title="@string/purchase_list" />
 
         <TextView
             android:id="@+id/tv_total"

@@ -74,89 +74,87 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
 
         } else {
 
-            var planSelected = ""
-            var planTime = 0L
-            var havePlan = false
-            val purchasesResult = billingClient!!.queryPurchases(BillingClient.SkuType.SUBS)
-            val list = purchasesResult.purchasesList
+            billingClient!!.queryPurchasesAsync(BillingClient.SkuType.SUBS) { _, list ->
+                var planSelected = ""
+                var planTime = 0L
+                var havePlan = false
 
-            appLog(TAG, "purchasesList: $list")
+                appLog(TAG, "purchasesList: $list")
 
-            if (list != null) {
-                for (purchase in list) {
-                    if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                        havePlan = true
-                        planSelected = purchase.skus[0]
-                        planTime = purchase.purchaseTime
-                        purchaseToken = purchase.purchaseToken
+                if (list.isNotEmpty()) {
+                    for (purchase in list) {
+                        if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                            havePlan = true
+                            planSelected = purchase.skus[0]
+                            planTime = purchase.purchaseTime
+                            purchaseToken = purchase.purchaseToken
+                        }
                     }
-                }
-            } else {
-                rl_progress?.visibility = View.GONE
-
-                loadWatchToBy()
-            }
-
-            appLog(TAG, "havePlan: $havePlan")
-            appLog(TAG, "haveVideoPlan(): ${haveVideoPlan()}")
-            appLog(TAG, "haveBillingPlan(): ${haveBillingPlan()}")
-            appLog(TAG, "havePlan(): ${havePlan()}")
-
-            if (havePlan) {
-                requireActivity().runOnUiThread {
-                    tv_thanks?.visibility = View.VISIBLE
+                } else {
                     rl_progress?.visibility = View.GONE
+
+                    loadWatchToBy()
                 }
-                appLog(TAG, "relaunch: $relaunch")
 
-                if (relaunch) {
-                    restartApp()
-                    return
-                }
-            }
+                appLog(TAG, "havePlan: $havePlan")
+                appLog(TAG, "haveVideoPlan(): ${haveVideoPlan()}")
+                appLog(TAG, "haveBillingPlan(): ${haveBillingPlan()}")
+                appLog(TAG, "havePlan(): ${havePlan()}")
 
-            val params = SkuDetailsParams.newBuilder()
-                .setSkusList(getSkuList())
-                .setType(BillingClient.SkuType.SUBS)
-                .build()
-
-            appLog(TAG, "Request billing params: $params")
-
-            billingClient!!.querySkuDetailsAsync(params) { _, skuDetailsList ->
-                appLog(TAG, "skuDetailsList: $skuDetailsList")
-                appLog(TAG, "activity: $activity")
-
-                if (skuDetailsList != null && activity != null) {
-
-                    var selectedSkuDetails: SkuDetails? = null
-
-                    for (skuDetails in skuDetailsList) {
-                        if (planSelected == skuDetails.sku) {
-                            selectedSkuDetails = skuDetails
-                        }
-                    }
-
-//                    ll_plans?.removeAllViews()
-
-                    if (selectedSkuDetails == null) {
-                        for (skuDetails in skuDetailsList) {
-                            addItemView(skuDetails)
-
-                            planCount++
-                        }
-
-                        loadWatchToBy()
-
-                    } else {
-                        requireActivity().runOnUiThread {
-                            tv_thanks?.visibility = View.VISIBLE
-                        }
-
-                        addItemView(selectedSkuDetails, planTime)
-                    }
-
+                if (havePlan) {
                     requireActivity().runOnUiThread {
+                        tv_thanks?.visibility = View.VISIBLE
                         rl_progress?.visibility = View.GONE
+                    }
+                    appLog(TAG, "relaunch: $relaunch")
+
+                    if (relaunch) {
+                        restartApp()
+                        return@queryPurchasesAsync
+                    }
+                }
+
+                val params = SkuDetailsParams.newBuilder()
+                    .setSkusList(getSkuList())
+                    .setType(BillingClient.SkuType.SUBS)
+                    .build()
+
+                appLog(TAG, "Request billing params: $params")
+
+                billingClient!!.querySkuDetailsAsync(params) { _, skuDetailsList ->
+                    appLog(TAG, "skuDetailsList: $skuDetailsList")
+                    appLog(TAG, "activity: $activity")
+
+                    if (skuDetailsList != null && activity != null) {
+
+                        var selectedSkuDetails: SkuDetails? = null
+
+                        for (skuDetails in skuDetailsList) {
+                            if (planSelected == skuDetails.sku) {
+                                selectedSkuDetails = skuDetails
+                            }
+                        }
+
+                        if (selectedSkuDetails == null) {
+                            for (skuDetails in skuDetailsList) {
+                                addItemView(skuDetails)
+
+                                planCount++
+                            }
+
+                            loadWatchToBy()
+
+                        } else {
+                            requireActivity().runOnUiThread {
+                                tv_thanks?.visibility = View.VISIBLE
+                            }
+
+                            addItemView(selectedSkuDetails, planTime)
+                        }
+
+                        requireActivity().runOnUiThread {
+                            rl_progress?.visibility = View.GONE
+                        }
                     }
                 }
             }
@@ -304,8 +302,8 @@ class RemoveAdsFragment : Fragment(), PurchasesUpdatedListener, BillingClientSta
                                         alertRestartApp()
                                     }
 
-                                    override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
-                                        appLog(TAG, "Ad failed to show: ${adError?.message}")
+                                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                        appLog(TAG, "Ad failed to show: ${adError.message}")
 
                                         alertErrorLoad()
                                     }
