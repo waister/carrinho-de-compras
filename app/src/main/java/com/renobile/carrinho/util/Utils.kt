@@ -126,7 +126,7 @@ fun Activity?.sendList(products: RealmResults<Product>? = null, cartName: String
 }
 
 fun String?.getStringValid(): String {
-    if (this != null && this.isNotEmpty() && this != "null" && this != "[null]") {
+    if (!this.isNullOrEmpty() && this != "null" && this != "[null]") {
         return this
     }
     return ""
@@ -174,7 +174,7 @@ fun Activity?.loadAdBanner(adViewContainer: LinearLayout?, adUnitId: String, adS
 
     adView.adUnitId = adUnitId
 
-    adView.adSize = adSize ?: getAdSize(adViewContainer)
+    adView.setAdSize(adSize ?: getAdSize(adViewContainer))
 
     adView.loadAd(AdRequest.Builder().build())
 }
@@ -204,7 +204,7 @@ fun Long.formatDate(): String = DateFormat.getDateInstance(DateFormat.SHORT).for
 
 fun String?.formatDate(): String {
     try {
-        if (this != null && this.isNotEmpty()) {
+        if (!this.isNullOrEmpty()) {
             val locale = Locale.getDefault()
             val parsed = SimpleDateFormat(FORMAT_DATETIME_API, locale).parse(this)
 
@@ -219,7 +219,7 @@ fun String?.formatDate(): String {
 
 fun String?.formatDatetime(): String {
     try {
-        if (this != null && this.isNotEmpty()) {
+        if (!this.isNullOrEmpty()) {
             val locale = Locale.getDefault()
             val parsed = SimpleDateFormat(FORMAT_DATETIME_API, locale).parse(this)
 
@@ -240,25 +240,12 @@ fun String.formatPlanTitle(): String {
         this
 }
 
-fun CharSequence?.isValidEmail(): Boolean {
-    return if (this == null || this.isEmpty())
-        false
-    else
-        android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
-}
-
 fun View.hideKeyboard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
-fun View.showKeyboard() {
-    val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.toggleSoftInputFromWindow(
-            applicationWindowToken, InputMethodManager.SHOW_FORCED, 0)
-}
-
-fun String?.isValidUrl(): Boolean = this != null && this.isNotEmpty() && URLUtil.isValidUrl(this)
+fun String?.isValidUrl(): Boolean = !this.isNullOrEmpty() && URLUtil.isValidUrl(this)
 
 fun String?.stringToInt(): Int {
     if (this != null && this != "null") {
