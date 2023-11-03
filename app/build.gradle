@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'realm-android'
 apply plugin: 'com.google.firebase.crashlytics'
 
@@ -56,7 +55,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 
     implementation 'com.github.kittinunf.fuel:fuel-android:2.3.0'
-    implementation 'com.google.android.gms:play-services-ads:22.2.0'
+    implementation 'com.google.android.gms:play-services-ads:22.4.0'
     implementation 'com.google.firebase:firebase-core:20.1.2'
     implementation 'com.google.firebase:firebase-messaging:23.0.2'
     implementation 'com.google.firebase:firebase-crashlytics:18.4.0'
