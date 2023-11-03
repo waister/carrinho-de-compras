@@ -12,8 +12,8 @@ android {
         applicationId "com.renobile.carrinho"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 12
-        versionName "2.0.9"
+        versionCode 13
+        versionName "2.0.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
