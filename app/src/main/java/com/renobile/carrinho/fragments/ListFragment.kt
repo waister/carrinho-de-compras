@@ -287,12 +287,10 @@ class ListFragment : Fragment() {
     }
 
     private fun getProducts(): RealmResults<Product>? {
-        var query = realm.where(Product::class.java)
-            .equalTo("listId", listId)
+        val query = realm.where(Product::class.java).equalTo("listId", listId)
 
-        if (searchTerms.isNotEmpty()) {
-            query = query?.contains("name", searchTerms, Case.INSENSITIVE)
-        }
+        if (searchTerms.isNotEmpty())
+            query?.contains("name", searchTerms, Case.INSENSITIVE)
 
         val products = query?.findAll()
 
@@ -306,14 +304,14 @@ class ListFragment : Fragment() {
             renderData()
 
             if (searchTerms.isNotEmpty()) {
-                cvSearching.show()
-                tvSearching.text = searchTerms
+                search.cvSearching.show()
+                search.tvSearching.text = searchTerms
 
                 return true
             }
         }
 
-        cvSearching.hide()
+        search.cvSearching.hide()
 
         return false
     }

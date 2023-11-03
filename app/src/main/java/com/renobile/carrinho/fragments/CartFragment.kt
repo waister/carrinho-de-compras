@@ -46,8 +46,8 @@ class CartFragment : Fragment() {
     private var optionsMenu: Menu? = null
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCartBinding.inflate(inflater, container, false)
 
@@ -106,11 +106,11 @@ class CartFragment : Fragment() {
         etName.requestFocus()
 
         val builder = AlertDialog.Builder(requireActivity())
-                .setView(view)
-                .setCancelable(false)
-                .setTitle(R.string.create_cart)
-                .setPositiveButton(R.string.confirm, null)
-                .setNegativeButton(R.string.cancel, null)
+            .setView(view)
+            .setCancelable(false)
+            .setTitle(R.string.create_cart)
+            .setPositiveButton(R.string.confirm, null)
+            .setNegativeButton(R.string.cancel, null)
 
         tvAlert.setText(R.string.create_cart_notice)
 
@@ -190,9 +190,9 @@ class CartFragment : Fragment() {
                 realm.executeTransaction {
                     //                    realm.delete(Product::class.java)
                     realm.where(Product::class.java)
-                            .equalTo("cartId", cartId)
-                            .findAll()
-                            .deleteAllFromRealm()
+                        .equalTo("cartId", cartId)
+                        .findAll()
+                        .deleteAllFromRealm()
 
                     renderData()
                 }
@@ -238,32 +238,35 @@ class CartFragment : Fragment() {
         rvProducts.adapter = historyAdapterCart
 
         rvProducts.addOnItemTouchListener(
-                CartProductsAdapter(requireActivity(), object : CartProductsAdapter.OnItemClickListener {
-                    override fun onItemClick(view: View, position: Int) {
-                        val product = products!![position]
+            CartProductsAdapter(requireActivity(), object : CartProductsAdapter.OnItemClickListener {
+                override fun onItemClick(view: View, position: Int) {
+                    val product = products!![position]
 
-                        if (product != null) {
-                            val options = resources.getStringArray(R.array.product_options)
+                    if (product != null) {
+                        val options = resources.getStringArray(R.array.product_options)
 
-                            activity?.selector(product.name, options.toList()) { _, i ->
-                                when (i) {
-                                    0 -> {
-                                        addOrEditProduct(product)
-                                    }
-                                    1 -> {
-                                        changeQuantity(product, +1)
-                                    }
-                                    2 -> {
-                                        changeQuantity(product, -1)
-                                    }
-                                    3 -> {
-                                        deleteProduct(product)
-                                    }
+                        activity?.selector(product.name, options.toList()) { _, i ->
+                            when (i) {
+                                0 -> {
+                                    addOrEditProduct(product)
+                                }
+
+                                1 -> {
+                                    changeQuantity(product, +1)
+                                }
+
+                                2 -> {
+                                    changeQuantity(product, -1)
+                                }
+
+                                3 -> {
+                                    deleteProduct(product)
                                 }
                             }
                         }
                     }
-                })
+                }
+            })
         )
 
         rvProducts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -282,12 +285,10 @@ class CartFragment : Fragment() {
     }
 
     private fun getProducts(): RealmResults<Product>? {
-        var query = realm.where(Product::class.java)
-                .equalTo("cartId", cartId)
+        val query = realm.where(Product::class.java).equalTo("cartId", cartId)
 
-        if (searchTerms.isNotEmpty()) {
-            query = query?.contains("name", searchTerms, Case.INSENSITIVE)
-        }
+        if (searchTerms.isNotEmpty())
+            query?.contains("name", searchTerms, Case.INSENSITIVE)
 
         val products = query?.findAll()
 
@@ -301,14 +302,14 @@ class CartFragment : Fragment() {
             renderData()
 
             if (searchTerms.isNotEmpty()) {
-                cvSearching.show()
-                tvSearching.text = searchTerms
+                search.cvSearching.show()
+                search.tvSearching.text = searchTerms
 
                 return true
             }
         }
 
-        cvSearching.hide()
+        search.cvSearching.hide()
 
         return false
     }
@@ -344,12 +345,12 @@ class CartFragment : Fragment() {
         }
 
         val alert = AlertDialog.Builder(requireActivity())
-                .setCancelable(false)
-                .setView(view)
-                .setTitle(title)
-                .setPositiveButton(positive, null)
-                .setNegativeButton(negative, null)
-                .create()
+            .setCancelable(false)
+            .setView(view)
+            .setTitle(title)
+            .setPositiveButton(positive, null)
+            .setNegativeButton(negative, null)
+            .create()
         alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         alert.setOnShowListener { dialog ->
 
@@ -365,8 +366,8 @@ class CartFragment : Fragment() {
             }
 
             val products = realm.where(Product::class.java)
-                    .sort("name", Sort.ASCENDING)
-                    .findAll()
+                .sort("name", Sort.ASCENDING)
+                .findAll()
 
             if (products != null && products.size > 0) {
                 val list = mutableListOf<String>()
@@ -475,8 +476,8 @@ class CartFragment : Fragment() {
             realm = Realm.getDefaultInstance()
 
         cart = realm.where(Cart::class.java)
-                .equalTo("dateClose", 0L)
-                .findFirst()
+            .equalTo("dateClose", 0L)
+            .findFirst()
 
         tvEmpty.hide()
         btCreateCart.hide()
@@ -516,11 +517,13 @@ class CartFragment : Fragment() {
                 tvEmpty.setText(R.string.products_empty)
             }
 
-            tvQuantities.text = getString(R.string.products_details,
-                    items.size,
-                    if (items.size == 1) "" else "s",
-                    volumes,
-                    if (volumes == 1) "" else "s")
+            tvQuantities.text = getString(
+                R.string.products_details,
+                items.size,
+                if (items.size == 1) "" else "s",
+                volumes,
+                if (volumes == 1) "" else "s"
+            )
             tvTotal.text = total.formatPrice()
 
             tvQuantities.show()

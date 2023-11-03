@@ -103,11 +103,10 @@ class CartsHistoryActivity : AppCompatActivity() {
     }
 
     private fun getCarts(): RealmResults<Cart>? {
-        var query = realm.where(Cart::class.java).greaterThan("dateClose", 0)
+        val query = realm.where(Cart::class.java).greaterThan("dateClose", 0)
 
-        if (searchTerms.isNotEmpty()) {
-            query = query?.contains("keywords", searchTerms, Case.INSENSITIVE)
-        }
+        if (searchTerms.isNotEmpty())
+            query?.contains("keywords", searchTerms, Case.INSENSITIVE)
 
         val carts = query?.findAll()
 
@@ -143,14 +142,14 @@ class CartsHistoryActivity : AppCompatActivity() {
             renderData()
 
             if (searchTerms.isNotEmpty()) {
-                cvSearching.show()
-                tvSearching.text = searchTerms
+                search.cvSearching.show()
+                search.tvSearching.text = searchTerms
 
                 return true
             }
         }
 
-        cvSearching.hide()
+        search.cvSearching.hide()
 
         return false
     }

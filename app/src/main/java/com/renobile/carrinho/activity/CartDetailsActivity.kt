@@ -1,10 +1,13 @@
 package com.renobile.carrinho.activity
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.renobile.carrinho.R
@@ -14,7 +17,9 @@ import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.PARAM_CART_ID
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.sendCart
+import com.renobile.carrinho.util.show
 import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
@@ -31,6 +36,8 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var cartId: Long = 0
     private var products: RealmResults<Product>? = null
     private var historyAdapterCart: CartProductsAdapter? = null
+    private var searchView: SearchView? = null
+    private var searchTerms: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,16 +85,28 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.cart_details, menu)
+
+        searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
+
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchView!!.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+
+        searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                searchView!!.clearFocus()
+                return true
+            }
+
+            override fun onQueryTextChange(terms: String): Boolean = doneSearch(terms)
+        })
         return true
     }
 
-    private fun getProducts(terms: String = ""): RealmResults<Product>? {
-        var query = realm.where(Product::class.java)
-            .equalTo("cartId", cartId)
+    private fun getProducts(): RealmResults<Product>? {
+        val query = realm.where(Product::class.java).equalTo("cartId", cartId)
 
-        if (terms.isNotEmpty()) {
-            query = query?.contains("name", terms, Case.INSENSITIVE)
-        }
+        if (searchTerms.isNotEmpty())
+            query?.contains("name", searchTerms, Case.INSENSITIVE)
 
         val products = query?.findAll()
 
@@ -103,8 +122,8 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         sendCart(products, cart!!.name)
     }
 
-    private fun renderData(terms: String = "") = with(binding) {
-        products = getProducts(terms)
+    private fun renderData() = with(binding) {
+        products = getProducts()
 
         var volumes = 0
         var total = 0.0
@@ -148,6 +167,25 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
             onBackPressed()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun doneSearch(terms: String): Boolean = with(binding) {
+        searchTerms = terms
+
+        if (historyAdapterCart != null) {
+            renderData()
+
+            if (searchTerms.isNotEmpty()) {
+                search.cvSearching.show()
+                search.tvSearching.text = searchTerms
+
+                return true
+            }
+        }
+
+        search.cvSearching.hide()
+
+        return false
     }
 
 }
