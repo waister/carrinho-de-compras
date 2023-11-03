@@ -1,7 +1,5 @@
 package com.renobile.carrinho.activity
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +13,6 @@ import com.renobile.carrinho.util.API_MESSAGE
 import com.renobile.carrinho.util.API_NOTIFICATIONS
 import com.renobile.carrinho.util.API_ROUTE_NOTIFICATIONS
 import com.renobile.carrinho.util.API_SUCCESS
-import com.renobile.carrinho.util.REQUEST_CODE_RELOAD
 import com.renobile.carrinho.util.getBooleanVal
 import com.renobile.carrinho.util.getJSONArrayVal
 import com.renobile.carrinho.util.getStringVal
@@ -45,16 +42,8 @@ class NotificationsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        onBackPressed()
+        finish()
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_RELOAD && resultCode == Activity.RESULT_OK) {
-            loadNotifications()
-        }
     }
 
     private fun loadNotifications() = with(binding) {

@@ -20,7 +20,7 @@ class AboutActivity : AppCompatActivity() {
         binding.apply {
             toolbar.setNavigationIcon(R.drawable.ic_arrow_left)
             toolbar.setNavigationOnClickListener {
-                onBackPressed()
+                finish()
             }
 
             btRemoveAds.setOnClickListener {

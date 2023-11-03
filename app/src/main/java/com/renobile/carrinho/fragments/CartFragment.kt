@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
@@ -46,8 +47,7 @@ class CartFragment : Fragment() {
     private var optionsMenu: Menu? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCartBinding.inflate(inflater, container, false)
 
@@ -61,6 +61,18 @@ class CartFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!searchView!!.isIconified)
+                        searchView!!.onActionViewCollapsed()
+                    else
+                        activity?.finish()
+                }
+            },
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -97,20 +109,16 @@ class CartFragment : Fragment() {
     private fun createNewCart() = with(binding) {
         if (activity == null) return
 
-        @SuppressLint("InflateParams")
-        val view = layoutInflater.inflate(R.layout.item_add_cart, null)
+        @SuppressLint("InflateParams") val view = layoutInflater.inflate(R.layout.item_add_cart, null)
 
         val tvAlert = view.find<TextView>(R.id.tv_alert)
         val etName = view.find<AppCompatEditText>(R.id.et_name)
 
         etName.requestFocus()
 
-        val builder = AlertDialog.Builder(requireActivity())
-            .setView(view)
-            .setCancelable(false)
-            .setTitle(R.string.create_cart)
-            .setPositiveButton(R.string.confirm, null)
-            .setNegativeButton(R.string.cancel, null)
+        val builder =
+            AlertDialog.Builder(requireActivity()).setView(view).setCancelable(false).setTitle(R.string.create_cart)
+                .setPositiveButton(R.string.confirm, null).setNegativeButton(R.string.cancel, null)
 
         tvAlert.setText(R.string.create_cart_notice)
 
@@ -189,10 +197,7 @@ class CartFragment : Fragment() {
             positiveButton(R.string.confirm) {
                 realm.executeTransaction {
                     //                    realm.delete(Product::class.java)
-                    realm.where(Product::class.java)
-                        .equalTo("cartId", cartId)
-                        .findAll()
-                        .deleteAllFromRealm()
+                    realm.where(Product::class.java).equalTo("cartId", cartId).findAll().deleteAllFromRealm()
 
                     renderData()
                 }
@@ -287,8 +292,7 @@ class CartFragment : Fragment() {
     private fun getProducts(): RealmResults<Product>? {
         val query = realm.where(Product::class.java).equalTo("cartId", cartId)
 
-        if (searchTerms.isNotEmpty())
-            query?.contains("name", searchTerms, Case.INSENSITIVE)
+        if (searchTerms.isNotEmpty()) query?.contains("name", searchTerms, Case.INSENSITIVE)
 
         val products = query?.findAll()
 
@@ -318,8 +322,7 @@ class CartFragment : Fragment() {
     private fun addOrEditProduct(product: Product? = null) = with(binding) {
         if (activity == null) return
 
-        @SuppressLint("InflateParams")
-        val view = layoutInflater.inflate(R.layout.item_add_product, null)
+        @SuppressLint("InflateParams") val view = layoutInflater.inflate(R.layout.item_add_product, null)
 
         val etName = view.find<AutoCompleteTextView>(R.id.et_name)
         val etQuantity = view.find<AppCompatEditText>(R.id.et_quantity)
@@ -344,13 +347,8 @@ class CartFragment : Fragment() {
             success = R.string.product_edited
         }
 
-        val alert = AlertDialog.Builder(requireActivity())
-            .setCancelable(false)
-            .setView(view)
-            .setTitle(title)
-            .setPositiveButton(positive, null)
-            .setNegativeButton(negative, null)
-            .create()
+        val alert = AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).setTitle(title)
+            .setPositiveButton(positive, null).setNegativeButton(negative, null).create()
         alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         alert.setOnShowListener { dialog ->
 
@@ -365,16 +363,13 @@ class CartFragment : Fragment() {
                 }
             }
 
-            val products = realm.where(Product::class.java)
-                .sort("name", Sort.ASCENDING)
-                .findAll()
+            val products = realm.where(Product::class.java).sort("name", Sort.ASCENDING).findAll()
 
             if (products != null && products.size > 0) {
                 val list = mutableListOf<String>()
 
                 products.forEach {
-                    if (!list.contains(it.name))
-                        list.add(it.name)
+                    if (!list.contains(it.name)) list.add(it.name)
                 }
 
                 val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, list)
@@ -472,12 +467,9 @@ class CartFragment : Fragment() {
     }
 
     private fun renderData() = with(binding) {
-        if (realm.isClosed)
-            realm = Realm.getDefaultInstance()
+        if (realm.isClosed) realm = Realm.getDefaultInstance()
 
-        cart = realm.where(Cart::class.java)
-            .equalTo("dateClose", 0L)
-            .findFirst()
+        cart = realm.where(Cart::class.java).equalTo("dateClose", 0L).findFirst()
 
         tvEmpty.hide()
         btCreateCart.hide()

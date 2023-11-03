@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -45,6 +46,18 @@ class ListsHistoryActivity : AppCompatActivity() {
         realm = Realm.getDefaultInstance()
 
         initViews()
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!searchView!!.isIconified)
+                        searchView!!.onActionViewCollapsed()
+                    else
+                        finish()
+                }
+            },
+        )
     }
 
     private fun initViews() = with(binding) {
@@ -145,15 +158,7 @@ class ListsHistoryActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        onBackPressed()
+        finish()
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        if (!searchView!!.isIconified) {
-            searchView!!.onActionViewCollapsed()
-        } else {
-            super.onBackPressed()
-        }
     }
 }

@@ -145,7 +145,7 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 negativeButton(R.string.cancel) {}
             }.show()
         } else {
-            onBackPressed()
+            finish()
         }
         return super.onOptionsItemSelected(item)
     }

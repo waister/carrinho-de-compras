@@ -37,7 +37,7 @@ class RemoveAdsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        onBackPressed()
+        finish()
         return super.onOptionsItemSelected(item)
     }
 
