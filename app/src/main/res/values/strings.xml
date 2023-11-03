@@ -182,4 +182,9 @@
     <string name="error_on_update">Não atualizado</string>
     <string name="error_on_update_message">Você não completou o processo de atualização do app.</string>
     <string name="update_later">Atualizar depois</string>
+    <string name="notifications_important">Sem a permissão de notificação, não será mais possível te avisar quando cadastrarmos novas revistas.</string>
+    <string name="allow_notifications">Ativar notificações</string>
+    <string name="ignore">Ignorar</string>
+    <string name="notification_question_title">Notificações exclusivas</string>
+    <string name="notification_change_idea">Caso mude de ideia, acessar as informações do aplicativo e alterar em notificações</string>
 </resources>

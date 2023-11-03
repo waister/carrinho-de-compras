@@ -406,3 +406,5 @@ fun View.show() {
 fun View.isVisible(isVisible: Boolean) {
     if (isVisible) show() else hide()
 }
+
+fun isDebug() = BuildConfig.DEBUG

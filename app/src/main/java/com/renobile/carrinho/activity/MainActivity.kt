@@ -1,7 +1,14 @@
 package com.renobile.carrinho.activity
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.eightbitlab.bottomnavigationbar.BottomBarItem
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.gms.ads.AdRequest
@@ -10,6 +17,8 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
@@ -34,16 +43,19 @@ import com.renobile.carrinho.util.FRAGMENT_MORE
 import com.renobile.carrinho.util.FRAGMENT_REMOVE_ADS
 import com.renobile.carrinho.util.PARAM_TYPE
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
+import com.renobile.carrinho.util.PREF_PUSH_NOTIFICATION
 import com.renobile.carrinho.util.getBooleanVal
 import com.renobile.carrinho.util.getIntVal
 import com.renobile.carrinho.util.getValidJSONObject
 import com.renobile.carrinho.util.havePlan
+import com.renobile.carrinho.util.isDebug
 import com.renobile.carrinho.util.loadAdBanner
 import com.renobile.carrinho.util.printFuelLog
 import com.renobile.carrinho.util.saveAppData
 import com.renobile.carrinho.util.storeAppLink
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.browse
+import org.jetbrains.anko.longToast
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,12 +65,22 @@ class MainActivity : AppCompatActivity() {
     private var selectedTabName = FRAGMENT_MAIN
     private var interstitialAd: InterstitialAd? = null
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val permissionTag = Manifest.permission.POST_NOTIFICATIONS
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted)
+                checkTokenFcm()
+        }
+
     companion object {
         private const val POSITION_CART: Int = 0
         private const val POSITION_LIST: Int = 1
         private const val POSITION_COMPARATOR: Int = 2
         private const val POSITION_REMOVE_ADS: Int = 3
         private const val POSITION_MORE: Int = 4
+
+        private const val TIMES_TO_APPEAR = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,6 +118,9 @@ class MainActivity : AppCompatActivity() {
 
         checkVersion()
         initAdMob()
+
+        checkTokenFcm()
+        requestNotificationPermission()
     }
 
     private fun initAdMob() {
@@ -202,6 +227,82 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun checkTokenFcm() {
+        val lastToken = Hawk.get(PREF_FCM_TOKEN, "")
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
+            } else {
+                val token = task.result
+
+                try {
+                    if (token != lastToken) {
+                        Hawk.put(PREF_FCM_TOKEN, token)
+
+                        checkVersion()
+                    }
+                } catch (e: Exception) {
+                    if (isDebug()) e.printStackTrace()
+                }
+            }
+        })
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, permissionTag) != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowPushNotificationQuestionDialog())
+                    alertNotificationsIsImportant()
+                else
+                    permissionLauncher.launch(permissionTag)
+            }
+        }
+    }
+
+    private fun shouldShowPushNotificationQuestionDialog(): Boolean {
+        val appOpened = Hawk.get(PREF_PUSH_NOTIFICATION, 1)
+        return if (appOpened < TIMES_TO_APPEAR) {
+            increaseAppOpened()
+            false
+        } else if (appOpened == TIMES_TO_APPEAR) {
+            increaseAppOpened()
+            true
+        } else
+            false
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun alertNotificationsIsImportant() {
+        AlertDialog.Builder(applicationContext)
+            .setTitle(R.string.notification_question_title)
+            .setMessage(R.string.notifications_important)
+            .setCancelable(false)
+            .setPositiveButton(R.string.allow_notifications) { dialog, _ ->
+                permissionLauncher.launch(permissionTag)
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.ignore) { dialog, _ ->
+                dialog.dismiss()
+                blockPushNotificationQuestion()
+                showMessage()
+            }
+            .create()
+            .show()
+    }
+
+    private fun blockPushNotificationQuestion() {
+        Hawk.put(PREF_PUSH_NOTIFICATION, TIMES_TO_APPEAR + 1)
+    }
+
+    private fun increaseAppOpened() {
+        Hawk.put(PREF_PUSH_NOTIFICATION, Hawk.get(PREF_PUSH_NOTIFICATION, 1) + 1)
+    }
+
+    private fun showMessage() {
+        applicationContext.longToast(R.string.notification_change_idea)
     }
 
 }
