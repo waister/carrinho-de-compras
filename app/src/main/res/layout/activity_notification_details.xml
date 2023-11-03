@@ -53,5 +53,5 @@
             tools:text="Received at 23/05/2019" />
     </LinearLayout>
 
-    <include layout="@layout/inc_progress_light" />
+    <include android:id="@+id/progress" layout="@layout/inc_progress_light" />
 </RelativeLayout>

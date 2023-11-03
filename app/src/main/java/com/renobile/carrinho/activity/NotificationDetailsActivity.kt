@@ -3,26 +3,46 @@ package com.renobile.carrinho.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kittinunf.fuel.httpGet
 import com.orhanobut.hawk.Hawk
-import com.renobile.carrinho.R.*
-import com.renobile.carrinho.util.*
+import com.renobile.carrinho.R.drawable
+import com.renobile.carrinho.R.string
+import com.renobile.carrinho.databinding.ActivityNotificationDetailsBinding
+import com.renobile.carrinho.util.API_BODY
+import com.renobile.carrinho.util.API_DATE
+import com.renobile.carrinho.util.API_IMAGE
+import com.renobile.carrinho.util.API_LINK
+import com.renobile.carrinho.util.API_MESSAGE
+import com.renobile.carrinho.util.API_NOTIFICATION
+import com.renobile.carrinho.util.API_ROUTE_NOTIFICATION
+import com.renobile.carrinho.util.API_TITLE
+import com.renobile.carrinho.util.PARAM_ITEM_ID
+import com.renobile.carrinho.util.PREF_NOTIFICATION_JSON
+import com.renobile.carrinho.util.formatDatetime
+import com.renobile.carrinho.util.getJSONObjectVal
+import com.renobile.carrinho.util.getStringVal
+import com.renobile.carrinho.util.getThumbUrl
+import com.renobile.carrinho.util.getValidJSONObject
+import com.renobile.carrinho.util.hide
+import com.renobile.carrinho.util.isValidUrl
+import com.renobile.carrinho.util.show
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_notification_details.*
-import kotlinx.android.synthetic.main.inc_progress_light.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.okButton
 import org.json.JSONObject
 
 class NotificationDetailsActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityNotificationDetailsBinding
+
     private var notificationId: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layout.activity_notification_details)
+
+        binding = ActivityNotificationDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -43,19 +63,17 @@ class NotificationDetailsActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadNotification() {
-        rl_progress_light.visibility = View.VISIBLE
+    private fun loadNotification() = with(binding) {
+        progress.rlProgressLight.show()
 
         val routeApi = API_ROUTE_NOTIFICATION + notificationId
 
         routeApi.httpGet().responseString { request, _, result ->
             Log.i("NotificationDetails", "Request: $request")
 
-            if (ly_main == null) return@responseString
-
             var errorMessage = getString(string.error_connection)
 
-            rl_progress_light.visibility = View.GONE
+            progress.rlProgressLight.hide()
 
             val (data, error) = result
 
@@ -94,18 +112,20 @@ class NotificationDetailsActivity : AppCompatActivity() {
         if (link.isNotEmpty())
             message += "\n\n" + getString(string.label_link, link)
 
-        tv_title.text = title
-        tv_message.text = message
-        tv_date.text = getString(string.label_received, date.formatDatetime())
+        binding.apply {
+            tvTitle.text = title
+            tvMessage.text = message
+            tvDate.text = getString(string.label_received, date.formatDatetime())
 
-        if (image.isValidUrl()) {
-            Picasso.get()
+            if (image.isValidUrl()) {
+                Picasso.get()
                     .load(getThumbUrl(image))
                     .placeholder(drawable.ic_image_loading)
                     .error(drawable.ic_image_error)
-                    .into(iv_image)
-        } else {
-            iv_image.visibility = View.GONE
+                    .into(ivImage)
+            } else {
+                ivImage.hide()
+            }
         }
     }
 

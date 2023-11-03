@@ -1,15 +1,15 @@
 package com.renobile.carrinho.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.*
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
+import com.renobile.carrinho.databinding.ItemProductsBinding
 import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.util.formatDate
 import com.renobile.carrinho.util.formatPrice
 import io.realm.RealmResults
-import org.jetbrains.anko.find
 
 class CartsAdapter(
     private val context: Context,
@@ -19,16 +19,20 @@ class CartsAdapter(
 
     private var carts: RealmResults<Cart>? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: RealmResults<Cart>?) {
         carts = data
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context)
-            .inflate(R.layout.item_products, parent, false)
-
-        return ViewHolder(view)
+        return ViewHolder(
+            ItemProductsBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -42,12 +46,8 @@ class CartsAdapter(
         return carts!!.size
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private var tvName = itemView.find<TextView>(R.id.tv_name)
-        private var tvTotal = itemView.find<TextView>(R.id.tv_total)
-        private var tvDetails = itemView.find<TextView>(R.id.tv_details)
-
-        fun setData(cart: Cart?) {
+    inner class ViewHolder(private val binding: ItemProductsBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun setData(cart: Cart?) = with(binding) {
             if (cart != null) {
                 val productsEnd = if (cart.products == 1) "" else "s"
                 val unitsEnd = if (cart.units == 1) "" else "s"

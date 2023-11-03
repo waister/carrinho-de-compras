@@ -18,5 +18,5 @@
         android:layout_height="match_parent"
         android:text="@string/notifications_empty" />
 
-    <include layout="@layout/inc_progress_light" />
+    <include android:id="@+id/progress" layout="@layout/inc_progress_light" />
 </RelativeLayout>

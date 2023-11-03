@@ -11,20 +11,17 @@ import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.ListsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
 import com.renobile.carrinho.adapter.ListProductsAdapter
+import com.renobile.carrinho.databinding.FragmentListBinding
 import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.*
@@ -36,6 +33,9 @@ import org.jetbrains.anko.*
 
 class ListFragment : Fragment() {
 
+    private var _binding: FragmentListBinding? = null
+    private val binding get() = _binding!!
+
     private var realm: Realm = Realm.getDefaultInstance()
     private var purchaseList: PurchaseList? = null
     private var listId: Long = 0
@@ -43,36 +43,19 @@ class ListFragment : Fragment() {
     private var listProductsAdapter: ListProductsAdapter? = null
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
-    private var toolbar: Toolbar? = null
     private var optionsMenu: Menu? = null
-    private lateinit var clRoot: CoordinatorLayout
-    private lateinit var tvTotal: TextView
-    private lateinit var tvQuantities: TextView
-    private lateinit var tvEmpty: TextView
-    private lateinit var btCreateList: AppCompatButton
-    private lateinit var rvProducts: RecyclerView
-    private lateinit var fabAdd: FloatingActionButton
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_list, container, false)
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentListBinding.inflate(inflater, container, false)
 
-        toolbar = root.find(R.id.toolbar)
-        clRoot = root.find(R.id.cl_root)
-        tvTotal = root.find(R.id.tv_total)
-        tvQuantities = root.find(R.id.tv_quantities)
-        tvEmpty = root.find(R.id.tv_empty)
-        btCreateList = root.find(R.id.bt_create_list)
-        rvProducts = root.find(R.id.rv_products)
-        fabAdd = root.find(R.id.fab_add)
-
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
 
         initViews()
 
-        return root
+        return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,11 +106,11 @@ class ListFragment : Fragment() {
         etName.requestFocus()
 
         val builder = AlertDialog.Builder(requireActivity())
-                .setView(view)
-                .setCancelable(false)
-                .setTitle(R.string.create_list)
-                .setPositiveButton(R.string.confirm, null)
-                .setNegativeButton(R.string.cancel, null)
+            .setView(view)
+            .setCancelable(false)
+            .setTitle(R.string.create_list)
+            .setPositiveButton(R.string.confirm, null)
+            .setNegativeButton(R.string.cancel, null)
 
         tvAlert.setText(R.string.create_list_notice)
 
@@ -165,8 +148,8 @@ class ListFragment : Fragment() {
                         }
 
                         val oldList = realm.where(PurchaseList::class.java)
-                                .equalTo("id", listId)
-                                .findFirst()
+                            .equalTo("id", listId)
+                            .findFirst()
 
                         if (oldList != null) {
                             realm.executeTransaction {
@@ -196,7 +179,7 @@ class ListFragment : Fragment() {
 
                     dialog.dismiss()
 
-                    clRoot.longSnackbar(R.string.create_list_success)
+                    binding.clRoot.longSnackbar(R.string.create_list_success)
                 }
             }
         }
@@ -209,9 +192,9 @@ class ListFragment : Fragment() {
                 realm.executeTransaction {
                     //realm.delete(Product::class.java)
                     realm.where(Product::class.java)
-                            .equalTo("listId", listId)
-                            .findAll()
-                            .deleteAllFromRealm()
+                        .equalTo("listId", listId)
+                        .findAll()
+                        .deleteAllFromRealm()
 
                     renderData()
                 }
@@ -225,11 +208,11 @@ class ListFragment : Fragment() {
         realm.close()
     }
 
-    private fun initViews() {
-        if (activity == null) return
+    private fun initViews() = with(binding) {
+        if (activity == null) return@with
 
-        tvQuantities.visibility = View.GONE
-        tvTotal.visibility = View.GONE
+        tvQuantities.hide()
+        tvTotal.hide()
 
         btCreateList.setOnClickListener {
             createNewList()
@@ -257,32 +240,35 @@ class ListFragment : Fragment() {
         rvProducts.adapter = listProductsAdapter
 
         rvProducts.addOnItemTouchListener(
-                ListProductsAdapter(requireActivity(), object : ListProductsAdapter.OnItemClickListener {
-                    override fun onItemClick(view: View, position: Int) {
-                        val product = products!![position]
+            ListProductsAdapter(requireActivity(), object : ListProductsAdapter.OnItemClickListener {
+                override fun onItemClick(view: View, position: Int) {
+                    val product = products!![position]
 
-                        if (product != null) {
-                            val options = resources.getStringArray(R.array.product_options)
+                    if (product != null) {
+                        val options = resources.getStringArray(R.array.product_options)
 
-                            activity?.selector(product.name, options.toList()) { _, i ->
-                                when (i) {
-                                    0 -> {
-                                        addOrEditProduct(product)
-                                    }
-                                    1 -> {
-                                        changeQuantity(product, +1)
-                                    }
-                                    2 -> {
-                                        changeQuantity(product, -1)
-                                    }
-                                    3 -> {
-                                        deleteProduct(product)
-                                    }
+                        activity?.selector(product.name, options.toList()) { _, i ->
+                            when (i) {
+                                0 -> {
+                                    addOrEditProduct(product)
+                                }
+
+                                1 -> {
+                                    changeQuantity(product, +1)
+                                }
+
+                                2 -> {
+                                    changeQuantity(product, -1)
+                                }
+
+                                3 -> {
+                                    deleteProduct(product)
                                 }
                             }
                         }
                     }
-                })
+                }
+            })
         )
 
         rvProducts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -302,7 +288,7 @@ class ListFragment : Fragment() {
 
     private fun getProducts(): RealmResults<Product>? {
         var query = realm.where(Product::class.java)
-                .equalTo("listId", listId)
+            .equalTo("listId", listId)
 
         if (searchTerms.isNotEmpty()) {
             query = query?.contains("name", searchTerms, Case.INSENSITIVE)
@@ -313,16 +299,21 @@ class ListFragment : Fragment() {
         return products?.sort("id", Sort.DESCENDING)
     }
 
-    fun doneSearch(terms: String): Boolean {
+    fun doneSearch(terms: String): Boolean = with(binding) {
         searchTerms = terms
 
         if (listProductsAdapter != null) {
             renderData()
 
             if (searchTerms.isNotEmpty()) {
+                cvSearching.show()
+                tvSearching.text = searchTerms
+
                 return true
             }
         }
+
+        cvSearching.hide()
 
         return false
     }
@@ -358,12 +349,12 @@ class ListFragment : Fragment() {
         }
 
         val alert = AlertDialog.Builder(requireActivity())
-                .setCancelable(false)
-                .setView(view)
-                .setTitle(title)
-                .setPositiveButton(positive, null)
-                .setNegativeButton(negative, null)
-                .create()
+            .setCancelable(false)
+            .setView(view)
+            .setTitle(title)
+            .setPositiveButton(positive, null)
+            .setNegativeButton(negative, null)
+            .create()
         alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         alert.setOnShowListener { dialog ->
 
@@ -379,8 +370,8 @@ class ListFragment : Fragment() {
             }
 
             val products = realm.where(Product::class.java)
-                    .sort("name", Sort.ASCENDING)
-                    .findAll()
+                .sort("name", Sort.ASCENDING)
+                .findAll()
 
             if (products != null && products.size > 0) {
                 val list = mutableListOf<String>()
@@ -442,7 +433,7 @@ class ListFragment : Fragment() {
                     if (product != null) {
                         dialog.dismiss()
 
-                        clRoot.longSnackbar(success)
+                        binding.clRoot.longSnackbar(success)
                     } else {
                         activity?.toast(success)
                     }
@@ -452,7 +443,7 @@ class ListFragment : Fragment() {
         alert.show()
     }
 
-    private fun changeQuantity(product: Product, quantity: Int) {
+    private fun changeQuantity(product: Product, quantity: Int) = with(binding) {
         if (quantity < 0 && product.quantity == 1) {
             clRoot.longSnackbar(R.string.error_quantity_min)
         } else {
@@ -477,22 +468,22 @@ class ListFragment : Fragment() {
 
                 renderData()
 
-                clRoot.longSnackbar(R.string.success_delete)
+                binding.clRoot.longSnackbar(R.string.success_delete)
             }
             negativeButton(R.string.cancel) {}
         }?.show()
     }
 
-    private fun renderData() {
+    private fun renderData() = with(binding) {
         if (realm.isClosed)
             realm = Realm.getDefaultInstance()
 
         purchaseList = realm.where(PurchaseList::class.java)
-                .equalTo("dateClose", 0L)
-                .findFirst()
+            .equalTo("dateClose", 0L)
+            .findFirst()
 
-        tvEmpty.visibility = View.GONE
-        btCreateList.visibility = View.GONE
+        tvEmpty.hide()
+        btCreateList.hide()
 
         val supportActionBar = (activity as AppCompatActivity).supportActionBar
 
@@ -501,8 +492,8 @@ class ListFragment : Fragment() {
             supportActionBar?.setTitle(R.string.purchase_list)
 
             tvEmpty.setText(R.string.lists_empty)
-            tvEmpty.visibility = View.VISIBLE
-            btCreateList.visibility = View.VISIBLE
+            tvEmpty.show()
+            btCreateList.show()
 
         } else {
 
@@ -525,19 +516,21 @@ class ListFragment : Fragment() {
                     total += it.price * it.quantity
                 }
             } else {
-                tvEmpty.visibility = View.VISIBLE
+                tvEmpty.show()
                 tvEmpty.setText(R.string.products_empty)
             }
 
-            tvQuantities.text = getString(R.string.products_details,
-                    items.size,
-                    if (items.size == 1) "" else "s",
-                    volumes,
-                    if (volumes == 1) "" else "s")
+            tvQuantities.text = getString(
+                R.string.products_details,
+                items.size,
+                if (items.size == 1) "" else "s",
+                volumes,
+                if (volumes == 1) "" else "s"
+            )
             tvTotal.text = total.formatPrice()
 
-            tvQuantities.visibility = View.VISIBLE
-            tvTotal.visibility = View.VISIBLE
+            tvQuantities.show()
+            tvTotal.show()
 
             listProductsAdapter?.setData(products)
         }

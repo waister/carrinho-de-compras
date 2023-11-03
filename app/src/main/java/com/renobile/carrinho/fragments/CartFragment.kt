@@ -11,20 +11,17 @@ import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.CartsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
 import com.renobile.carrinho.adapter.CartProductsAdapter
+import com.renobile.carrinho.databinding.FragmentCartBinding
 import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.*
@@ -36,6 +33,9 @@ import org.jetbrains.anko.*
 
 class CartFragment : Fragment() {
 
+    private var _binding: FragmentCartBinding? = null
+    private val binding get() = _binding!!
+
     private var realm: Realm = Realm.getDefaultInstance()
     private var cart: Cart? = null
     private var cartId: Long = 0
@@ -43,36 +43,19 @@ class CartFragment : Fragment() {
     private var historyAdapterCart: CartProductsAdapter? = null
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
-    private var toolbar: Toolbar? = null
     private var optionsMenu: Menu? = null
-    private lateinit var clRoot: CoordinatorLayout
-    private lateinit var tvTotal: TextView
-    private lateinit var tvQuantities: TextView
-    private lateinit var tvEmpty: TextView
-    private lateinit var btCreateCart: AppCompatButton
-    private lateinit var rvProducts: RecyclerView
-    private lateinit var fabAdd: FloatingActionButton
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_cart, container, false)
+    ): View {
+        _binding = FragmentCartBinding.inflate(inflater, container, false)
 
-        toolbar = root.find(R.id.toolbar)
-        clRoot = root.find(R.id.cl_root)
-        tvTotal = root.find(R.id.tv_total)
-        tvQuantities = root.find(R.id.tv_quantities)
-        tvEmpty = root.find(R.id.tv_empty)
-        btCreateCart = root.find(R.id.bt_create_cart)
-        rvProducts = root.find(R.id.rv_products)
-        fabAdd = root.find(R.id.fab_add)
-
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
 
         initViews()
 
-        return root
+        return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,7 +94,7 @@ class CartFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun createNewCart() {
+    private fun createNewCart() = with(binding) {
         if (activity == null) return
 
         @SuppressLint("InflateParams")
@@ -223,11 +206,11 @@ class CartFragment : Fragment() {
         realm.close()
     }
 
-    private fun initViews() {
-        if (activity == null) return
+    private fun initViews() = with(binding) {
+        if (activity == null) return@with
 
-        tvQuantities.visibility = View.GONE
-        tvTotal.visibility = View.GONE
+        tvQuantities.hide()
+        tvTotal.hide()
 
         btCreateCart.setOnClickListener {
             createNewCart()
@@ -311,22 +294,27 @@ class CartFragment : Fragment() {
         return products?.sort("id", Sort.DESCENDING)
     }
 
-    fun doneSearch(terms: String): Boolean {
+    fun doneSearch(terms: String): Boolean = with(binding) {
         searchTerms = terms
 
         if (historyAdapterCart != null) {
             renderData()
 
             if (searchTerms.isNotEmpty()) {
+                cvSearching.show()
+                tvSearching.text = searchTerms
+
                 return true
             }
         }
+
+        cvSearching.hide()
 
         return false
     }
 
 
-    private fun addOrEditProduct(product: Product? = null) {
+    private fun addOrEditProduct(product: Product? = null) = with(binding) {
         if (activity == null) return
 
         @SuppressLint("InflateParams")
@@ -451,7 +439,7 @@ class CartFragment : Fragment() {
         alert.show()
     }
 
-    private fun changeQuantity(product: Product, quantity: Int) {
+    private fun changeQuantity(product: Product, quantity: Int) = with(binding) {
         if (quantity < 0 && product.quantity == 1) {
             clRoot.longSnackbar(R.string.error_quantity_min)
         } else {
@@ -467,7 +455,7 @@ class CartFragment : Fragment() {
         }
     }
 
-    private fun deleteProduct(product: Product) {
+    private fun deleteProduct(product: Product) = with(binding) {
         activity?.alert(getString(R.string.confirm_delete), getString(R.string.confirmation)) {
             positiveButton(R.string.confirm) {
                 realm.executeTransaction {
@@ -482,7 +470,7 @@ class CartFragment : Fragment() {
         }?.show()
     }
 
-    private fun renderData() {
+    private fun renderData() = with(binding) {
         if (realm.isClosed)
             realm = Realm.getDefaultInstance()
 
@@ -490,8 +478,8 @@ class CartFragment : Fragment() {
                 .equalTo("dateClose", 0L)
                 .findFirst()
 
-        tvEmpty.visibility = View.GONE
-        btCreateCart.visibility = View.GONE
+        tvEmpty.hide()
+        btCreateCart.hide()
 
         val supportActionBar = (activity as AppCompatActivity).supportActionBar
 
@@ -500,8 +488,8 @@ class CartFragment : Fragment() {
             supportActionBar?.setTitle(R.string.app_name)
 
             tvEmpty.setText(R.string.carts_empty)
-            tvEmpty.visibility = View.VISIBLE
-            btCreateCart.visibility = View.VISIBLE
+            tvEmpty.show()
+            btCreateCart.show()
 
         } else {
 
@@ -524,7 +512,7 @@ class CartFragment : Fragment() {
                     total += it.price * it.quantity
                 }
             } else {
-                tvEmpty.visibility = View.VISIBLE
+                tvEmpty.show()
                 tvEmpty.setText(R.string.products_empty)
             }
 
@@ -535,8 +523,8 @@ class CartFragment : Fragment() {
                     if (volumes == 1) "" else "s")
             tvTotal.text = total.formatPrice()
 
-            tvQuantities.visibility = View.VISIBLE
-            tvTotal.visibility = View.VISIBLE
+            tvQuantities.show()
+            tvTotal.show()
 
             historyAdapterCart?.setData(products)
         }

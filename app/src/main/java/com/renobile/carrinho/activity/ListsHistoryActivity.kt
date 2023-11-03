@@ -12,16 +12,21 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.ListsAdapter
+import com.renobile.carrinho.databinding.ActivityListsHistoryBinding
 import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.PARAM_LIST_ID
+import com.renobile.carrinho.util.hide
+import com.renobile.carrinho.util.isVisible
+import com.renobile.carrinho.util.show
 import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import kotlinx.android.synthetic.main.activity_lists_history.*
 import org.jetbrains.anko.intentFor
 
 class ListsHistoryActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityListsHistoryBinding
 
     private var realm: Realm = Realm.getDefaultInstance()
     private var lists: RealmResults<PurchaseList>? = null
@@ -31,7 +36,9 @@ class ListsHistoryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_lists_history)
+
+        binding = ActivityListsHistoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -40,30 +47,32 @@ class ListsHistoryActivity : AppCompatActivity() {
         initViews()
     }
 
-    private fun initViews() {
-        rv_lists.setHasFixedSize(true)
+    private fun initViews() = with(binding) {
+        rvLists.setHasFixedSize(true)
 
-        val layoutManager = LinearLayoutManager(this)
-        rv_lists.layoutManager = layoutManager
+        val layoutManager = LinearLayoutManager(this@ListsHistoryActivity)
+        rvLists.layoutManager = layoutManager
 
-        val divider = DividerItemDecoration(this, layoutManager.orientation)
-        rv_lists.addItemDecoration(divider)
+        val divider = DividerItemDecoration(this@ListsHistoryActivity, layoutManager.orientation)
+        rvLists.addItemDecoration(divider)
 
-        listsAdapter = ListsAdapter(this)
-        rv_lists.adapter = listsAdapter
+        listsAdapter = ListsAdapter(this@ListsHistoryActivity)
+        rvLists.adapter = listsAdapter
 
-        rv_lists.addOnItemTouchListener(
-                ListsAdapter(this, object : ListsAdapter.OnItemClickListener {
-                    override fun onItemClick(view: View, position: Int) {
-                        val list = lists!![position]
+        rvLists.addOnItemTouchListener(
+            ListsAdapter(this@ListsHistoryActivity, object : ListsAdapter.OnItemClickListener {
+                override fun onItemClick(view: View, position: Int) {
+                    val list = lists!![position]
 
-                        if (list != null) {
-                            startActivity(intentFor<ListDetailsActivity>(
-                                    PARAM_LIST_ID to list.id
-                            ))
-                        }
+                    if (list != null) {
+                        startActivity(
+                            intentFor<ListDetailsActivity>(
+                                PARAM_LIST_ID to list.id
+                            )
+                        )
                     }
-                })
+                }
+            })
         )
     }
 
@@ -104,16 +113,21 @@ class ListsHistoryActivity : AppCompatActivity() {
         return products?.sort("id", Sort.DESCENDING)
     }
 
-    fun doneSearch(terms: String): Boolean {
+    fun doneSearch(terms: String): Boolean = with(binding) {
         searchTerms = terms
 
-        if (listsAdapter != null && tv_empty != null) {
+        if (listsAdapter != null) {
             renderData()
 
             if (searchTerms.isNotEmpty()) {
+                cvSearching.show()
+                tvSearching.text = searchTerms
+
                 return true
             }
         }
+
+        cvSearching.hide()
 
         return false
     }
@@ -123,14 +137,10 @@ class ListsHistoryActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun renderData() {
+    private fun renderData() = with(binding) {
         lists = getLists()
 
-        if (lists!!.size == 0) {
-            tv_empty.visibility = View.VISIBLE
-        } else {
-            tv_empty.visibility = View.GONE
-        }
+        tvEmpty.isVisible(lists!!.size == 0)
 
         listsAdapter?.setData(lists)
     }

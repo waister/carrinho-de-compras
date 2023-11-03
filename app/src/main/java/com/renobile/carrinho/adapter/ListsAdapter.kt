@@ -1,31 +1,37 @@
 package com.renobile.carrinho.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.*
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
+import com.renobile.carrinho.databinding.ItemProductsBinding
 import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.formatPrice
 import io.realm.RealmResults
-import org.jetbrains.anko.find
 
-class ListsAdapter(private val context: Context,
-                   private val listener: OnItemClickListener? = null) :
-        RecyclerView.Adapter<ListsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
+class ListsAdapter(
+    private val context: Context,
+    private val listener: OnItemClickListener? = null
+) :
+    RecyclerView.Adapter<ListsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
 
     private var carts: RealmResults<PurchaseList>? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: RealmResults<PurchaseList>?) {
         carts = data
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context)
-                .inflate(R.layout.item_products, parent, false)
-
-        return ViewHolder(view)
+        return ViewHolder(
+            ItemProductsBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -39,20 +45,18 @@ class ListsAdapter(private val context: Context,
         return carts!!.size
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private var tvName = itemView.find<TextView>(R.id.tv_name)
-        private var tvTotal = itemView.find<TextView>(R.id.tv_total)
-        private var tvDetails = itemView.find<TextView>(R.id.tv_details)
-
-        fun setData(cart: PurchaseList?) {
+    inner class ViewHolder(private val binding: ItemProductsBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun setData(cart: PurchaseList?) = with(binding) {
             if (cart != null) {
                 tvName.text = cart.name
                 tvTotal.text = cart.valueTotal.formatPrice()
-                tvDetails.text = context.getString(R.string.products_details,
-                        cart.products,
-                        if (cart.products == 1) "" else "s",
-                        cart.units,
-                        if (cart.units == 1) "" else "s")
+                tvDetails.text = context.getString(
+                    R.string.products_details,
+                    cart.products,
+                    if (cart.products == 1) "" else "s",
+                    cart.units,
+                    if (cart.units == 1) "" else "s"
+                )
             }
         }
     }
@@ -61,9 +65,10 @@ class ListsAdapter(private val context: Context,
         fun onItemClick(view: View, position: Int)
     }
 
-    private var mGestureDetector: GestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapUp(e: MotionEvent): Boolean = true
-    })
+    private var mGestureDetector: GestureDetector =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapUp(e: MotionEvent): Boolean = true
+        })
 
     override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
         val childView = view.findChildViewUnder(e.x, e.y)

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -13,23 +12,22 @@ import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.AboutActivity
 import com.renobile.carrinho.activity.NotificationsActivity
 import com.renobile.carrinho.activity.RemoveAdsActivity
+import com.renobile.carrinho.databinding.FragmentMoreBinding
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.storeAppLink
 import org.jetbrains.anko.browse
-import org.jetbrains.anko.find
 import org.jetbrains.anko.intentFor
 
 class MoreFragment : Fragment() {
 
-    private lateinit var llMain: LinearLayout
+    private var _binding: FragmentMoreBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_more, container, false)
-
-        llMain = root.find(R.id.ll_main)
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentMoreBinding.inflate(inflater, container, false)
 
         addButton(R.string.notifications, R.drawable.ic_bell)
         addButton(R.string.about_app, R.drawable.ic_information_outline)
@@ -37,7 +35,7 @@ class MoreFragment : Fragment() {
         addButton(R.string.rate_app, R.drawable.ic_star)
         addButton(R.string.remove_ads, R.drawable.ic_crown)
 
-        return root
+        return binding.root
     }
 
     private fun addButton(title: Int, icon: Int) {
@@ -59,7 +57,7 @@ class MoreFragment : Fragment() {
             }
         }
 
-        llMain.addView(buttonView)
+        binding.llMain.addView(buttonView)
     }
 
 }

@@ -4,27 +4,40 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import com.github.kittinunf.fuel.httpGet
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.NotificationsAdapter
-import com.renobile.carrinho.util.*
-import kotlinx.android.synthetic.main.activity_notifications.*
-import kotlinx.android.synthetic.main.inc_progress_light.*
+import com.renobile.carrinho.databinding.ActivityNotificationsBinding
+import com.renobile.carrinho.util.API_MESSAGE
+import com.renobile.carrinho.util.API_NOTIFICATIONS
+import com.renobile.carrinho.util.API_ROUTE_NOTIFICATIONS
+import com.renobile.carrinho.util.API_SUCCESS
+import com.renobile.carrinho.util.REQUEST_CODE_RELOAD
+import com.renobile.carrinho.util.getBooleanVal
+import com.renobile.carrinho.util.getJSONArrayVal
+import com.renobile.carrinho.util.getStringVal
+import com.renobile.carrinho.util.getValidJSONObject
+import com.renobile.carrinho.util.hide
+import com.renobile.carrinho.util.printFuelLog
+import com.renobile.carrinho.util.show
 import org.jetbrains.anko.displayMetrics
 import org.json.JSONArray
 
 class NotificationsActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityNotificationsBinding
 
     private var notifications: JSONArray? = null
     private var notificationsAdapter: NotificationsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_notifications)
+
+        binding = ActivityNotificationsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -44,18 +57,16 @@ class NotificationsActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadNotifications() {
-        rl_progress_light.visibility = View.VISIBLE
-        tv_notifications_empty.visibility = View.GONE
+    private fun loadNotifications() = with(binding) {
+        progress.rlProgressLight.show()
+        tvNotificationsEmpty.hide()
 
         API_ROUTE_NOTIFICATIONS.httpGet().responseString { request, response, result ->
             printFuelLog(request, response, result)
 
-            if (ly_main == null) return@responseString
-
             var errorMessage = getString(R.string.error_connection)
 
-            rl_progress_light.visibility = View.GONE
+            progress.rlProgressLight.hide()
 
             val (data, error) = result
 
@@ -72,38 +83,38 @@ class NotificationsActivity : AppCompatActivity() {
             }
 
             if (errorMessage.isNotEmpty()) {
-                tv_notifications_empty.visibility = View.VISIBLE
-                tv_notifications_empty.text = errorMessage
+                tvNotificationsEmpty.show()
+                tvNotificationsEmpty.text = errorMessage
             } else {
                 renderNotifications()
             }
         }
     }
 
-    private fun renderNotifications() {
+    private fun renderNotifications() = with(binding) {
         if (notifications == null || notifications!!.length() == 0) {
-            tv_notifications_empty.setText(R.string.notifications_empty)
-            tv_notifications_empty.visibility = View.VISIBLE
-            rv_notifications.visibility = View.GONE
-            return
+            tvNotificationsEmpty.setText(R.string.notifications_empty)
+            tvNotificationsEmpty.show()
+            rvNotifications.hide()
+            return@with
         }
 
-        tv_notifications_empty.visibility = View.GONE
-        rv_notifications.visibility = View.VISIBLE
+        tvNotificationsEmpty.hide()
+        rvNotifications.show()
 
-        rv_notifications.setHasFixedSize(true)
+        rvNotifications.setHasFixedSize(true)
 
         val columns = if (displayMetrics.widthPixels > 1900) 2 else 1
 
-        val layoutManager = GridLayoutManager(this, columns)
-        rv_notifications.layoutManager = layoutManager
+        val layoutManager = GridLayoutManager(this@NotificationsActivity, columns)
+        rvNotifications.layoutManager = layoutManager
 
-        notificationsAdapter = NotificationsAdapter(this)
+        notificationsAdapter = NotificationsAdapter(this@NotificationsActivity)
 
-        rv_notifications.adapter = notificationsAdapter
+        rvNotifications.adapter = notificationsAdapter
 
-        val divider = DividerItemDecoration(this, layoutManager.orientation)
-        rv_notifications.addItemDecoration(divider)
+        val divider = DividerItemDecoration(this@NotificationsActivity, layoutManager.orientation)
+        rvNotifications.addItemDecoration(divider)
 
         notificationsAdapter?.setData(notifications)
     }

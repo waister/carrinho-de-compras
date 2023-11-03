@@ -1,12 +1,7 @@
 package com.renobile.carrinho.activity
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingClientStateListener
-import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.Purchase
 import com.eightbitlab.bottomnavigationbar.BottomBarItem
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.gms.ads.AdRequest
@@ -18,18 +13,44 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
-import com.renobile.carrinho.fragments.*
-import com.renobile.carrinho.util.*
-import kotlinx.android.synthetic.main.activity_main.*
+import com.renobile.carrinho.databinding.ActivityMainBinding
+import com.renobile.carrinho.fragments.CartFragment
+import com.renobile.carrinho.fragments.ComparatorFragment
+import com.renobile.carrinho.fragments.ListFragment
+import com.renobile.carrinho.fragments.MoreFragment
+import com.renobile.carrinho.fragments.RemoveAdsFragment
+import com.renobile.carrinho.util.API_COMPARATOR
+import com.renobile.carrinho.util.API_LIST
+import com.renobile.carrinho.util.API_PREMIUM
+import com.renobile.carrinho.util.API_ROUTE_IDENTIFY
+import com.renobile.carrinho.util.API_SUCCESS
+import com.renobile.carrinho.util.API_TOKEN
+import com.renobile.carrinho.util.API_VERSION_LAST
+import com.renobile.carrinho.util.API_VERSION_MIN
+import com.renobile.carrinho.util.FRAGMENT_COMPARATOR
+import com.renobile.carrinho.util.FRAGMENT_LIST
+import com.renobile.carrinho.util.FRAGMENT_MAIN
+import com.renobile.carrinho.util.FRAGMENT_MORE
+import com.renobile.carrinho.util.FRAGMENT_REMOVE_ADS
+import com.renobile.carrinho.util.PARAM_TYPE
+import com.renobile.carrinho.util.PREF_FCM_TOKEN
+import com.renobile.carrinho.util.getBooleanVal
+import com.renobile.carrinho.util.getIntVal
+import com.renobile.carrinho.util.getValidJSONObject
+import com.renobile.carrinho.util.havePlan
+import com.renobile.carrinho.util.loadAdBanner
+import com.renobile.carrinho.util.printFuelLog
+import com.renobile.carrinho.util.saveAppData
+import com.renobile.carrinho.util.storeAppLink
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.browse
 
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
+
     private var selectedTabName = FRAGMENT_MAIN
-    private var billingClient: BillingClient? = null
-    private var adBannerLoaded = false
     private var interstitialAd: InterstitialAd? = null
 
     companion object {
@@ -42,24 +63,28 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        bn_navigation.addTab(BottomBarItem(R.drawable.ic_cart_outline, R.string.cart))
-        bn_navigation.addTab(BottomBarItem(R.drawable.ic_format_list_checks, R.string.list))
-        bn_navigation.addTab(BottomBarItem(R.drawable.ic_select_compare, R.string.compare))
-        bn_navigation.addTab(BottomBarItem(R.drawable.ic_crown, R.string.premium))
-        bn_navigation.addTab(BottomBarItem(R.drawable.ic_dots_horizontal, R.string.more))
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        bn_navigation.setOnSelectListener { position ->
-            val tabName = when (position) {
-                POSITION_LIST -> FRAGMENT_LIST
-                POSITION_COMPARATOR -> FRAGMENT_COMPARATOR
-                POSITION_REMOVE_ADS -> FRAGMENT_REMOVE_ADS
-                POSITION_MORE -> FRAGMENT_MORE
-                else -> FRAGMENT_MAIN
+        binding.apply {
+            bnNavigation.addTab(BottomBarItem(R.drawable.ic_cart_outline, R.string.cart))
+            bnNavigation.addTab(BottomBarItem(R.drawable.ic_format_list_checks, R.string.list))
+            bnNavigation.addTab(BottomBarItem(R.drawable.ic_select_compare, R.string.compare))
+            bnNavigation.addTab(BottomBarItem(R.drawable.ic_crown, R.string.premium))
+            bnNavigation.addTab(BottomBarItem(R.drawable.ic_dots_horizontal, R.string.more))
+
+            bnNavigation.setOnSelectListener { position ->
+                val tabName = when (position) {
+                    POSITION_LIST -> FRAGMENT_LIST
+                    POSITION_COMPARATOR -> FRAGMENT_COMPARATOR
+                    POSITION_REMOVE_ADS -> FRAGMENT_REMOVE_ADS
+                    POSITION_MORE -> FRAGMENT_MORE
+                    else -> FRAGMENT_MAIN
+                }
+
+                viewFragment(position, tabName)
             }
-
-            viewFragment(position, tabName)
         }
 
         when (intent.getStringExtra(PARAM_TYPE)) {
@@ -69,7 +94,6 @@ class MainActivity : AppCompatActivity() {
             else -> forceSelectTab(POSITION_CART)
         }
 
-        checkPurchase()
         checkVersion()
         initAdMob()
     }
@@ -78,11 +102,11 @@ class MainActivity : AppCompatActivity() {
         if (havePlan()) return
 
         MobileAds.initialize(this) {
-            val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR)
+            val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR, "7242AA08F80EC72727EE3DECA8262032")
             val configuration = RequestConfiguration.Builder().setTestDeviceIds(deviceId).build()
             MobileAds.setRequestConfiguration(configuration)
 
-            loadAdBanner(ll_banner, "ca-app-pub-6521704558504566/7944661753")
+            loadAdBanner(binding.llBanner, "ca-app-pub-6521704558504566/7944661753")
 
             createInterstitialAd()
         }
@@ -128,46 +152,7 @@ class MainActivity : AppCompatActivity() {
     private fun forceSelectTab(position: Int) {
         viewFragment(position, FRAGMENT_MAIN)
 
-        bn_navigation.selectTab(position, true)
-    }
-
-    private fun checkPurchase() {
-        if (billingClient == null) {
-
-            billingClient = BillingClient
-                .newBuilder(this)
-                .setListener { _, _ -> checkPurchase() }
-                .enablePendingPurchases()
-                .build()
-
-            billingClient?.startConnection(object : BillingClientStateListener {
-                override fun onBillingSetupFinished(billingResult: BillingResult) {
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK)
-                        checkPurchase()
-                }
-
-                override fun onBillingServiceDisconnected() {}
-            })
-
-        } else {
-
-            billingClient!!.queryPurchasesAsync(BillingClient.SkuType.SUBS) { _, list ->
-                var havePlan = false
-
-                for (purchase in list) {
-                    if (!havePlan && purchase.purchaseState == Purchase.PurchaseState.PURCHASED)
-                        havePlan = true
-                }
-
-                Hawk.put(PREF_HAVE_PLAN, havePlan)
-
-                if (havePlan && adBannerLoaded) {
-                    val intent = Intent(this, SplashActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    startActivity(intent)
-                }
-            }
-        }
+        binding.bnNavigation.selectTab(position, true)
     }
 
     private fun checkVersion() {

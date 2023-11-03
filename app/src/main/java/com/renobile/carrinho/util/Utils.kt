@@ -49,8 +49,8 @@ fun String.getInt(): Int {
 
 fun String.getPrice(): String {
     var price = this
-            .replace(Regex("[^0-9,]"), "")
-            .replace(",", ".")
+        .replace(Regex("[^0-9,.]"), "")
+        .replace(",", ".")
 
     if (price.isEmpty())
         price = "0"
@@ -59,7 +59,7 @@ fun String.getPrice(): String {
 }
 
 fun storeAppLink(): String =
-        "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
+    "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
 
 fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String) {
     if (this == null) return
@@ -79,13 +79,15 @@ fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String
             text += "${it.quantity} - ${it.name} - ${price.formatPrice()}\n"
         }
 
-        text += getString(R.string.share_cart_text,
-                if (products.size == 1) "" else "s",
-                products.size,
-                if (volumes == 1) "" else "s",
-                volumes,
-                total.formatPrice(),
-                storeAppLink())
+        text += getString(
+            R.string.share_cart_text,
+            if (products.size == 1) "" else "s",
+            products.size,
+            if (volumes == 1) "" else "s",
+            volumes,
+            total.formatPrice(),
+            storeAppLink()
+        )
 
         share(text, getString(R.string.send_list_label, cartName))
     } else {
@@ -111,13 +113,15 @@ fun Activity?.sendList(products: RealmResults<Product>? = null, cartName: String
             text += "${it.quantity} - ${it.name} - ${price.formatPrice()}\n"
         }
 
-        text += getString(R.string.share_cart_text,
-                if (products.size == 1) "" else "s",
-                products.size,
-                if (volumes == 1) "" else "s",
-                volumes,
-                total.formatPrice(),
-                storeAppLink())
+        text += getString(
+            R.string.share_cart_text,
+            if (products.size == 1) "" else "s",
+            products.size,
+            if (volumes == 1) "" else "s",
+            volumes,
+            total.formatPrice(),
+            storeAppLink()
+        )
 
         share(text, getString(R.string.send_list_label, cartName))
     } else {
@@ -225,19 +229,12 @@ fun String?.formatDatetime(): String {
 
             if (parsed != null)
                 return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-                        .format(parsed.time)
+                    .format(parsed.time)
         }
     } catch (e: ParseException) {
         e.printStackTrace()
     }
     return ""
-}
-
-fun String.formatPlanTitle(): String {
-    return if (this.contains(" ("))
-        this.split(" (")[0]
-    else
-        this
 }
 
 fun View.hideKeyboard() {
@@ -249,7 +246,7 @@ fun String?.isValidUrl(): Boolean = !this.isNullOrEmpty() && URLUtil.isValidUrl(
 
 fun String?.stringToInt(): Int {
     if (this != null && this != "null") {
-        val number = this.replace("[^\\d]".toRegex(), "")
+        val number = this.replace("\\D".toRegex(), "")
         if (number.isNotEmpty())
             return number.toInt()
     }
@@ -298,13 +295,13 @@ fun Bitmap?.getCircleCroppedBitmap(): Bitmap? {
             paint.color = color
             if (bitmap.width < bitmap.height) {
                 canvas.drawCircle(
-                        (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
-                        (bitmap.width / 2).toFloat(), paint
+                    (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
+                    (bitmap.width / 2).toFloat(), paint
                 )
             } else {
                 canvas.drawCircle(
-                        (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
-                        (bitmap.height / 2).toFloat(), paint
+                    (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
+                    (bitmap.height / 2).toFloat(), paint
                 )
             }
             paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
@@ -361,7 +358,7 @@ fun EditText?.getPrice(): Double {
     if (this == null) return 0.0
     val value = this.text.toString()
     if (value.isEmpty()) return 0.0
-    val result = value.replace("[^\\d]".toRegex(), "")
+    val result = value.getPrice()
     return if (result.isEmpty()) 0.0 else result.toDouble()
 }
 
@@ -396,4 +393,16 @@ fun saveAppData(result: Result<String, FuelError>) {
 fun appLog(tag: String, msg: String) {
     if (BuildConfig.DEBUG)
         Log.i("MAGGAPPS_LOG", "➡➡➡ $tag: $msg")
+}
+
+fun View.hide() {
+    visibility = View.GONE
+}
+
+fun View.show() {
+    visibility = View.VISIBLE
+}
+
+fun View.isVisible(isVisible: Boolean) {
+    if (isVisible) show() else hide()
 }

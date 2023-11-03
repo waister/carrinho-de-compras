@@ -3,66 +3,62 @@ package com.renobile.carrinho.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.MainActivity
-import com.renobile.carrinho.util.*
+import com.renobile.carrinho.databinding.FragmentComparatorBinding
+import com.renobile.carrinho.util.MaskMoney
+import com.renobile.carrinho.util.PREF_PRICE_FIRST
+import com.renobile.carrinho.util.PREF_PRICE_SECOND
+import com.renobile.carrinho.util.PREF_SIZE_FIRST
+import com.renobile.carrinho.util.PREF_SIZE_SECOND
+import com.renobile.carrinho.util.formatPercent
+import com.renobile.carrinho.util.fromHtml
+import com.renobile.carrinho.util.getNumber
+import com.renobile.carrinho.util.getPrice
+import com.renobile.carrinho.util.hide
+import com.renobile.carrinho.util.hideKeyboard
+import com.renobile.carrinho.util.shareApp
+import com.renobile.carrinho.util.show
 import org.jetbrains.anko.alert
-import org.jetbrains.anko.find
 import org.jetbrains.anko.toast
-import java.util.*
+import java.util.Locale
 
 class ComparatorFragment : Fragment(), TextWatcher {
 
-    private var toolbar: Toolbar? = null
-    private lateinit var etPriceFirst: EditText
-    private lateinit var etSizeFirst: EditText
-    private lateinit var etPriceSecond: EditText
-    private lateinit var etSizeSecond: EditText
-    private lateinit var tvResultFirst: TextView
-    private lateinit var tvResultSecond: TextView
-    private lateinit var tvResultPercentage: TextView
-    private lateinit var llResult: LinearLayout
-    private lateinit var svContent: ScrollView
+    private var _binding: FragmentComparatorBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_comparator, container, false)
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentComparatorBinding.inflate(inflater, container, false)
 
-        toolbar = root.find(R.id.toolbar)
+        initViews()
 
-        etPriceFirst = root.find(R.id.et_price_first)
-        etSizeFirst = root.find(R.id.et_size_first)
-        etPriceSecond = root.find(R.id.et_price_second)
-        etSizeSecond = root.find(R.id.et_size_second)
-        llResult = root.find(R.id.ll_result)
-        svContent = root.find(R.id.sv_content)
+        return binding.root
+    }
 
-        val btSubmit = root.find<AppCompatButton>(R.id.bt_submit)
-
-        tvResultFirst = root.find(R.id.tv_result_first)
-        tvResultSecond = root.find(R.id.tv_result_second)
-        tvResultPercentage = root.find(R.id.tv_result_percentage)
-
+    private fun initViews() = with(binding) {
         etPriceFirst.addTextChangedListener(MaskMoney(etPriceFirst))
         etPriceSecond.addTextChangedListener(MaskMoney(etPriceSecond))
 
-        etPriceFirst.addTextChangedListener(this)
-        etSizeFirst.addTextChangedListener(this)
-        etPriceSecond.addTextChangedListener(this)
-        etSizeSecond.addTextChangedListener(this)
+        etPriceFirst.addTextChangedListener(this@ComparatorFragment)
+        etSizeFirst.addTextChangedListener(this@ComparatorFragment)
+        etPriceSecond.addTextChangedListener(this@ComparatorFragment)
+        etSizeSecond.addTextChangedListener(this@ComparatorFragment)
 
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
 
@@ -76,12 +72,10 @@ class ComparatorFragment : Fragment(), TextWatcher {
 
             false
         })
-
-        return root
     }
 
-    override fun afterTextChanged(s: Editable?) {
-        llResult.visibility = View.GONE
+    override fun afterTextChanged(s: Editable?) = with(binding) {
+        llResult.hide()
     }
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -96,17 +90,19 @@ class ComparatorFragment : Fragment(), TextWatcher {
     override fun onResume() {
         super.onResume()
 
-        if (etPriceFirst.text.isEmpty())
-            etPriceFirst.setText(Hawk.get(PREF_PRICE_FIRST, ""))
+        binding.apply {
+            if (etPriceFirst.text.isNullOrEmpty())
+                etPriceFirst.setText(Hawk.get(PREF_PRICE_FIRST, ""))
 
-        if (etSizeFirst.text.isEmpty())
-            etSizeFirst.setText(Hawk.get(PREF_SIZE_FIRST, ""))
+            if (etSizeFirst.text.isNullOrEmpty())
+                etSizeFirst.setText(Hawk.get(PREF_SIZE_FIRST, ""))
 
-        if (etPriceSecond.text.isEmpty())
-            etPriceSecond.setText(Hawk.get(PREF_PRICE_SECOND, ""))
+            if (etPriceSecond.text.isNullOrEmpty())
+                etPriceSecond.setText(Hawk.get(PREF_PRICE_SECOND, ""))
 
-        if (etSizeSecond.text.isEmpty())
-            etSizeSecond.setText(Hawk.get(PREF_SIZE_SECOND, ""))
+            if (etSizeSecond.text.isNullOrEmpty())
+                etSizeSecond.setText(Hawk.get(PREF_SIZE_SECOND, ""))
+        }
 
         calculate(false)
     }
@@ -114,10 +110,12 @@ class ComparatorFragment : Fragment(), TextWatcher {
     override fun onDestroy() {
         super.onDestroy()
 
-        Hawk.put(PREF_PRICE_FIRST, etPriceFirst.text.toString())
-        Hawk.put(PREF_SIZE_FIRST, etSizeFirst.text.toString())
-        Hawk.put(PREF_PRICE_SECOND, etPriceSecond.text.toString())
-        Hawk.put(PREF_SIZE_SECOND, etSizeSecond.text.toString())
+        binding.apply {
+            Hawk.put(PREF_PRICE_FIRST, etPriceFirst.text.toString())
+            Hawk.put(PREF_SIZE_FIRST, etSizeFirst.text.toString())
+            Hawk.put(PREF_PRICE_SECOND, etPriceSecond.text.toString())
+            Hawk.put(PREF_SIZE_SECOND, etSizeSecond.text.toString())
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -133,7 +131,7 @@ class ComparatorFragment : Fragment(), TextWatcher {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun clearForm() {
+    private fun clearForm() = with(binding) {
         activity?.alert(R.string.confirmation_message, R.string.confirmation) {
             positiveButton(R.string.clear) {
                 etPriceFirst.setText("")
@@ -156,7 +154,7 @@ class ComparatorFragment : Fragment(), TextWatcher {
         activity.hideKeyboard()
     }
 
-    private fun calculate(showToast: Boolean) {
+    private fun calculate(showToast: Boolean) = with(binding) {
         val priceFirst = etPriceFirst.getPrice()
         val sizeFirst = etSizeFirst.getNumber()
         val priceSecond = etPriceSecond.getPrice()
@@ -188,27 +186,27 @@ class ComparatorFragment : Fragment(), TextWatcher {
                     tvResultPercentage.text = result.fromHtml()
                 }
 
-                tvResultSecond.visibility = View.VISIBLE
-                tvResultPercentage.visibility = View.VISIBLE
+                tvResultSecond.show()
+                tvResultPercentage.show()
             } else {
-                tvResultSecond.visibility = View.GONE
-                tvResultPercentage.visibility = View.GONE
+                tvResultSecond.hide()
+                tvResultPercentage.hide()
             }
 
-            llResult.visibility = View.VISIBLE
+            llResult.show()
 
             scrollBottom()
-        } else {
-            if (showToast) {
-                var message = R.string.error_empty_price
+        } else if (showToast) {
+            var message = R.string.error_empty_price
 
-                if (priceFirst > 0) {
-                    message = R.string.error_empty_size
-                }
-
-                activity?.toast(message)
+            if (priceFirst > 0) {
+                message = R.string.error_empty_size
             }
+
+            activity?.toast(message)
         }
+
+        return@with
     }
 
     private fun formatPrice(price: Double): String {
@@ -216,7 +214,7 @@ class ComparatorFragment : Fragment(), TextWatcher {
         return String.format(Locale.getDefault(), "R$ %,.3f", realPrice)
     }
 
-    private fun scrollBottom() {
+    private fun scrollBottom() = with(binding) {
         svContent.post { svContent.fullScroll(ScrollView.FOCUS_DOWN) }
     }
 

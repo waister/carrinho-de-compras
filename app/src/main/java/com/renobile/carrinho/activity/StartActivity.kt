@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -15,12 +15,14 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.application.CustomApplication
+import com.renobile.carrinho.databinding.ActivityStartBinding
 import com.renobile.carrinho.util.*
-import kotlinx.android.synthetic.main.activity_splash.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.intentFor
 
-class SplashActivity : AppCompatActivity() {
+class StartActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityStartBinding
 
     companion object {
         const val TAG = "SplashActivity"
@@ -31,8 +33,11 @@ class SplashActivity : AppCompatActivity() {
 
     @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+
+        binding = ActivityStartBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         Log.w(TAG, "Token FCM: " + Hawk.get(PREF_FCM_TOKEN, ""))
 
@@ -68,7 +73,7 @@ class SplashActivity : AppCompatActivity() {
             if (resultCode == RESULT_OK) {
                 initApp()
             } else {
-                ll_loading.visibility = View.GONE
+                binding.llLoading.hide()
 
                 alert(R.string.error_on_update_message, R.string.error_on_update) {
                     positiveButton(R.string.try_again) { checkAppVersion() }
@@ -96,7 +101,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun checkAppVersion() {
-        ll_loading.visibility = View.VISIBLE
+        binding.llLoading.show()
 
         appUpdateManager = AppUpdateManagerFactory.create(this)
 

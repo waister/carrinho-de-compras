@@ -21,7 +21,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
-import com.renobile.carrinho.activity.SplashActivity
+import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.util.*
 import java.io.IOException
 import java.net.ConnectException
@@ -101,7 +101,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val channelId = "${type}_channel"
 
-        var notifyIntent = Intent(applicationContext, SplashActivity::class.java)
+        var notifyIntent = Intent(applicationContext, StartActivity::class.java)
 
         if (version.isNotEmpty()) {
             val versionCode = version.stringToInt()
@@ -180,7 +180,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             builder.setChannelId(channelId)
         }
 
-        manager.notify(NOTIFICATION_DEFAULT_ID, builder.build())
+        manager.notify(1, builder.build())
 
         Log.i(TAG, "Push notification displayed - vibrate: $vibrate")
 

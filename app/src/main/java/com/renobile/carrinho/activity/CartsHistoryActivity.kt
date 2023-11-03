@@ -12,17 +12,22 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.CartsAdapter
+import com.renobile.carrinho.databinding.ActivityCartsHistoryBinding
 import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.PARAM_CART_ID
+import com.renobile.carrinho.util.hide
+import com.renobile.carrinho.util.isVisible
+import com.renobile.carrinho.util.show
 import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import kotlinx.android.synthetic.main.activity_carts_history.*
 import org.jetbrains.anko.intentFor
 
 class CartsHistoryActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityCartsHistoryBinding
 
     private var realm: Realm = Realm.getDefaultInstance()
     private var carts: RealmResults<Cart>? = null
@@ -32,7 +37,9 @@ class CartsHistoryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_carts_history)
+
+        binding = ActivityCartsHistoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -41,20 +48,20 @@ class CartsHistoryActivity : AppCompatActivity() {
         initViews()
     }
 
-    private fun initViews() {
-        rv_carts.setHasFixedSize(true)
+    private fun initViews() = with(binding) {
+        rvCarts.setHasFixedSize(true)
 
-        val layoutManager = LinearLayoutManager(this)
-        rv_carts.layoutManager = layoutManager
+        val layoutManager = LinearLayoutManager(this@CartsHistoryActivity)
+        rvCarts.layoutManager = layoutManager
 
-        val divider = DividerItemDecoration(this, layoutManager.orientation)
-        rv_carts.addItemDecoration(divider)
+        val divider = DividerItemDecoration(this@CartsHistoryActivity, layoutManager.orientation)
+        rvCarts.addItemDecoration(divider)
 
-        cartsAdapter = CartsAdapter(this)
-        rv_carts.adapter = cartsAdapter
+        cartsAdapter = CartsAdapter(this@CartsHistoryActivity)
+        rvCarts.adapter = cartsAdapter
 
-        rv_carts.addOnItemTouchListener(
-            CartsAdapter(this, object : CartsAdapter.OnItemClickListener {
+        rvCarts.addOnItemTouchListener(
+            CartsAdapter(this@CartsHistoryActivity, object : CartsAdapter.OnItemClickListener {
                 override fun onItemClick(view: View, position: Int) {
                     val cart = carts!![position]
 
@@ -129,16 +136,21 @@ class CartsHistoryActivity : AppCompatActivity() {
         return carts?.sort("id", Sort.DESCENDING)
     }
 
-    fun doneSearch(terms: String): Boolean {
+    fun doneSearch(terms: String): Boolean = with(binding) {
         searchTerms = terms
 
-        if (cartsAdapter != null && tv_empty != null) {
+        if (cartsAdapter != null) {
             renderData()
 
             if (searchTerms.isNotEmpty()) {
+                cvSearching.show()
+                tvSearching.text = searchTerms
+
                 return true
             }
         }
+
+        cvSearching.hide()
 
         return false
     }
@@ -148,14 +160,10 @@ class CartsHistoryActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun renderData() {
+    private fun renderData() = with(binding) {
         carts = getCarts()
 
-        if (carts!!.size == 0) {
-            tv_empty.visibility = View.VISIBLE
-        } else {
-            tv_empty.visibility = View.GONE
-        }
+        tvEmpty.isVisible(carts!!.size == 0)
 
         cartsAdapter?.setData(carts)
     }

@@ -4,15 +4,20 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.renobile.carrinho.R
+import com.renobile.carrinho.databinding.ActivityRemoveAdsBinding
 import com.renobile.carrinho.fragments.RemoveAdsFragment
 import com.renobile.carrinho.util.PARAM_FRAGMENT
 import com.renobile.carrinho.util.PARAM_SHOW_BACK
 
 class RemoveAdsActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityRemoveAdsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_remove_ads)
+
+        binding = ActivityRemoveAdsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 

@@ -10,7 +10,7 @@
     <string name="send_cart">Enviar carrinho</string>
     <string name="send_list">Enviar lista</string>
     <string name="clear_cart">Limpar carrinho</string>
-    <string name="carts_history">Carrinhos arquivados</string>
+    <string name="carts_history">Histórico / arquivados</string>
     <string name="lists_history">Listas arquivadas</string>
     <string name="clear_list">Limpar lista</string>
     <string name="clear_fields">Limpar campos</string>
@@ -45,6 +45,7 @@
     <string name="products_empty">Nenhum produto adicionado</string>
     <string name="carts_archive_empty">Nenhum carrinho arquivado</string>
     <string name="lists_archive_empty">Nenhuma lista arquivada</string>
+    <string name="lists_archive_searching">Pesquisando por:</string>
     <string name="carts_empty">Nenhum carrinho criado</string>
     <string name="lists_empty">Nenhuma lista criada</string>
     <string name="name">Nome</string>

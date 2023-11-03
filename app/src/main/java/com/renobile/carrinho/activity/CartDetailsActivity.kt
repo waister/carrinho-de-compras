@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.CartProductsAdapter
+import com.renobile.carrinho.databinding.ActivityCartDetailsBinding
 import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.PARAM_CART_ID
@@ -18,11 +19,12 @@ import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import kotlinx.android.synthetic.main.activity_cart_details.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 
 class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
+
+    private lateinit var binding: ActivityCartDetailsBinding
 
     private var realm: Realm = Realm.getDefaultInstance()
     private var cart: Cart? = null
@@ -32,8 +34,11 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_cart_details)
-        setSupportActionBar(toolbar)
+
+        binding = ActivityCartDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -54,19 +59,19 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun initViews() {
-        fab.setOnClickListener(this)
+    private fun initViews() = with(binding) {
+        fab.setOnClickListener(this@CartDetailsActivity)
 
-        rv_products.setHasFixedSize(true)
+        rvProducts.setHasFixedSize(true)
 
-        val layoutManager = LinearLayoutManager(this)
-        rv_products.layoutManager = layoutManager
+        val layoutManager = LinearLayoutManager(this@CartDetailsActivity)
+        rvProducts.layoutManager = layoutManager
 
-        val divider = DividerItemDecoration(this, layoutManager.orientation)
-        rv_products.addItemDecoration(divider)
+        val divider = DividerItemDecoration(this@CartDetailsActivity, layoutManager.orientation)
+        rvProducts.addItemDecoration(divider)
 
-        historyAdapterCart = CartProductsAdapter(this)
-        rv_products.adapter = historyAdapterCart
+        historyAdapterCart = CartProductsAdapter(this@CartDetailsActivity)
+        rvProducts.adapter = historyAdapterCart
 
         renderData()
     }
@@ -78,7 +83,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun getProducts(terms: String = ""): RealmResults<Product>? {
         var query = realm.where(Product::class.java)
-                .equalTo("cartId", cartId)
+            .equalTo("cartId", cartId)
 
         if (terms.isNotEmpty()) {
             query = query?.contains("name", terms, Case.INSENSITIVE)
@@ -98,7 +103,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         sendCart(products, cart!!.name)
     }
 
-    private fun renderData(terms: String = "") {
+    private fun renderData(terms: String = "") = with(binding) {
         products = getProducts(terms)
 
         var volumes = 0
@@ -111,12 +116,14 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
 
-        tv_quantities.text = getString(R.string.products_details,
-                products!!.size,
-                if (products!!.size == 1) "" else "s",
-                volumes,
-                if (volumes == 1) "" else "s")
-        tv_total.text = total.formatPrice()
+        tvQuantities.text = getString(
+            R.string.products_details,
+            products!!.size,
+            if (products!!.size == 1) "" else "s",
+            volumes,
+            if (volumes == 1) "" else "s"
+        )
+        tvTotal.text = total.formatPrice()
 
         historyAdapterCart?.setData(products)
     }

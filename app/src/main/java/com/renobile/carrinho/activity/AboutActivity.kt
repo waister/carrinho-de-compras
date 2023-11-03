@@ -4,26 +4,32 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
-import kotlinx.android.synthetic.main.activity_about.*
+import com.renobile.carrinho.databinding.ActivityAboutBinding
 import org.jetbrains.anko.intentFor
 
 class AboutActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityAboutBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_about)
 
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_left)
-        toolbar.setNavigationOnClickListener {
-            onBackPressed()
+        binding = ActivityAboutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.apply {
+            toolbar.setNavigationIcon(R.drawable.ic_arrow_left)
+            toolbar.setNavigationOnClickListener {
+                onBackPressed()
+            }
+
+            btRemoveAds.setOnClickListener {
+                startActivity(intentFor<RemoveAdsActivity>())
+                finish()
+            }
+
+            tvVersion.text = getString(R.string.version, BuildConfig.VERSION_NAME)
         }
-
-        bt_remove_ads.setOnClickListener {
-            startActivity(intentFor<RemoveAdsActivity>())
-            finish()
-        }
-
-        tv_version.text = getString(R.string.version, BuildConfig.VERSION_NAME)
     }
 
 }
