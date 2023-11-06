@@ -6,7 +6,15 @@ import com.google.android.gms.ads.MobileAds
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.domain.RealmMigration
-import com.renobile.carrinho.util.*
+import com.renobile.carrinho.util.API_ANDROID
+import com.renobile.carrinho.util.API_DEBUG
+import com.renobile.carrinho.util.API_IDENTIFIER
+import com.renobile.carrinho.util.API_PLATFORM
+import com.renobile.carrinho.util.API_V
+import com.renobile.carrinho.util.API_VERSION
+import com.renobile.carrinho.util.APP_HOST
+import com.renobile.carrinho.util.AppOpenManager
+import com.renobile.carrinho.util.PREF_DEVICE_ID
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
@@ -25,6 +33,7 @@ class CustomApplication : MultiDexApplication() {
         Realm.setDefaultConfiguration(
             RealmConfiguration.Builder()
 //                .deleteRealmIfMigrationNeeded()
+                .allowWritesOnUiThread(true)
                 .schemaVersion(1)
                 .migration(RealmMigration())
                 .build()
