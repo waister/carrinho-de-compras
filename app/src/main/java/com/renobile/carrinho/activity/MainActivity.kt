@@ -12,11 +12,8 @@ import androidx.core.content.ContextCompat
 import com.eightbitlab.bottomnavigationbar.BottomBarItem
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.orhanobut.hawk.Hawk
@@ -63,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private var selectedTabName = FRAGMENT_MAIN
-    private var interstitialAd: InterstitialAd? = null
+//    private var interstitialAd: InterstitialAd? = null
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val permissionTag = Manifest.permission.POST_NOTIFICATIONS
@@ -138,24 +135,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createInterstitialAd() {
-        if (havePlan()) return
-
-        val id = "ca-app-pub-6521704558504566/4051651496"
-        val request = AdRequest.Builder().build()
-
-        InterstitialAd.load(this, id, request, object : InterstitialAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                interstitialAd = null
-            }
-
-            override fun onAdLoaded(loadedAd: InterstitialAd) {
-                interstitialAd = loadedAd
-            }
-        })
+//        if (havePlan()) return
+//
+//        val id = "ca-app-pub-6521704558504566/4051651496"
+//        val request = AdRequest.Builder().build()
+//
+//        InterstitialAd.load(this, id, request, object : InterstitialAdLoadCallback() {
+//            override fun onAdFailedToLoad(adError: LoadAdError) {
+//                interstitialAd = null
+//            }
+//
+//            override fun onAdLoaded(loadedAd: InterstitialAd) {
+//                interstitialAd = loadedAd
+//            }
+//        })
     }
 
     fun showInterstitialAd() {
-        interstitialAd?.show(this)
+//        interstitialAd?.show(this)
     }
 
     private fun viewFragment(index: Int, name: String) {

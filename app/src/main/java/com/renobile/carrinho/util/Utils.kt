@@ -284,7 +284,7 @@ fun Bitmap?.getCircleCroppedBitmap(): Bitmap? {
     if (bitmap != null) {
         try {
             output = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(output!!)
+            val canvas = Canvas(output)
 
             val color = -0xbdbdbe
             val paint = Paint()
