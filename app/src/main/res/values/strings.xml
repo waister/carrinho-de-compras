@@ -52,8 +52,8 @@
     <string name="email">E-mail</string>
     <string name="create_cart">Criar novo carrinho</string>
     <string name="create_list">Criar nova lista</string>
-    <string name="cart_name">Nome do carrinho</string>
-    <string name="list_name">Nome da lista</string>
+    <string name="cart_name">Nome do carrinho (opcional)</string>
+    <string name="list_name">Nome da lista (opcional)</string>
     <string name="create_cart_success">Carrinho criado com sucesso!</string>
     <string name="create_list_success">Lista criada com sucesso!</string>
     <string name="create_cart_needed">Você precisa criar um carinho para começar:</string>
@@ -187,4 +187,5 @@
     <string name="ignore">Ignorar</string>
     <string name="notification_question_title">Notificações exclusivas</string>
     <string name="notification_change_idea">Caso mude de ideia, acessar as informações do aplicativo e alterar em notificações</string>
+    <string name="cart_name_default">Compras %1$s/%2$s</string>
 </resources>

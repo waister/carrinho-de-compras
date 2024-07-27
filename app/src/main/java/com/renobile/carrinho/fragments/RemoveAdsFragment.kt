@@ -21,9 +21,7 @@ import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.databinding.FragmentRemoveAdsBinding
-import com.renobile.carrinho.util.API_PREMIUM
 import com.renobile.carrinho.util.ONE_DAY
-import com.renobile.carrinho.util.PARAM_TYPE
 import com.renobile.carrinho.util.PREF_ADMOB_REMOVE_ADS_ID
 import com.renobile.carrinho.util.PREF_PLAN_VIDEO_DURATION
 import com.renobile.carrinho.util.PREF_PLAN_VIDEO_MILLIS
@@ -31,6 +29,7 @@ import com.renobile.carrinho.util.appLog
 import com.renobile.carrinho.util.havePlan
 import com.renobile.carrinho.util.haveVideoPlan
 import com.renobile.carrinho.util.hide
+import com.renobile.carrinho.util.isDebug
 import com.renobile.carrinho.util.show
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.okButton
@@ -40,14 +39,11 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
     private var _binding: FragmentRemoveAdsBinding? = null
     private val binding get() = _binding!!
 
-    companion object {
-        const val TAG = "RemoveAdsFragment"
-    }
-
     private var adMobRemoveAds: String = ""
     private var planCount: Int = 0
     private var isRewardedAlertShown: Boolean = false
     private var rewardedAd: RewardedAd? = null
+    private var _alertDialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,11 +59,27 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
         initViews()
     }
 
+    override fun onUserEarnedReward(rewardedAd: RewardItem) {
+        val amount = rewardedAd.amount
+        val type = rewardedAd.type
+        appLog(TAG, "User earned the reward amount: $amount")
+        appLog(TAG, "User earned the reward type: $type")
+
+        Hawk.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _alertDialog?.dismiss()
+    }
+
     private fun initViews() = with(binding) {
         tvThanks.hide()
         cvWatch.hide()
 
         adMobRemoveAds = Hawk.get(PREF_ADMOB_REMOVE_ADS_ID, "")
+
+        if (isDebug()) adMobRemoveAds = "ca-app-pub-3940256099942544/5224354917"
 
         appLog(TAG, "adMobRemoveAds: $adMobRemoveAds")
 
@@ -184,34 +196,26 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
         }
     }
 
-    override fun onUserEarnedReward(rewardedAd: RewardItem) {
-        val amount = rewardedAd.amount
-        val type = rewardedAd.type
-        appLog(TAG, "User earned the reward amount: $amount")
-        appLog(TAG, "User earned the reward type: $type")
-
-        Hawk.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
-    }
-
     private fun alertRestartApp() {
         if (activity != null && !isRewardedAlertShown && haveVideoPlan()) {
             isRewardedAlertShown = true
 
-            AlertDialog.Builder(requireActivity())
-                .setCancelable(false)
-                .setTitle(R.string.plan_success_title)
-                .setMessage(R.string.plan_success_body)
-                .setPositiveButton(R.string.restart_app) { _, _ ->
-                    restartApp()
-                }
-                .create()
-                .show()
+            if (_alertDialog == null)
+                _alertDialog = AlertDialog.Builder(requireActivity())
+                    .setCancelable(false)
+                    .setTitle(R.string.plan_success_title)
+                    .setMessage(R.string.plan_success_body)
+                    .setPositiveButton(R.string.restart_app) { _, _ ->
+                        restartApp()
+                    }
+                    .create()
+
+            _alertDialog?.show()
         }
     }
 
     private fun restartApp() {
         val intent = Intent(activity, StartActivity::class.java)
-        intent.putExtra(PARAM_TYPE, API_PREMIUM)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
 
@@ -220,6 +224,10 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
 
     private fun alertErrorLoad() {
         activity?.alert(R.string.error_load_video, R.string.ops) { okButton {} }?.show()
+    }
+
+    companion object {
+        const val TAG = "RemoveAdsFragment"
     }
 
 }

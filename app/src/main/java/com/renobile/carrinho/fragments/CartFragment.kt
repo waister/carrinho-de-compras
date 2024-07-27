@@ -1,18 +1,20 @@
 package com.renobile.carrinho.fragments
 
-import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -23,14 +25,29 @@ import com.renobile.carrinho.activity.CartsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
 import com.renobile.carrinho.adapter.CartProductsAdapter
 import com.renobile.carrinho.databinding.FragmentCartBinding
+import com.renobile.carrinho.databinding.ItemAddCartBinding
+import com.renobile.carrinho.databinding.ItemAddProductBinding
 import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.domain.Product
-import com.renobile.carrinho.util.*
+import com.renobile.carrinho.util.createCartListName
+import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.getInt
+import com.renobile.carrinho.util.getPrice
+import com.renobile.carrinho.util.hide
+import com.renobile.carrinho.util.longSnackbar
+import com.renobile.carrinho.util.maskMoney
+import com.renobile.carrinho.util.sendCart
+import com.renobile.carrinho.util.setEmpty
+import com.renobile.carrinho.util.shareApp
+import com.renobile.carrinho.util.show
 import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import org.jetbrains.anko.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.selector
+import org.jetbrains.anko.toast
 
 class CartFragment : Fragment() {
 
@@ -45,6 +62,8 @@ class CartFragment : Fragment() {
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
     private var optionsMenu: Menu? = null
+    private var _addCardDialog: AlertDialog? = null
+    private var _addProductDialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -106,44 +125,67 @@ class CartFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun createNewCart() = with(binding) {
+    override fun onDestroy() {
+        super.onDestroy()
+        realm.close()
+        _addCardDialog?.dismiss()
+        _addProductDialog?.dismiss()
+    }
+
+    fun doneSearch(terms: String): Boolean = with(binding) {
+        searchTerms = terms
+
+        if (historyAdapterCart != null) {
+            renderData()
+
+            if (searchTerms.isNotEmpty()) {
+                search.cvSearching.show()
+                search.tvSearching.text = searchTerms
+
+                return true
+            }
+        }
+
+        search.cvSearching.hide()
+
+        return false
+    }
+
+    private fun createNewCart() {
         if (activity == null) return
 
-        @SuppressLint("InflateParams") val view = layoutInflater.inflate(R.layout.item_add_cart, null)
+        if (_addCardDialog == null) {
+            val bindingItem = ItemAddCartBinding.inflate(layoutInflater)
 
-        val tvAlert = view.find<TextView>(R.id.tv_alert)
-        val etName = view.find<AppCompatEditText>(R.id.et_name)
+            bindingItem.etName.requestFocus()
+            bindingItem.tvAlert.setText(R.string.create_cart_notice)
 
-        etName.requestFocus()
+            _addCardDialog = AlertDialog.Builder(requireActivity())
+                .setView(bindingItem.root)
+                .setCancelable(false)
+                .setTitle(R.string.create_cart)
+                .setPositiveButton(R.string.confirm, null)
+                .setNegativeButton(R.string.cancel, null)
+                .create()
 
-        val builder =
-            AlertDialog.Builder(requireActivity()).setView(view).setCancelable(false).setTitle(R.string.create_cart)
-                .setPositiveButton(R.string.confirm, null).setNegativeButton(R.string.cancel, null)
+            _addCardDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            _addCardDialog!!.setOnShowListener { dialog ->
+                val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
 
-        tvAlert.setText(R.string.create_cart_notice)
-
-        val alert = builder.create()
-
-        alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-        alert.setOnShowListener { dialog ->
-
-            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-
-            etName.setOnEditorActionListener { _, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    button.performClick()
-                    true
-                } else {
-                    false
+                bindingItem.etName.setOnEditorActionListener { _, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        button.performClick()
+                        true
+                    } else {
+                        false
+                    }
                 }
-            }
 
-            button.setOnClickListener {
-                val name = etName.text.toString()
+                button.setOnClickListener {
+                    var name = bindingItem.etName.text.toString()
 
-                if (name.isEmpty()) {
-                    activity?.toast(R.string.error_name)
-                } else {
+                    if (name.isEmpty()) name = createCartListName()
+
                     if (products != null) {
                         var count = 0
                         var volumes = 0
@@ -185,18 +227,17 @@ class CartFragment : Fragment() {
 
                     dialog.dismiss()
 
-                    clRoot.longSnackbar(R.string.create_cart_success)
+                    binding.clRoot.longSnackbar(R.string.create_cart_success)
                 }
             }
         }
-        alert.show()
+        _addCardDialog?.show()
     }
 
     private fun clearCart() {
         activity?.alert(R.string.confirm_delete_all, R.string.confirmation) {
             positiveButton(R.string.confirm) {
                 realm.executeTransaction {
-                    //                    realm.delete(Product::class.java)
                     realm.where(Product::class.java).equalTo("cartId", cartId).findAll().deleteAllFromRealm()
 
                     renderData()
@@ -204,11 +245,6 @@ class CartFragment : Fragment() {
             }
             negativeButton(R.string.cancel) {}
         }?.show()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        realm.close()
     }
 
     private fun initViews() = with(binding) {
@@ -299,140 +335,124 @@ class CartFragment : Fragment() {
         return products?.sort("id", Sort.DESCENDING)
     }
 
-    fun doneSearch(terms: String): Boolean = with(binding) {
-        searchTerms = terms
-
-        if (historyAdapterCart != null) {
-            renderData()
-
-            if (searchTerms.isNotEmpty()) {
-                search.cvSearching.show()
-                search.tvSearching.text = searchTerms
-
-                return true
-            }
-        }
-
-        search.cvSearching.hide()
-
-        return false
-    }
-
-
-    private fun addOrEditProduct(product: Product? = null) = with(binding) {
+    private fun addOrEditProduct(product: Product? = null) {
         if (activity == null) return
 
-        @SuppressLint("InflateParams") val view = layoutInflater.inflate(R.layout.item_add_product, null)
+        if (_addProductDialog == null) {
+            val bindingItem = ItemAddProductBinding.inflate(layoutInflater)
 
-        val etName = view.find<AutoCompleteTextView>(R.id.et_name)
-        val etQuantity = view.find<AppCompatEditText>(R.id.et_quantity)
-        val etPrice = view.find<AppCompatEditText>(R.id.et_price)
+            bindingItem.etName.requestFocus()
+            bindingItem.etPrice.maskMoney()
 
-        etName.requestFocus()
-        etPrice.maskMoney()
+            var title = R.string.add_product
+            var positive = R.string.add
+            var negative = R.string.cancel
+            var success = R.string.product_added
 
-        var title = R.string.add_product
-        var positive = R.string.add
-        var negative = R.string.cancel
-        var success = R.string.product_added
+            if (product != null) {
+                bindingItem.etName.setText(product.name)
+                bindingItem.etQuantity.setText(product.quantity.toString())
+                bindingItem.etPrice.setText(product.price.formatPrice())
 
-        if (product != null) {
-            etName.setText(product.name)
-            etQuantity.setText(product.quantity.toString())
-            etPrice.setText(product.price.formatPrice())
+                title = R.string.edit_product
+                positive = R.string.save
+                negative = R.string.discard
+                success = R.string.product_edited
+            }
 
-            title = R.string.edit_product
-            positive = R.string.save
-            negative = R.string.discard
-            success = R.string.product_edited
+            _addProductDialog = AlertDialog.Builder(requireActivity())
+                .setCancelable(false)
+                .setView(bindingItem.root)
+                .setTitle(title)
+                .setPositiveButton(positive, null).setNegativeButton(negative, null)
+                .create()
+
+            _addProductDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            _addProductDialog!!.setOnShowListener { dialog ->
+
+                val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+
+                bindingItem.etPrice.setOnEditorActionListener { _, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        button.performClick()
+                        true
+                    } else {
+                        false
+                    }
+                }
+
+                val products = realm.where(Product::class.java).sort("name", Sort.ASCENDING).findAll()
+
+                if (products != null && products.size > 0) {
+                    val list = mutableListOf<String>()
+
+                    products.forEach {
+                        if (!list.contains(it.name)) list.add(it.name)
+                    }
+
+                    val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, list)
+                    bindingItem.etName.setAdapter(adapter)
+                }
+
+                button.setOnClickListener {
+                    val name = bindingItem.etName.text.toString()
+                    val quantity = bindingItem.etQuantity.text.toString()
+                    val price = bindingItem.etPrice.text.toString().getPrice()
+
+                    var error = 0
+
+                    when {
+                        name.isEmpty() -> error = R.string.error_name
+                        quantity.isEmpty() -> error = R.string.error_quantity
+                        price.isEmpty() -> error = R.string.error_price
+                    }
+
+                    if (error == 0 && quantity.getInt() < 1) {
+                        error = R.string.error_quantity_min
+                    }
+
+                    if (error != 0) {
+                        activity?.toast(error)
+                    } else {
+                        val productId = if (product == null) {
+                            val maxId = realm.where(Product::class.java).max("id")
+                            if (maxId == null) 1 else maxId.toLong() + 1
+                        } else {
+                            product.id
+                        }
+
+                        val item = Product()
+                        item.id = productId
+                        item.cartId = cartId
+                        item.name = name
+                        item.quantity = quantity.getInt()
+                        item.price = price.toDouble()
+
+                        realm.executeTransaction {
+                            realm.copyToRealmOrUpdate(item)
+                        }
+
+                        bindingItem.etName.requestFocus()
+
+                        renderData()
+
+                        bindingItem.etName.setEmpty()
+                        bindingItem.etQuantity.setEmpty()
+                        bindingItem.etPrice.setEmpty()
+
+                        if (product != null) {
+                            dialog.dismiss()
+
+                            binding.clRoot.longSnackbar(success)
+                        } else {
+                            activity?.toast(success)
+                        }
+                    }
+                }
+            }
         }
 
-        val alert = AlertDialog.Builder(requireActivity()).setCancelable(false).setView(view).setTitle(title)
-            .setPositiveButton(positive, null).setNegativeButton(negative, null).create()
-        alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-        alert.setOnShowListener { dialog ->
-
-            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-
-            etPrice.setOnEditorActionListener { _, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    button.performClick()
-                    true
-                } else {
-                    false
-                }
-            }
-
-            val products = realm.where(Product::class.java).sort("name", Sort.ASCENDING).findAll()
-
-            if (products != null && products.size > 0) {
-                val list = mutableListOf<String>()
-
-                products.forEach {
-                    if (!list.contains(it.name)) list.add(it.name)
-                }
-
-                val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, list)
-                etName.setAdapter(adapter)
-            }
-
-            button.setOnClickListener {
-                val name = etName.text.toString()
-                val quantity = etQuantity.text.toString()
-                val price = etPrice.text.toString().getPrice()
-
-                var error = 0
-
-                when {
-                    name.isEmpty() -> error = R.string.error_name
-                    quantity.isEmpty() -> error = R.string.error_quantity
-                    price.isEmpty() -> error = R.string.error_price
-                }
-
-                if (error == 0 && quantity.getInt() < 1) {
-                    error = R.string.error_quantity_min
-                }
-
-                if (error != 0) {
-                    activity?.toast(error)
-                } else {
-                    val productId = if (product == null) {
-                        val maxId = realm.where(Product::class.java).max("id")
-                        if (maxId == null) 1 else maxId.toLong() + 1
-                    } else {
-                        product.id
-                    }
-
-                    val item = Product()
-                    item.id = productId
-                    item.cartId = cartId
-                    item.name = name
-                    item.quantity = quantity.getInt()
-                    item.price = price.toDouble()
-
-                    realm.executeTransaction {
-                        realm.copyToRealmOrUpdate(item)
-                    }
-
-                    etName.requestFocus()
-
-                    renderData()
-
-                    etName.setText("")
-                    etQuantity.setText("1")
-                    etPrice.setText("")
-
-                    if (product != null) {
-                        dialog.dismiss()
-
-                        clRoot.longSnackbar(success)
-                    } else {
-                        activity?.toast(success)
-                    }
-                }
-            }
-        }
-        alert.show()
+        _addProductDialog?.show()
     }
 
     private fun changeQuantity(product: Product, quantity: Int) = with(binding) {

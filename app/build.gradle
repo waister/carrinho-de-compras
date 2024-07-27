@@ -12,8 +12,8 @@ android {
         applicationId "com.renobile.carrinho"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 15
-        versionName "2.0.12"
+        versionCode 17
+        versionName "2.0.13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -54,12 +54,12 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     testImplementation 'junit:junit:4.13.2'
 
-    implementation 'com.github.kittinunf.fuel:fuel-android:2.3.0'
+    implementation 'com.github.kittinunf.fuel:fuel-android:2.3.1'
     implementation 'com.google.android.gms:play-services-ads:23.2.0'
     implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.google.firebase:firebase-messaging:24.0.0'
     implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
-    implementation 'com.google.firebase:firebase-analytics:21.3.0'
+    implementation 'com.google.firebase:firebase-analytics:22.0.2'
     implementation 'com.eightbitlab:bottomnavigationbar:0.9.6'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -68,6 +68,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.4.1'
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'com.google.android.play:app-update-ktx:2.1.0'
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

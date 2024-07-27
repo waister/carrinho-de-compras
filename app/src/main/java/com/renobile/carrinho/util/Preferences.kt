@@ -1,6 +1,7 @@
 package com.renobile.carrinho.util
 
-const val PREF_DEVICE_ID = "DeviceId2"
+const val PREF_DEVICE_ID = "PrefDeviceId"
+const val PREF_DEVICE_ID_OLD = "DeviceId2"
 const val PREF_FCM_TOKEN = "PrefFcmToken"
 const val PREF_SHARE_LINK = "PrefStoreLink"
 const val PREF_HAVE_PLAN = "PrefHavePlan"

@@ -12,8 +12,11 @@ import androidx.core.content.ContextCompat
 import com.eightbitlab.bottomnavigationbar.BottomBarItem
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.orhanobut.hawk.Hawk
@@ -39,6 +42,8 @@ import com.renobile.carrinho.util.FRAGMENT_MAIN
 import com.renobile.carrinho.util.FRAGMENT_MORE
 import com.renobile.carrinho.util.FRAGMENT_REMOVE_ADS
 import com.renobile.carrinho.util.PARAM_TYPE
+import com.renobile.carrinho.util.PREF_ADMOB_AD_MAIN_ID
+import com.renobile.carrinho.util.PREF_ADMOB_INTERSTITIAL_ID
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
 import com.renobile.carrinho.util.PREF_PUSH_NOTIFICATION
 import com.renobile.carrinho.util.getBooleanVal
@@ -46,10 +51,13 @@ import com.renobile.carrinho.util.getIntVal
 import com.renobile.carrinho.util.getValidJSONObject
 import com.renobile.carrinho.util.havePlan
 import com.renobile.carrinho.util.isDebug
-import com.renobile.carrinho.util.loadAdBanner
+import com.renobile.carrinho.util.loadBannerAd
 import com.renobile.carrinho.util.printFuelLog
 import com.renobile.carrinho.util.saveAppData
 import com.renobile.carrinho.util.storeAppLink
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.longToast
@@ -60,7 +68,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private var selectedTabName = FRAGMENT_MAIN
-//    private var interstitialAd: InterstitialAd? = null
+    private var interstitialAd: InterstitialAd? = null
+    private var _alertDialog: AlertDialog? = null
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val permissionTag = Manifest.permission.POST_NOTIFICATIONS
@@ -120,39 +129,56 @@ class MainActivity : AppCompatActivity() {
         requestNotificationPermission()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _alertDialog?.dismiss()
+    }
+
+    fun showInterstitialAd() {
+        interstitialAd?.show(this)
+    }
+
     private fun initAdMob() {
         if (havePlan()) return
 
-        MobileAds.initialize(this) {
-            val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR, "7242AA08F80EC72727EE3DECA8262032")
-            val configuration = RequestConfiguration.Builder().setTestDeviceIds(deviceId).build()
-            MobileAds.setRequestConfiguration(configuration)
+        CoroutineScope(Dispatchers.IO).launch {
+            MobileAds.initialize(this@MainActivity) {}
+            runOnUiThread {
+                val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR, "7242AA08F80EC72727EE3DECA8262032")
+                val configuration = RequestConfiguration.Builder().setTestDeviceIds(deviceId).build()
+                MobileAds.setRequestConfiguration(configuration)
 
-            loadAdBanner(binding.llBanner, "ca-app-pub-6521704558504566/7944661753")
+                loadBannerAd(
+                    adViewContainer = binding.llBanner,
+                    adUnitId = Hawk.get(PREF_ADMOB_AD_MAIN_ID, ""),
+                    adSize = null,
+                    collapsible = false,
+                    shimmer = binding.shimmerBanner
+                )
 
-            createInterstitialAd()
+                createInterstitialAd()
+            }
         }
     }
 
     private fun createInterstitialAd() {
-//        if (havePlan()) return
-//
-//        val id = "ca-app-pub-6521704558504566/4051651496"
-//        val request = AdRequest.Builder().build()
-//
-//        InterstitialAd.load(this, id, request, object : InterstitialAdLoadCallback() {
-//            override fun onAdFailedToLoad(adError: LoadAdError) {
-//                interstitialAd = null
-//            }
-//
-//            override fun onAdLoaded(loadedAd: InterstitialAd) {
-//                interstitialAd = loadedAd
-//            }
-//        })
-    }
+        var adUnitId = Hawk.get(PREF_ADMOB_INTERSTITIAL_ID, "")
 
-    fun showInterstitialAd() {
-//        interstitialAd?.show(this)
+        if (havePlan() || adUnitId.isEmpty()) return
+
+        if (isDebug()) adUnitId = "ca-app-pub-3940256099942544/5224354917"
+
+        val request = AdRequest.Builder().build()
+
+        InterstitialAd.load(this, adUnitId, request, object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                interstitialAd = null
+            }
+
+            override fun onAdLoaded(loadedAd: InterstitialAd) {
+                interstitialAd = loadedAd
+            }
+        })
     }
 
     private fun viewFragment(index: Int, name: String) {
@@ -273,21 +299,23 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun alertNotificationsIsImportant() {
-        AlertDialog.Builder(applicationContext)
-            .setTitle(R.string.notification_question_title)
-            .setMessage(R.string.notifications_important)
-            .setCancelable(false)
-            .setPositiveButton(R.string.allow_notifications) { dialog, _ ->
-                permissionLauncher.launch(permissionTag)
-                dialog.dismiss()
-            }
-            .setNegativeButton(R.string.ignore) { dialog, _ ->
-                dialog.dismiss()
-                blockPushNotificationQuestion()
-                showMessage()
-            }
-            .create()
-            .show()
+        if (_alertDialog == null)
+            _alertDialog = AlertDialog.Builder(applicationContext)
+                .setTitle(R.string.notification_question_title)
+                .setMessage(R.string.notifications_important)
+                .setCancelable(false)
+                .setPositiveButton(R.string.allow_notifications) { dialog, _ ->
+                    permissionLauncher.launch(permissionTag)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(R.string.ignore) { dialog, _ ->
+                    dialog.dismiss()
+                    blockPushNotificationQuestion()
+                    showMessage()
+                }
+                .create()
+
+        _alertDialog?.show()
     }
 
     private fun blockPushNotificationQuestion() {

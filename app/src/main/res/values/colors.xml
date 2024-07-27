@@ -21,4 +21,5 @@
     <color name="transparent">#00000000</color>
     <color name="colorStatusRed">#db4437</color>
     <color name="ic_launcher_background">#2196F3</color>
+    <color name="shimmer_color_light">#D1C4E9</color>
 </resources>

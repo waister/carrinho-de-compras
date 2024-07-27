@@ -139,4 +139,8 @@
         <item name="android:indeterminateTintMode" tools:ignore="NewApi">src_in</item>
     </style>
 
+    <style name="ShimmerView">
+        <item name="android:background">@color/shimmer_color_light</item>
+    </style>
+
 </resources>

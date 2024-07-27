@@ -10,15 +10,35 @@
         android:id="@+id/fl_fragments"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/ll_banner"
+        android:layout_above="@+id/ll_banner_container"
         android:orientation="vertical" />
 
-    <LinearLayout
-        android:id="@+id/ll_banner"
+    <RelativeLayout
+        android:id="@+id/ll_banner_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/bn_navigation"
-        android:orientation="vertical" />
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/ll_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <View
+                style="@style/ShimmerView"
+                android:layout_width="match_parent"
+                android:layout_height="60dp" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/rl_news_root"

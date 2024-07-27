@@ -1,11 +1,9 @@
 package com.renobile.carrinho.fragments
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.renobile.carrinho.R
@@ -13,6 +11,7 @@ import com.renobile.carrinho.activity.AboutActivity
 import com.renobile.carrinho.activity.NotificationsActivity
 import com.renobile.carrinho.activity.RemoveAdsActivity
 import com.renobile.carrinho.databinding.FragmentMoreBinding
+import com.renobile.carrinho.databinding.ItemButtonMenuBinding
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.storeAppLink
 import org.jetbrains.anko.browse
@@ -39,25 +38,23 @@ class MoreFragment : Fragment() {
     }
 
     private fun addButton(title: Int, icon: Int) {
-        @SuppressLint("InflateParams")
-        val buttonView = layoutInflater.inflate(R.layout.item_button_menu, null) as TextView
-
-        buttonView.setText(title)
-
-        val drawable = ContextCompat.getDrawable(requireActivity(), icon)
-        buttonView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
-
-        buttonView.setOnClickListener {
-            when (title) {
-                R.string.notifications -> startActivity(activity?.intentFor<NotificationsActivity>())
-                R.string.about_app -> startActivity(activity?.intentFor<AboutActivity>())
-                R.string.share_app -> activity.shareApp()
-                R.string.rate_app -> activity?.browse(storeAppLink())
-                R.string.remove_ads -> startActivity(activity?.intentFor<RemoveAdsActivity>())
+        val bindingItem = ItemButtonMenuBinding.inflate(layoutInflater).root.apply {
+            setText(title)
+            setCompoundDrawablesWithIntrinsicBounds(
+                ContextCompat.getDrawable(requireActivity(), icon), null, null, null
+            )
+            setOnClickListener {
+                when (title) {
+                    R.string.notifications -> startActivity(activity?.intentFor<NotificationsActivity>())
+                    R.string.about_app -> startActivity(activity?.intentFor<AboutActivity>())
+                    R.string.share_app -> activity.shareApp()
+                    R.string.rate_app -> activity?.browse(storeAppLink())
+                    R.string.remove_ads -> startActivity(activity?.intentFor<RemoveAdsActivity>())
+                }
             }
         }
 
-        binding.llMain.addView(buttonView)
+        binding.llMain.addView(bindingItem)
     }
 
 }

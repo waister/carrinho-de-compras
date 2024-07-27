@@ -2,31 +2,43 @@ package com.renobile.carrinho.util
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
+import android.os.Bundle
 import android.text.Html
 import android.text.Spanned
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.webkit.URLUtil
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.fragment.app.Fragment
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.result.Result
+import com.google.ads.mediation.admob.AdMobAdapter
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.material.snackbar.Snackbar
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.domain.Product
 import io.realm.RealmResults
-import org.jetbrains.anko.displayMetrics
 import org.jetbrains.anko.find
 import org.jetbrains.anko.share
 import org.jetbrains.anko.toast
@@ -34,7 +46,8 @@ import java.text.DateFormat
 import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 
 fun AppCompatEditText.maskMoney() {
     this.addTextChangedListener(MaskMoney(this))
@@ -170,29 +183,82 @@ fun haveBillingPlan(): Boolean = Hawk.get(PREF_HAVE_PLAN, !BuildConfig.DEBUG)
 
 fun havePlan(): Boolean = haveBillingPlan() || haveVideoPlan()
 
-fun Activity?.loadAdBanner(adViewContainer: LinearLayout?, adUnitId: String, adSize: AdSize? = null) {
-    if (this == null || adViewContainer == null || havePlan()) return
+fun Context?.loadBannerAd(
+    adViewContainer: LinearLayout?,
+    adUnitId: String,
+    adSize: AdSize? = null,
+    collapsible: Boolean = false,
+    shimmer: ShimmerFrameLayout? = null
+) {
+    val logTag = "LOAD_ADMOB_BANNER"
+
+    if (this == null || adUnitId.isEmpty() || adViewContainer == null || havePlan()) {
+        shimmer?.hide()
+        appLog(logTag, "loadAdMobBanner() falied | $this | $adUnitId | ${havePlan()}")
+        return
+    }
+
+    shimmer?.show()
+
+    appLog(logTag, "adUnitId: $adUnitId")
 
     val adView = AdView(this)
     adViewContainer.addView(adView)
 
-    adView.adUnitId = adUnitId
+    adView.adUnitId = if (isDebug()) "ca-app-pub-3940256099942544/6300978111" else adUnitId
 
     adView.setAdSize(adSize ?: getAdSize(adViewContainer))
 
-    adView.loadAd(AdRequest.Builder().build())
+    val extras = Bundle()
+    if (collapsible) {
+        extras.putString("collapsible", "bottom")
+        extras.putString("collapsible_request_id", UUID.randomUUID().toString())
+    }
+
+    val adRequest = AdRequest.Builder()
+        .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
+        .build()
+
+    adView.loadAd(adRequest)
+
+    adView.adListener = object : AdListener() {
+        override fun onAdLoaded() {
+            super.onAdLoaded()
+            shimmer?.hide()
+            appLog(logTag, "onAdLoaded()")
+        }
+
+        override fun onAdFailedToLoad(error: LoadAdError) {
+            super.onAdFailedToLoad(error)
+            shimmer?.hide()
+            appLog(logTag, "onAdFailedToLoad(): ${error.message}")
+        }
+
+        override fun onAdOpened() {
+            super.onAdOpened()
+            appLog(logTag, "onAdOpened()")
+        }
+
+        override fun onAdClosed() {
+            super.onAdClosed()
+            appLog(logTag, "onAdClosed()")
+        }
+    }
+
+    appLog(logTag, "ENDS")
 }
 
-fun Activity.getAdSize(adViewContainer: LinearLayout): AdSize {
-    val density = displayMetrics.density
-
+fun Context.getAdSize(adViewContainer: LinearLayout): AdSize {
     var adWidthPixels = adViewContainer.width.toFloat()
     if (adWidthPixels == 0f)
-        adWidthPixels = displayMetrics.widthPixels.toFloat()
+        adWidthPixels = displayWidth().toFloat()
 
+    val density = resources.displayMetrics.density
     val adWidth = (adWidthPixels / density).toInt()
     return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
 }
+
+fun Context?.displayWidth() = if (this != null) resources.displayMetrics.widthPixels else 0
 
 fun Context?.shareApp() {
     if (this == null) return
@@ -407,4 +473,28 @@ fun View.isVisible(isVisible: Boolean) {
     if (isVisible) show() else hide()
 }
 
+fun String?.isNumeric(): Boolean {
+    if (this == null) return false
+    val regex = "-?[0-9]+(\\.[0-9]+)?".toRegex()
+    return this.matches(regex)
+}
+
+fun String?.isNotNumeric(): Boolean = !this.isNumeric()
+
 fun isDebug() = BuildConfig.DEBUG
+
+fun AutoCompleteTextView.setEmpty() = this.text?.clear()
+
+fun AppCompatEditText.setEmpty() = this.text?.clear()
+
+fun Fragment.createCartListName(): String {
+    val currentMillis = System.currentTimeMillis()
+
+    val dateFormatDay: DateFormat = SimpleDateFormat("dd", Locale.getDefault())
+    val day = dateFormatDay.format(currentMillis)
+
+    val dateFormatMonth: DateFormat = SimpleDateFormat("MM", Locale.getDefault())
+    val month = dateFormatMonth.format(currentMillis)
+
+    return getString(R.string.cart_name_default, day, month)
+}

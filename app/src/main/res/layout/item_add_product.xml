@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ly_dialog"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:paddingLeft="@dimen/fab_margin"
     android:paddingTop="@dimen/fab_margin"
     android:paddingRight="@dimen/fab_margin">
@@ -18,10 +18,11 @@
             android:id="@+id/et_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
             android:imeOptions="actionNext"
             android:inputType="text|textCapSentences"
-            android:selectAllOnFocus="true" />
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            tools:ignore="LabelFor" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -33,11 +34,11 @@
             android:id="@+id/et_quantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
             android:imeOptions="actionNext"
             android:inputType="number"
-            android:text="@string/quantity_default"
-            android:selectAllOnFocus="true" />
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:text="@string/quantity_default" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -49,10 +50,10 @@
             android:id="@+id/et_price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
+            android:digits="0123456789R$ ,"
             android:imeOptions="actionDone"
             android:inputType="numberDecimal"
-            android:digits="0123456789R$ ,"
+            android:maxLines="1"
             android:selectAllOnFocus="true" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

@@ -29,6 +29,7 @@ import com.renobile.carrinho.util.getNumber
 import com.renobile.carrinho.util.getPrice
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.hideKeyboard
+import com.renobile.carrinho.util.setEmpty
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.show
 import org.jetbrains.anko.alert
@@ -134,10 +135,10 @@ class ComparatorFragment : Fragment(), TextWatcher {
     private fun clearForm() = with(binding) {
         activity?.alert(R.string.confirmation_message, R.string.confirmation) {
             positiveButton(R.string.clear) {
-                etPriceFirst.setText("")
-                etSizeFirst.setText("")
-                etPriceSecond.setText("")
-                etSizeSecond.setText("")
+                etPriceFirst.setEmpty()
+                etSizeFirst.setEmpty()
+                etPriceSecond.setEmpty()
+                etSizeSecond.setEmpty()
 
                 etPriceFirst.clearFocus()
                 etPriceFirst.hideKeyboard()

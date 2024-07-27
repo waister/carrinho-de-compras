@@ -11,19 +11,16 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.application.CustomApplication
-import java.util.*
+import java.util.Date
 
 class AppOpenManager(private var application: CustomApplication) : DefaultLifecycleObserver,
     Application.ActivityLifecycleCallbacks {
+
     private var appOpenAd: AppOpenAd? = null
     private lateinit var loadCallback: AppOpenAd.AppOpenAdLoadCallback
     private var currentActivity: Activity? = null
     private var isShowingAd: Boolean = false
     private var loadTime: Long = 0
-
-    companion object {
-        private const val LOG_TAG = "AppOpenManager"
-    }
 
     init {
         this.application.registerActivityLifecycleCallbacks(this)
@@ -34,6 +31,26 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
         showAdIfAvailable()
 
         super.onStart(owner)
+    }
+
+    override fun onActivityPaused(activity: Activity) {}
+
+    override fun onActivityStarted(activity: Activity) {
+        currentActivity = activity
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
+        currentActivity = null
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
+    override fun onActivityStopped(activity: Activity) {}
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+
+    override fun onActivityResumed(activity: Activity) {
+        currentActivity = activity
     }
 
     private fun showAdIfAvailable() {
@@ -55,7 +72,9 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
             return
         }
 
-        val adUnitId = Hawk.get(PREF_ADMOB_OPEN_APP_ID, "")
+        var adUnitId = Hawk.get(PREF_ADMOB_OPEN_APP_ID, "")
+
+        if (isDebug()) adUnitId = "ca-app-pub-3940256099942544/9257395921"
 
         if (adUnitId.isEmpty()) {
             appLog(LOG_TAG, "No ad unit id configured")
@@ -84,11 +103,10 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
         }
 
         val request: AdRequest = AdRequest.Builder().build()
-        val orientation = AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT
 
         appLog(LOG_TAG, "Ad unit id: $adUnitId")
 
-        AppOpenAd.load(application, adUnitId, request, orientation, loadCallback)
+        AppOpenAd.load(application, adUnitId, request, loadCallback)
     }
 
     private fun isAdAvailable(): Boolean {
@@ -102,25 +120,8 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
         return false
     }
 
-    override fun onActivityPaused(activity: Activity) {}
-
-    override fun onActivityStarted(activity: Activity) {
-        currentActivity = activity
+    companion object {
+        private const val LOG_TAG = "AppOpenManager"
     }
-
-    override fun onActivityDestroyed(activity: Activity) {
-        currentActivity = null
-    }
-
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-
-    override fun onActivityStopped(activity: Activity) {}
-
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-
-    override fun onActivityResumed(activity: Activity) {
-        currentActivity = activity
-    }
-
 
 }
