@@ -53,24 +53,6 @@ fun AppCompatEditText.maskMoney() {
     this.addTextChangedListener(MaskMoney(this))
 }
 
-fun String.getInt(): Int {
-    if (this.isNotEmpty()) {
-        return this.toInt()
-    }
-    return 0
-}
-
-fun String.getPrice(): String {
-    var price = this
-        .replace(Regex("[^0-9,.]"), "")
-        .replace(",", ".")
-
-    if (price.isEmpty())
-        price = "0"
-
-    return price
-}
-
 fun storeAppLink(): String =
     "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
 
@@ -80,7 +62,7 @@ fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String
     if (products != null && products.size > 0) {
         var text = ""
 
-        var volumes = 0
+        var volumes = 0.0
         var total = 0.0
 
         products.forEach {
@@ -94,10 +76,10 @@ fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String
 
         text += getString(
             R.string.share_cart_text,
-            if (products.size == 1) "" else "s",
+            products.size.addPluralCharacter(),
             products.size,
-            if (volumes == 1) "" else "s",
-            volumes,
+            volumes.addPluralCharacter(),
+            volumes.formatQuantity(),
             total.formatPrice(),
             storeAppLink()
         )
@@ -114,7 +96,7 @@ fun Activity?.sendList(products: RealmResults<Product>? = null, cartName: String
     if (products != null && products.size > 0) {
         var text = ""
 
-        var volumes = 0
+        var volumes = 0.0
         var total = 0.0
 
         products.forEach {
@@ -128,10 +110,10 @@ fun Activity?.sendList(products: RealmResults<Product>? = null, cartName: String
 
         text += getString(
             R.string.share_cart_text,
-            if (products.size == 1) "" else "s",
+            products.size.addPluralCharacter(),
             products.size,
-            if (volumes == 1) "" else "s",
-            volumes,
+            volumes.addPluralCharacter(),
+            volumes.formatQuantity(),
             total.formatPrice(),
             storeAppLink()
         )
@@ -413,6 +395,7 @@ fun Double.formatPercent(): String {
 }
 
 fun Double.formatPrice(): String = NumberFormat.getCurrencyInstance().format(this)
+fun Double.formatQuantity(): String = NumberFormat.getNumberInstance().format(this)
 
 fun EditText?.getNumber(): Double {
     if (this == null) return 0.0
@@ -420,12 +403,17 @@ fun EditText?.getNumber(): Double {
     return if (value.isEmpty()) 0.0 else java.lang.Double.parseDouble(value)
 }
 
-fun EditText?.getPrice(): Double {
+fun EditText?.getDouble(): Double {
     if (this == null) return 0.0
-    val value = this.text.toString()
-    if (value.isEmpty()) return 0.0
-    val result = value.getPrice()
-    return if (result.isEmpty()) 0.0 else result.toDouble()
+
+    var value = this.text.toString()
+        .replace(Regex("[^0-9,.]"), "")
+        .replace(",", ".")
+
+    if (value.isEmpty())
+        value = "0"
+
+    return value.toDouble()
 }
 
 fun Activity?.hideKeyboard() {
@@ -487,6 +475,8 @@ fun AutoCompleteTextView.setEmpty() = this.text?.clear()
 
 fun AppCompatEditText.setEmpty() = this.text?.clear()
 
+fun TextView.setEmpty() = this.setText(R.string.empty)
+
 fun Fragment.createCartListName(): String {
     val currentMillis = System.currentTimeMillis()
 
@@ -498,3 +488,11 @@ fun Fragment.createCartListName(): String {
 
     return getString(R.string.cart_name_default, day, month)
 }
+
+fun Double.isSingular() = this > 0.0 && this < 2.00
+
+fun Double.addPluralCharacter() = if (this.isSingular()) "" else "s"
+
+fun Int.addPluralCharacter() = if (this == 1) "" else "s"
+
+fun Double.isEmpty() = this == 0.0

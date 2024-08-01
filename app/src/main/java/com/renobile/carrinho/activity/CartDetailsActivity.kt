@@ -17,7 +17,9 @@ import com.renobile.carrinho.databinding.ActivityCartDetailsBinding
 import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.PARAM_CART_ID
+import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.formatQuantity
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.sendCart
 import com.renobile.carrinho.util.show
@@ -138,7 +140,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun renderData() = with(binding) {
         products = getProducts()
 
-        var volumes = 0
+        var volumes = 0.0
         var total = 0.0
 
         if (products!!.size > 0) {
@@ -151,9 +153,9 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         tvQuantities.text = getString(
             R.string.products_details,
             products!!.size,
-            if (products!!.size == 1) "" else "s",
-            volumes,
-            if (volumes == 1) "" else "s"
+            products!!.size.addPluralCharacter(),
+            volumes.formatQuantity(),
+            volumes.addPluralCharacter()
         )
         tvTotal.text = total.formatPrice()
 

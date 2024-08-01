@@ -2,12 +2,19 @@ package com.renobile.carrinho.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.*
+import android.view.GestureDetector
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ItemProductsBinding
 import com.renobile.carrinho.domain.Product
+import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.formatQuantity
+import com.renobile.carrinho.util.setEmpty
 import io.realm.RealmResults
 
 class ListProductsAdapter(
@@ -49,7 +56,7 @@ class ListProductsAdapter(
         fun setData(product: Product?) = with(binding) {
             if (product != null) {
                 val price = product.price * product.quantity
-                val plural = if (product.quantity == 1) "" else "s"
+                val plural = product.quantity.addPluralCharacter()
 
                 tvName.text = product.name
 
@@ -58,14 +65,17 @@ class ListProductsAdapter(
 
                     tvDetails.text = context.getString(
                         R.string.product_details,
-                        product.quantity, plural, product.price.formatPrice()
+                        product.quantity.formatQuantity(),
+                        plural,
+                        product.price.formatPrice()
                     )
                 } else {
-                    tvTotal.text = ""
+                    tvTotal.setEmpty()
 
                     tvDetails.text = context.getString(
                         R.string.product_details_no_price,
-                        product.quantity, plural
+                        product.quantity.formatQuantity(),
+                        plural,
                     )
                 }
             }

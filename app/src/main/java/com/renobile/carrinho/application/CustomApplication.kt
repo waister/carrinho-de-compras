@@ -39,7 +39,7 @@ class CustomApplication : MultiDexApplication() {
         Realm.setDefaultConfiguration(
             RealmConfiguration.Builder()
                 .allowWritesOnUiThread(true)
-                .schemaVersion(1)
+                .schemaVersion(2)
                 .migration(RealmMigration())
                 .build()
         )

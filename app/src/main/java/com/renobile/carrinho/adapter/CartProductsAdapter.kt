@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ItemProductsBinding
 import com.renobile.carrinho.domain.Product
+import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.formatQuantity
 import io.realm.RealmResults
 
 class CartProductsAdapter(
@@ -56,8 +58,8 @@ class CartProductsAdapter(
                 tvTotal.text = (product.price * product.quantity).formatPrice()
                 tvDetails.text = context.getString(
                     R.string.product_details,
-                    product.quantity,
-                    if (product.quantity == 1) "" else "s",
+                    product.quantity.formatQuantity(),
+                    product.quantity.addPluralCharacter(),
                     product.price.formatPrice()
                 )
             }

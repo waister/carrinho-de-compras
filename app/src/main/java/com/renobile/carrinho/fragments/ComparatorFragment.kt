@@ -26,7 +26,7 @@ import com.renobile.carrinho.util.PREF_SIZE_SECOND
 import com.renobile.carrinho.util.formatPercent
 import com.renobile.carrinho.util.fromHtml
 import com.renobile.carrinho.util.getNumber
-import com.renobile.carrinho.util.getPrice
+import com.renobile.carrinho.util.getDouble
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.hideKeyboard
 import com.renobile.carrinho.util.setEmpty
@@ -156,9 +156,9 @@ class ComparatorFragment : Fragment(), TextWatcher {
     }
 
     private fun calculate(showToast: Boolean) = with(binding) {
-        val priceFirst = etPriceFirst.getPrice()
+        val priceFirst = etPriceFirst.getDouble()
         val sizeFirst = etSizeFirst.getNumber()
-        val priceSecond = etPriceSecond.getPrice()
+        val priceSecond = etPriceSecond.getDouble()
         val sizeSecond = etSizeSecond.getNumber()
 
         if (priceFirst > 0 && sizeFirst > 0) {

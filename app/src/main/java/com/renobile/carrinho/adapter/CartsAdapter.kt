@@ -2,13 +2,19 @@ package com.renobile.carrinho.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.*
+import android.view.GestureDetector
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ItemProductsBinding
 import com.renobile.carrinho.domain.Cart
+import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatDate
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.formatQuantity
 import io.realm.RealmResults
 
 class CartsAdapter(
@@ -49,15 +55,12 @@ class CartsAdapter(
     inner class ViewHolder(private val binding: ItemProductsBinding) : RecyclerView.ViewHolder(binding.root) {
         fun setData(cart: Cart?) = with(binding) {
             if (cart != null) {
-                val productsEnd = if (cart.products == 1) "" else "s"
-                val unitsEnd = if (cart.units == 1) "" else "s"
-
                 var details = context.getString(
                     R.string.products_details,
                     cart.products,
-                    productsEnd,
-                    cart.units,
-                    unitsEnd
+                    cart.products.addPluralCharacter(),
+                    cart.units.formatQuantity(),
+                    cart.units.addPluralCharacter()
                 )
 
                 details += "\nData: ${cart.dateOpen.formatDate()}"

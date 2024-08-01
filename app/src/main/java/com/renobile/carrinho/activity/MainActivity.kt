@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity() {
 
         if (havePlan() || adUnitId.isEmpty()) return
 
-        if (isDebug()) adUnitId = "ca-app-pub-3940256099942544/5224354917"
+        if (isDebug()) adUnitId = "ca-app-pub-3940256099942544/1033173712"
 
         val request = AdRequest.Builder().build()
 

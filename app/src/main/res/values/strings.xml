@@ -1,5 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="app_name">Carrinho de Compras</string>
+    <string name="empty" />
 
     <string name="navigation_drawer_open">Abrir menu lateral</string>
     <string name="navigation_drawer_close">Fechar menu lateral</string>
@@ -40,8 +41,8 @@
     <string name="archived_cart">Carrinho arquivado</string>
     <string name="search_products">Procurar produtos</string>
     <string name="search_carts">Procurar carrinhos</string>
-    <string name="product_details">%1$d unidade%2$s a %3$s cada</string>
-    <string name="product_details_no_price">%1$d unidade%2$s</string>
+    <string name="product_details">%1$s unidade%2$s a %3$s cada</string>
+    <string name="product_details_no_price">%1$s unidade%2$s</string>
     <string name="products_empty">Nenhum produto adicionado</string>
     <string name="carts_archive_empty">Nenhum carrinho arquivado</string>
     <string name="lists_archive_empty">Nenhuma lista arquivada</string>
@@ -105,8 +106,8 @@
     <string name="share_app_text">Baixe o App Carrinho de Compras, está me ajudando muito e é 100% gratuito ;-)</string>
     <string name="feedback_subject">Feedback do aplicativo Carrinho de Compras</string>
     <string name="send_list_label">%1$s - App Carrinho de Compras</string>
-    <string name="share_cart_text">\nProduto%1$s: %2$d\nUnidade%3$s: %4$d\nValor total: %5$s\n\n----\nInstale você também: %6$s</string>
-    <string name="products_details">%1$d produto%2$s e %3$d unidade%4$s</string>
+    <string name="share_cart_text">\nProduto%1$s: %2$d\nUnidade%3$s: %4$s\nValor total: %5$s\n\n----\nInstale você também: %6$s</string>
+    <string name="products_details">%1$d produto%2$s e %3$s unidade%4$s</string>
     <string name="update_now">Atualizar agora</string>
     <string name="later">Depois</string>
     <string name="update_available">Lançamos uma nova versão do aplicativo, atualize para receber as novidades e correções.</string>

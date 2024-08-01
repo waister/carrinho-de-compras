@@ -13,7 +13,9 @@ import com.renobile.carrinho.databinding.ActivityListDetailsBinding
 import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.PARAM_LIST_ID
+import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.formatQuantity
 import com.renobile.carrinho.util.sendList
 import io.realm.Case
 import io.realm.Realm
@@ -106,7 +108,7 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun renderData(terms: String = "") = with(binding) {
         products = getProducts(terms)
 
-        var volumes = 0
+        var volumes = 0.0
         var total = 0.0
 
         if (products!!.size > 0) {
@@ -119,9 +121,9 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
         tvQuantities.text = getString(
             R.string.products_details,
             products!!.size,
-            if (products!!.size == 1) "" else "s",
-            volumes,
-            if (volumes == 1) "" else "s"
+            products!!.size.addPluralCharacter(),
+            volumes.formatQuantity(),
+            volumes.addPluralCharacter()
         )
         tvTotal.text = total.formatPrice()
 

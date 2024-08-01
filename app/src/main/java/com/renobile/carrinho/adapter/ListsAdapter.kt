@@ -7,7 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ItemProductsBinding
 import com.renobile.carrinho.domain.PurchaseList
+import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.formatQuantity
 import io.realm.RealmResults
 
 class ListsAdapter(
@@ -53,9 +55,9 @@ class ListsAdapter(
                 tvDetails.text = context.getString(
                     R.string.products_details,
                     cart.products,
-                    if (cart.products == 1) "" else "s",
-                    cart.units,
-                    if (cart.units == 1) "" else "s"
+                    cart.products.addPluralCharacter(),
+                    cart.units.formatQuantity(),
+                    cart.units.addPluralCharacter()
                 )
             }
         }
