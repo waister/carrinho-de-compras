@@ -48,17 +48,14 @@ class CartsHistoryActivity : AppCompatActivity() {
 
         initViews()
 
-        onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!searchView!!.isIconified)
-                        searchView!!.onActionViewCollapsed()
-                    else
-                        finish()
-                }
-            },
-        )
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!searchView!!.isIconified)
+                    searchView!!.onActionViewCollapsed()
+                else
+                    finish()
+            }
+        })
     }
 
     private fun initViews() = with(binding) {

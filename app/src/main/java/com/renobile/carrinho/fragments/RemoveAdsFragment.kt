@@ -22,6 +22,7 @@ import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.databinding.FragmentRemoveAdsBinding
 import com.renobile.carrinho.util.ONE_DAY
+import com.renobile.carrinho.util.PARAM_SHOW_BACK
 import com.renobile.carrinho.util.PREF_ADMOB_REMOVE_ADS_ID
 import com.renobile.carrinho.util.PREF_PLAN_VIDEO_DURATION
 import com.renobile.carrinho.util.PREF_PLAN_VIDEO_MILLIS
@@ -50,6 +51,13 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRemoveAdsBinding.inflate(inflater, container, false)
+
+        if (arguments?.getBoolean(PARAM_SHOW_BACK) == true)
+            binding.toolbar.apply {
+                setNavigationIcon(R.drawable.ic_arrow_left)
+                setNavigationOnClickListener { activity?.finish() }
+            }
+
         return binding.root
     }
 

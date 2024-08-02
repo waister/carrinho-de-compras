@@ -41,6 +41,7 @@ import com.renobile.carrinho.util.FRAGMENT_LIST
 import com.renobile.carrinho.util.FRAGMENT_MAIN
 import com.renobile.carrinho.util.FRAGMENT_MORE
 import com.renobile.carrinho.util.FRAGMENT_REMOVE_ADS
+import com.renobile.carrinho.util.InAppUpdate
 import com.renobile.carrinho.util.PARAM_TYPE
 import com.renobile.carrinho.util.PREF_ADMOB_AD_MAIN_ID
 import com.renobile.carrinho.util.PREF_ADMOB_INTERSTITIAL_ID
@@ -121,6 +122,9 @@ class MainActivity : AppCompatActivity() {
             API_PREMIUM -> forceSelectTab(POSITION_REMOVE_ADS)
             else -> forceSelectTab(POSITION_CART)
         }
+
+        if (!BuildConfig.DEBUG)
+            InAppUpdate(this)
 
         checkVersion()
         initAdMob()

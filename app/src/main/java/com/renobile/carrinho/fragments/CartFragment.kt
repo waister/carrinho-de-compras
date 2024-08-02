@@ -82,17 +82,14 @@ class CartFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        requireActivity().onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!searchView!!.isIconified)
-                        searchView!!.onActionViewCollapsed()
-                    else
-                        activity?.finish()
-                }
-            },
-        )
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!searchView!!.isIconified)
+                    searchView!!.onActionViewCollapsed()
+                else
+                    activity?.finish()
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

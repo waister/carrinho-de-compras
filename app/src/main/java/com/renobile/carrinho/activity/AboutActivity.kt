@@ -25,7 +25,6 @@ class AboutActivity : AppCompatActivity() {
 
             btRemoveAds.setOnClickListener {
                 startActivity(intentFor<RemoveAdsActivity>())
-                finish()
             }
 
             tvVersion.text = getString(R.string.version, BuildConfig.VERSION_NAME)

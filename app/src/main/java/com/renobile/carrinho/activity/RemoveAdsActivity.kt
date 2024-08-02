@@ -2,6 +2,7 @@ package com.renobile.carrinho.activity
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ActivityRemoveAdsBinding
@@ -19,7 +20,13 @@ class RemoveAdsActivity : AppCompatActivity() {
         binding = ActivityRemoveAdsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
 
         var fragment = supportFragmentManager.findFragmentByTag(PARAM_FRAGMENT)
 
