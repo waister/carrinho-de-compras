@@ -18,7 +18,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.ListsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
@@ -430,10 +429,8 @@ class ListFragment : Fragment() {
 
                     renderData()
 
-                    val defaultQuantity = "1"
-
                     bindingItem.etName.setEmpty()
-                    bindingItem.etQuantity.setText(defaultQuantity)
+                    bindingItem.etQuantity.setText(R.string.one)
                     bindingItem.etPrice.setEmpty()
 
                     if (product != null) {

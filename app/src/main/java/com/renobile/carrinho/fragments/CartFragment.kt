@@ -19,7 +19,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.CartsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
@@ -433,7 +432,7 @@ class CartFragment : Fragment() {
                     renderData()
 
                     bindingItem.etName.setEmpty()
-                    bindingItem.etQuantity.setEmpty()
+                    bindingItem.etQuantity.setText(R.string.one)
                     bindingItem.etPrice.setEmpty()
 
                     if (product != null) {
