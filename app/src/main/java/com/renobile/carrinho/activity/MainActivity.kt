@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             else -> forceSelectTab(POSITION_CART)
         }
 
-        if (!BuildConfig.DEBUG)
+        if (!isDebug())
             InAppUpdate(this)
 
         checkVersion()

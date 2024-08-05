@@ -1,11 +1,10 @@
 package com.renobile.carrinho.util
 
-import android.graphics.Color
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallState
@@ -13,6 +12,7 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.renobile.carrinho.R
 
 class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdatedListener, LifecycleEventObserver {
 
@@ -69,15 +69,16 @@ class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdated
     }
 
     private fun flexibleUpdateDownloadCompleted() {
-        Snackbar.make(
-            activity.findViewById(android.R.id.content),
-            "Uma atualização acabou de ser baixada.",
-            Snackbar.LENGTH_INDEFINITE
-        ).apply {
-            setAction("RESTART") { appUpdateManager.completeUpdate() }
-            setActionTextColor(Color.WHITE)
-            show()
-        }
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.update_alert_title)
+            .setMessage(R.string.update_alert_message)
+            .setCancelable(false)
+            .setPositiveButton(R.string.update_alert_button) { dialog, _ ->
+                appUpdateManager.completeUpdate()
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
 }

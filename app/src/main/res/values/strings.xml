@@ -190,4 +190,7 @@
     <string name="notification_question_title">Notificações exclusivas</string>
     <string name="notification_change_idea">Caso mude de ideia, acessar as informações do aplicativo e alterar em notificações</string>
     <string name="cart_name_default">Compras %s/%s</string>
+    <string name="update_alert_title">Atualização</string>
+    <string name="update_alert_message">A atualização acabou de ser baixada, toque no botão para iniciar a instalação.</string>
+    <string name="update_alert_button">Instalar</string>
 </resources>
