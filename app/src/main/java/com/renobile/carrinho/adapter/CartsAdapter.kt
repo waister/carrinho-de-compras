@@ -9,13 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
+import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.databinding.ItemProductsBinding
-import com.renobile.carrinho.domain.Cart
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatDate
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
-import io.realm.RealmResults
 
 class CartsAdapter(
     private val context: Context,
@@ -23,10 +22,10 @@ class CartsAdapter(
 ) :
     RecyclerView.Adapter<CartsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
 
-    private var carts: RealmResults<Cart>? = null
+    private var carts: List<CartEntity>? = null
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(data: RealmResults<Cart>?) {
+    fun setData(data: List<CartEntity>?) {
         carts = data
         notifyDataSetChanged()
     }
@@ -53,7 +52,7 @@ class CartsAdapter(
     }
 
     inner class ViewHolder(private val binding: ItemProductsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun setData(cart: Cart?) = with(binding) {
+        fun setData(cart: CartEntity?) = with(binding) {
             if (cart != null) {
                 var details = context.getString(
                     R.string.products_details,

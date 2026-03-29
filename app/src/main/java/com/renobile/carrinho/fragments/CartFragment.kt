@@ -49,7 +49,6 @@ import com.renobile.carrinho.util.setEmpty
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.show
 import com.renobile.carrinho.util.toast
-import io.realm.Realm
 import kotlinx.coroutines.launch
 
 class CartFragment : Fragment() {
@@ -67,9 +66,6 @@ class CartFragment : Fragment() {
     private var optionsMenu: Menu? = null
     private var _addCardDialog: AlertDialog? = null
     private var _addProductDialog: AlertDialog? = null
-
-    // Still keep realm for migration if needed or legacy support
-    private var realm: Realm = Realm.getDefaultInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -130,8 +126,9 @@ class CartFragment : Fragment() {
         when (item.itemId) {
             R.id.action_new -> createNewCart()
             R.id.action_send -> {
-                 activity?.sendCart(products, cart!!.name)
+                activity?.sendCart(products, cart!!.name)
             }
+
             R.id.action_clear -> clearCart()
             R.id.action_history -> {
                 val intent = Intent(requireContext(), CartsHistoryActivity::class.java)
@@ -145,7 +142,6 @@ class CartFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        realm.close()
         _addCardDialog?.dismiss()
         _addProductDialog?.dismiss()
     }
@@ -300,24 +296,24 @@ class CartFragment : Fragment() {
                         val options = resources.getStringArray(R.array.product_options)
 
                         AlertDialog.Builder(requireContext()).setTitle(product.name).setItems(options) { _, i ->
-                                when (i) {
-                                    0 -> {
-                                        addOrEditProduct(product)
-                                    }
-
-                                    1 -> {
-                                        changeQuantity(product, 1.0)
-                                    }
-
-                                    2 -> {
-                                        changeQuantity(product, -1.0)
-                                    }
-
-                                    3 -> {
-                                        deleteProduct(product)
-                                    }
+                            when (i) {
+                                0 -> {
+                                    addOrEditProduct(product)
                                 }
-                            }.show()
+
+                                1 -> {
+                                    changeQuantity(product, 1.0)
+                                }
+
+                                2 -> {
+                                    changeQuantity(product, -1.0)
+                                }
+
+                                3 -> {
+                                    deleteProduct(product)
+                                }
+                            }
+                        }.show()
                     }
                 }
             })
@@ -376,10 +372,8 @@ class CartFragment : Fragment() {
                 }
             }
 
-            // For auto-complete, we might still want to query Realm or Room for all product names ever used
-            // Let's use Room for this.
             lifecycleScope.launch {
-                val allProducts = database.productDao().getByCartId(cartId) // Simplified, maybe should be all products
+                val allProducts = database.productDao().getByCartId(cartId)
                 val names = allProducts.map { it.name }.distinct().sorted()
                 val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, names)
                 bindingItem.etName.setAdapter(adapter)
@@ -402,11 +396,7 @@ class CartFragment : Fragment() {
                     requireContext().toast(error)
                 } else {
                     lifecycleScope.launch {
-                        val productId = if (product == null) {
-                            System.currentTimeMillis() // Simple ID generation
-                        } else {
-                            product.id
-                        }
+                        val productId = product?.id ?: System.currentTimeMillis()
 
                         val item = ProductEntity(
                             id = productId,

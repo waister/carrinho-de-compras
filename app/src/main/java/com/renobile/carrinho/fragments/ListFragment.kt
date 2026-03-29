@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.AppBarLayout
@@ -27,11 +28,12 @@ import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.ListsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
 import com.renobile.carrinho.adapter.ListProductsAdapter
+import com.renobile.carrinho.database.AppDatabase
+import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.database.entities.PurchaseListEntity
 import com.renobile.carrinho.databinding.FragmentListBinding
 import com.renobile.carrinho.databinding.ItemAddListBinding
 import com.renobile.carrinho.databinding.ItemAddProductBinding
-import com.renobile.carrinho.domain.Product
-import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.createCartListName
 import com.renobile.carrinho.util.formatPrice
@@ -41,25 +43,22 @@ import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isEmpty
 import com.renobile.carrinho.util.longSnackbar
 import com.renobile.carrinho.util.maskMoney
-import com.renobile.carrinho.util.sendListV1
+import com.renobile.carrinho.util.sendList
 import com.renobile.carrinho.util.setEmpty
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.show
 import com.renobile.carrinho.util.toast
-import io.realm.Case
-import io.realm.Realm
-import io.realm.RealmResults
-import io.realm.Sort
+import kotlinx.coroutines.launch
 
 class ListFragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
 
-    private var realm: Realm = Realm.getDefaultInstance()
-    private var purchaseList: PurchaseList? = null
+    private lateinit var database: AppDatabase
+    private var purchaseList: PurchaseListEntity? = null
     private var listId: Long = 0
-    private var products: RealmResults<Product>? = null
+    private var products: List<ProductEntity>? = null
     private var listProductsAdapter: ListProductsAdapter? = null
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
@@ -72,6 +71,7 @@ class ListFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentListBinding.inflate(inflater, container, false)
+        database = AppDatabase.getDatabase(requireContext())
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
 
@@ -118,7 +118,7 @@ class ListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_new -> createNewList()
-            R.id.action_send -> activity?.sendListV1(products, purchaseList!!.name)
+            R.id.action_send -> activity?.sendList(products, purchaseList!!.name)
             R.id.action_clear -> clearList()
             R.id.action_history -> {
                 val intent = Intent(requireContext(), ListsHistoryActivity::class.java)
@@ -132,7 +132,6 @@ class ListFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        realm.close()
         _addListDialog?.dismiss()
         _addProductDialog?.dismiss()
     }
@@ -191,50 +190,48 @@ class ListFragment : Fragment() {
 
                     if (name.isEmpty()) name = createCartListName()
 
-                    if (products != null) {
-                        var count = 0
-                        var volumes = 0.0
-                        var total = 0.0
+                    lifecycleScope.launch {
+                        if (products != null) {
+                            var count = 0
+                            var volumes = 0.0
+                            var total = 0.0
 
-                        products?.forEach {
-                            count += 1
-                            volumes += it.quantity
-                            total += it.price * it.quantity
-                        }
+                            products?.forEach {
+                                count += 1
+                                volumes += it.quantity
+                                total += it.price * it.quantity
+                            }
 
-                        val oldList = realm.where(PurchaseList::class.java)
-                            .equalTo("id", listId)
-                            .findFirst()
-
-                        if (oldList != null) {
-                            realm.executeTransaction {
-                                oldList.dateClose = System.currentTimeMillis()
-                                oldList.products = count
-                                oldList.units = volumes
-                                oldList.valueTotal = total
-
-                                realm.copyToRealmOrUpdate(oldList)
+                            purchaseList?.let { currentList ->
+                                val updatedList = currentList.copy(
+                                    dateClose = System.currentTimeMillis(),
+                                    products = count,
+                                    units = volumes,
+                                    valueTotal = total
+                                )
+                                database.purchaseListDao().insert(updatedList)
                             }
                         }
+
+                        val lastList = database.purchaseListDao().getAll().firstOrNull()
+                        val newId = (lastList?.id ?: 0L) + 1
+
+                        val newList = PurchaseListEntity(
+                            id = newId,
+                            name = name,
+                            dateOpen = System.currentTimeMillis(),
+                            dateClose = 0L,
+                            products = 0,
+                            units = 0.0,
+                            valueTotal = 0.0
+                        )
+
+                        database.purchaseListDao().insert(newList)
+
+                        renderData()
+                        dialog.dismiss()
+                        binding.clRoot.longSnackbar(R.string.create_list_success)
                     }
-
-                    val maxId = realm.where(PurchaseList::class.java).max("id")
-                    val productId = if (maxId == null) 1 else maxId.toLong() + 1
-
-                    val newList = PurchaseList()
-                    newList.id = productId
-                    newList.name = name
-                    newList.dateOpen = System.currentTimeMillis()
-
-                    realm.executeTransaction {
-                        realm.copyToRealmOrUpdate(newList)
-                    }
-
-                    renderData()
-
-                    dialog.dismiss()
-
-                    binding.clRoot.longSnackbar(R.string.create_list_success)
                 }
             }
         }
@@ -246,12 +243,9 @@ class ListFragment : Fragment() {
             .setTitle(R.string.confirmation)
             .setMessage(R.string.confirm_delete_all)
             .setPositiveButton(R.string.confirm) { _, _ ->
-                realm.executeTransaction {
-                    realm.where(Product::class.java)
-                        .equalTo("listId", listId)
-                        .findAll()
-                        .deleteAllFromRealm()
-
+                lifecycleScope.launch {
+                    val productsToDelete = database.productDao().getByListId(listId)
+                    productsToDelete.forEach { database.productDao().delete(it) }
                     renderData()
                 }
             }
@@ -293,7 +287,7 @@ class ListFragment : Fragment() {
         rvProducts.addOnItemTouchListener(
             ListProductsAdapter(requireActivity(), object : ListProductsAdapter.OnItemClickListener {
                 override fun onItemClick(view: View, position: Int) {
-                    val product = products!![position]
+                    val product = products?.getOrNull(position)
 
                     if (product != null) {
                         val options = resources.getStringArray(R.array.product_options)
@@ -307,11 +301,11 @@ class ListFragment : Fragment() {
                                     }
 
                                     1 -> {
-                                        changeQuantity(product, +1)
+                                        changeQuantity(product, 1.0)
                                     }
 
                                     2 -> {
-                                        changeQuantity(product, -1)
+                                        changeQuantity(product, -1.0)
                                     }
 
                                     3 -> {
@@ -328,18 +322,16 @@ class ListFragment : Fragment() {
         renderData()
     }
 
-    private fun getProducts(): RealmResults<Product>? {
-        val query = realm.where(Product::class.java).equalTo("listId", listId)
-
-        if (searchTerms.isNotEmpty())
-            query?.contains("name", searchTerms, Case.INSENSITIVE)
-
-        val products = query?.findAll()
-
-        return products?.sort("id", Sort.DESCENDING)
+    private suspend fun getProductsList(): List<ProductEntity> {
+        val allProducts = database.productDao().getByListId(listId)
+        return if (searchTerms.isNotEmpty()) {
+            allProducts.filter { it.name.contains(searchTerms, ignoreCase = true) }
+        } else {
+            allProducts
+        }.sortedByDescending { it.id }
     }
 
-    private fun addOrEditProduct(product: Product? = null) {
+    private fun addOrEditProduct(product: ProductEntity? = null) {
         if (activity == null) return
 
         val bindingItem = ItemAddProductBinding.inflate(layoutInflater)
@@ -384,19 +376,10 @@ class ListFragment : Fragment() {
                 }
             }
 
-            val productsList = realm.where(Product::class.java)
-                .sort("name", Sort.ASCENDING)
-                .findAll()
-
-            if (!productsList.isNullOrEmpty()) {
-                val list = mutableListOf<String>()
-
-                productsList.forEach {
-                    if (!list.contains(it.name))
-                        list.add(it.name)
-                }
-
-                val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, list)
+            lifecycleScope.launch {
+                val allProducts = database.productDao().getByListId(listId)
+                val names = allProducts.map { it.name }.distinct().sorted()
+                val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, names)
                 bindingItem.etName.setAdapter(adapter)
             }
 
@@ -415,38 +398,33 @@ class ListFragment : Fragment() {
                 if (error != 0) {
                     requireContext().toast(error)
                 } else {
-                    val productId = if (product == null) {
-                        val maxId = realm.where(Product::class.java).max("id")
-                        if (maxId == null) 1 else maxId.toLong() + 1
-                    } else {
-                        product.id
-                    }
+                    lifecycleScope.launch {
+                        val productId = product?.id ?: System.currentTimeMillis()
 
-                    val item = Product()
-                    item.id = productId
-                    item.listId = listId
-                    item.name = name
-                    item.quantity = quantity
-                    item.price = price
+                        val item = ProductEntity(
+                            id = productId,
+                            cartId = 0L,
+                            listId = listId,
+                            name = name,
+                            quantity = quantity,
+                            price = price
+                        )
 
-                    realm.executeTransaction {
-                        realm.copyToRealmOrUpdate(item)
-                    }
+                        database.productDao().insert(item)
 
-                    bindingItem.etName.requestFocus()
+                        bindingItem.etName.requestFocus()
+                        renderData()
 
-                    renderData()
+                        bindingItem.etName.setEmpty()
+                        bindingItem.etQuantity.setText(R.string.one)
+                        bindingItem.etPrice.setEmpty()
 
-                    bindingItem.etName.setEmpty()
-                    bindingItem.etQuantity.setText(R.string.one)
-                    bindingItem.etPrice.setEmpty()
-
-                    if (product != null) {
-                        dialog.dismiss()
-
-                        binding.clRoot.longSnackbar(success)
-                    } else {
-                        requireContext().toast(success)
+                        if (product != null) {
+                            dialog.dismiss()
+                            binding.clRoot.longSnackbar(success)
+                        } else {
+                            requireContext().toast(success)
+                        }
                     }
                 }
             }
@@ -455,98 +433,87 @@ class ListFragment : Fragment() {
         _addProductDialog!!.show()
     }
 
-    private fun changeQuantity(product: Product, quantity: Int) = with(binding) {
-        if (quantity < 0 && (product.quantity + quantity) < 0) {
+    private fun changeQuantity(product: ProductEntity, delta: Double) = with(binding) {
+        if (delta < 0 && (product.quantity + delta) < 0) {
             clRoot.longSnackbar(R.string.error_quantity_min)
         } else {
-            realm.executeTransaction {
-                product.quantity += quantity
-
-                realm.copyToRealmOrUpdate(product)
+            lifecycleScope.launch {
+                val updatedProduct = product.copy(quantity = product.quantity + delta)
+                database.productDao().insert(updatedProduct)
+                renderData()
+                clRoot.longSnackbar(R.string.success_quantity)
             }
-
-            renderData()
-
-            clRoot.longSnackbar(R.string.success_quantity)
         }
     }
 
-    private fun deleteProduct(product: Product) {
+    private fun deleteProduct(product: ProductEntity) {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.confirmation)
             .setMessage(R.string.confirm_delete)
             .setPositiveButton(R.string.confirm) { _, _ ->
-                realm.executeTransaction {
-                    product.deleteFromRealm()
+                lifecycleScope.launch {
+                    database.productDao().delete(product)
+                    renderData()
+                    binding.clRoot.longSnackbar(R.string.success_delete)
                 }
-
-                renderData()
-
-                binding.clRoot.longSnackbar(R.string.success_delete)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
     private fun renderData() = with(binding) {
-        if (realm.isClosed)
-            realm = Realm.getDefaultInstance()
+        lifecycleScope.launch {
+            purchaseList = database.purchaseListDao().getAll().firstOrNull { it.dateClose == 0L }
 
-        purchaseList = realm.where(PurchaseList::class.java)
-            .equalTo("dateClose", 0L)
-            .findFirst()
+            tvEmpty.hide()
+            btCreateList.hide()
 
-        tvEmpty.hide()
-        btCreateList.hide()
+            val supportActionBar = (activity as AppCompatActivity).supportActionBar
 
-        val supportActionBar = (activity as AppCompatActivity).supportActionBar
-
-        if (purchaseList == null) {
-
-            supportActionBar?.setTitle(R.string.purchase_list)
-
-            tvEmpty.setText(R.string.lists_empty)
-            tvEmpty.show()
-            btCreateList.show()
-
-        } else {
-
-            supportActionBar?.title = getString(R.string.label_list, purchaseList!!.name)
-
-            optionsMenu?.findItem(R.id.action_send)?.isVisible = true
-            optionsMenu?.findItem(R.id.action_clear)?.isVisible = true
-
-            listId = purchaseList!!.id
-
-            products = getProducts()
-
-            val items = getProducts()
-            var volumes = 0.0
-            var total = 0.0
-
-            if (items!!.isNotEmpty()) {
-                items.forEach {
-                    volumes += it.quantity
-                    total += it.price * it.quantity
-                }
-            } else {
+            if (purchaseList == null) {
+                supportActionBar?.setTitle(R.string.purchase_list)
+                tvEmpty.setText(R.string.lists_empty)
                 tvEmpty.show()
-                tvEmpty.setText(R.string.products_empty)
+                btCreateList.show()
+                tvQuantities.hide()
+                tvTotal.hide()
+                listProductsAdapter?.setData(null)
+            } else {
+                supportActionBar?.title = getString(R.string.label_list, purchaseList!!.name)
+
+                optionsMenu?.findItem(R.id.action_send)?.isVisible = true
+                optionsMenu?.findItem(R.id.action_clear)?.isVisible = true
+
+                listId = purchaseList!!.id
+                products = getProductsList()
+
+                var volumes = 0.0
+                var total = 0.0
+
+                if (products!!.isNotEmpty()) {
+                    products!!.forEach {
+                        volumes += it.quantity
+                        total += it.price * it.quantity
+                    }
+                } else {
+                    tvEmpty.show()
+                    tvEmpty.setText(R.string.products_empty)
+                }
+
+                tvQuantities.text = getString(
+                    R.string.products_details,
+                    products!!.size,
+                    products!!.size.addPluralCharacter(),
+                    volumes.formatQuantity(),
+                    volumes.addPluralCharacter()
+                )
+                tvTotal.text = total.formatPrice()
+
+                tvQuantities.show()
+                tvTotal.show()
+
+                listProductsAdapter?.setData(products)
             }
-
-            tvQuantities.text = getString(
-                R.string.products_details,
-                items.size,
-                items.size.addPluralCharacter(),
-                volumes.formatQuantity(),
-                volumes.addPluralCharacter()
-            )
-            tvTotal.text = total.formatPrice()
-
-            tvQuantities.show()
-            tvTotal.show()
-
-            listProductsAdapter?.setData(products)
         }
     }
 

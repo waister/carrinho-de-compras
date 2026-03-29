@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.github.kittinunf.fuel.httpGet
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.application.CustomApplication
+import com.renobile.carrinho.database.RealmToRoomMigration
 import com.renobile.carrinho.databinding.ActivityStartBinding
 import com.renobile.carrinho.util.API_ABOUT_APP
 import com.renobile.carrinho.util.API_NOTIFICATIONS
@@ -24,6 +26,7 @@ import com.renobile.carrinho.util.appLog
 import com.renobile.carrinho.util.isNotNumeric
 import com.renobile.carrinho.util.printFuelLog
 import com.renobile.carrinho.util.saveAppData
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import kotlin.random.Random
 
@@ -44,10 +47,15 @@ class StartActivity : AppCompatActivity() {
 
         createDeviceID()
 
-        if (Hawk.get(PREF_ADMOB_ID, "").isEmpty())
-            identifyApp()
-        else
-            initApp()
+        lifecycleScope.launch {
+            // TODO: realiza a migração do Realm para o Room, remover na próxima atualização
+            RealmToRoomMigration(this@StartActivity).migrate()
+
+            if (Hawk.get(PREF_ADMOB_ID, "").isEmpty())
+                identifyApp()
+            else
+                initApp()
+        }
     }
 
     override fun onDestroy() {
@@ -117,7 +125,7 @@ class StartActivity : AppCompatActivity() {
             }
 
             Hawk.put(PREF_DEVICE_ID, stringID)
-            CustomApplication().updateFuelParams()
+            (application as CustomApplication).updateFuelParams()
 
             appLog("GENERATE_DEVICE_ID", "New device ID: $stringID")
         } else {

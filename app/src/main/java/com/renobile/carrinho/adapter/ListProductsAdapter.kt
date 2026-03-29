@@ -9,13 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
+import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.databinding.ItemProductsBinding
-import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
 import com.renobile.carrinho.util.setEmpty
-import io.realm.RealmResults
 
 class ListProductsAdapter(
     private val context: Context,
@@ -23,10 +22,10 @@ class ListProductsAdapter(
 ) :
     RecyclerView.Adapter<ListProductsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
 
-    private var products: RealmResults<Product>? = null
+    private var products: List<ProductEntity>? = null
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(data: RealmResults<Product>?) {
+    fun setData(data: List<ProductEntity>?) {
         products = data
         notifyDataSetChanged()
     }
@@ -53,7 +52,7 @@ class ListProductsAdapter(
     }
 
     inner class ViewHolder(private val binding: ItemProductsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun setData(product: Product?) = with(binding) {
+        fun setData(product: ProductEntity?) = with(binding) {
             if (product != null) {
                 val price = product.price * product.quantity
                 val plural = product.quantity.addPluralCharacter()

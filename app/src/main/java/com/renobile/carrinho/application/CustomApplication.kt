@@ -5,7 +5,6 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.google.android.gms.ads.MobileAds
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
-import com.renobile.carrinho.database.RealmToRoomMigration
 import com.renobile.carrinho.domain.RealmMigration
 import com.renobile.carrinho.util.API_ANDROID
 import com.renobile.carrinho.util.API_DEBUG
@@ -20,16 +19,8 @@ import com.renobile.carrinho.util.PREF_DEVICE_ID
 import com.renobile.carrinho.util.PREF_DEVICE_ID_OLD
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-
 
 class CustomApplication : MultiDexApplication() {
-
-    var isCheckUpdatesNeeded: Boolean = true
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onCreate() {
         super.onCreate()
@@ -49,11 +40,6 @@ class CustomApplication : MultiDexApplication() {
                 .migration(RealmMigration())
                 .build()
         )
-
-        // Trigger Realm to Room migration
-        applicationScope.launch {
-            RealmToRoomMigration(this@CustomApplication).migrate()
-        }
 
         FuelManager.instance.basePath = "${APP_HOST}api/${BuildConfig.API_APP_NAME}"
 

@@ -5,12 +5,11 @@ import android.content.Context
 import android.view.*
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.R
+import com.renobile.carrinho.database.entities.PurchaseListEntity
 import com.renobile.carrinho.databinding.ItemProductsBinding
-import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
-import io.realm.RealmResults
 
 class ListsAdapter(
     private val context: Context,
@@ -18,11 +17,11 @@ class ListsAdapter(
 ) :
     RecyclerView.Adapter<ListsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
 
-    private var carts: RealmResults<PurchaseList>? = null
+    private var lists: List<PurchaseListEntity>? = null
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(data: RealmResults<PurchaseList>?) {
-        carts = data
+    fun setData(data: List<PurchaseListEntity>?) {
+        lists = data
         notifyDataSetChanged()
     }
 
@@ -37,27 +36,27 @@ class ListsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.setData(carts!![position])
+        holder.setData(lists!![position])
     }
 
     override fun getItemCount(): Int {
-        if (carts == null) {
+        if (lists == null) {
             return 0
         }
-        return carts!!.size
+        return lists!!.size
     }
 
     inner class ViewHolder(private val binding: ItemProductsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun setData(cart: PurchaseList?) = with(binding) {
-            if (cart != null) {
-                tvName.text = cart.name
-                tvTotal.text = cart.valueTotal.formatPrice()
+        fun setData(list: PurchaseListEntity?) = with(binding) {
+            if (list != null) {
+                tvName.text = list.name
+                tvTotal.text = list.valueTotal.formatPrice()
                 tvDetails.text = context.getString(
                     R.string.products_details,
-                    cart.products,
-                    cart.products.addPluralCharacter(),
-                    cart.units.formatQuantity(),
-                    cart.units.addPluralCharacter()
+                    list.products,
+                    list.products.addPluralCharacter(),
+                    list.units.formatQuantity(),
+                    list.units.addPluralCharacter()
                 )
             }
         }

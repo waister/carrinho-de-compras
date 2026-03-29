@@ -12,28 +12,27 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.ListsAdapter
+import com.renobile.carrinho.database.AppDatabase
+import com.renobile.carrinho.database.entities.PurchaseListEntity
 import com.renobile.carrinho.databinding.ActivityListsHistoryBinding
-import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.PARAM_LIST_ID
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isVisible
 import com.renobile.carrinho.util.show
-import io.realm.Case
-import io.realm.Realm
-import io.realm.RealmResults
-import io.realm.Sort
+import kotlinx.coroutines.launch
 
 class ListsHistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityListsHistoryBinding
 
-    private var realm: Realm = Realm.getDefaultInstance()
-    private var lists: RealmResults<PurchaseList>? = null
+    private lateinit var database: AppDatabase
+    private var lists: List<PurchaseListEntity>? = null
     private var listsAdapter: ListsAdapter? = null
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
@@ -45,10 +44,9 @@ class ListsHistoryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        realm = Realm.getDefaultInstance()
+        database = AppDatabase.getDatabase(this)
 
         initViews()
 
@@ -93,7 +91,7 @@ class ListsHistoryActivity : AppCompatActivity() {
         rvLists.addOnItemTouchListener(
             ListsAdapter(this@ListsHistoryActivity, object : ListsAdapter.OnItemClickListener {
                 override fun onItemClick(view: View, position: Int) {
-                    val list = lists!![position]
+                    val list = lists?.getOrNull(position)
 
                     if (list != null) {
                         val intent = Intent(this@ListsHistoryActivity, ListDetailsActivity::class.java)
@@ -107,7 +105,6 @@ class ListsHistoryActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
         renderData()
     }
 
@@ -130,15 +127,16 @@ class ListsHistoryActivity : AppCompatActivity() {
         return true
     }
 
-    private fun getLists(): RealmResults<PurchaseList>? {
-        val query = realm.where(PurchaseList::class.java).greaterThan("dateClose", 0)
+    private suspend fun getListsList(): List<PurchaseListEntity> {
+        val allLists = database.purchaseListDao().getAll().filter { it.dateClose > 0 }
 
-        if (searchTerms.isNotEmpty())
-            query?.contains("name", searchTerms, Case.INSENSITIVE)
-
-        val products = query?.findAll()
-
-        return products?.sort("id", Sort.DESCENDING)
+        return if (searchTerms.isNotEmpty()) {
+            allLists.filter {
+                it.name.contains(searchTerms, ignoreCase = true)
+            }
+        } else {
+            allLists
+        }.sortedByDescending { it.id }
     }
 
     fun doneSearch(terms: String): Boolean = with(binding) {
@@ -160,17 +158,12 @@ class ListsHistoryActivity : AppCompatActivity() {
         return false
     }
 
-    override fun onDestroy() {
-        realm.close()
-        super.onDestroy()
-    }
-
     private fun renderData() = with(binding) {
-        lists = getLists()
-
-        tvEmpty.isVisible(lists!!.isEmpty())
-
-        listsAdapter?.setData(lists)
+        lifecycleScope.launch {
+            lists = getListsList()
+            tvEmpty.isVisible(lists.isNullOrEmpty())
+            listsAdapter?.setData(lists)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

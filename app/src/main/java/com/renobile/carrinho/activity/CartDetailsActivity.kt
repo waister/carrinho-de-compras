@@ -13,35 +13,34 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.CartProductsAdapter
+import com.renobile.carrinho.database.AppDatabase
+import com.renobile.carrinho.database.entities.CartEntity
+import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.databinding.ActivityCartDetailsBinding
-import com.renobile.carrinho.domain.Cart
-import com.renobile.carrinho.domain.Product
 import com.renobile.carrinho.util.PARAM_CART_ID
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
 import com.renobile.carrinho.util.hide
-import com.renobile.carrinho.util.sendCartV1
+import com.renobile.carrinho.util.sendCart
 import com.renobile.carrinho.util.show
 import com.renobile.carrinho.util.toast
-import io.realm.Case
-import io.realm.Realm
-import io.realm.RealmResults
-import io.realm.Sort
+import kotlinx.coroutines.launch
 
 class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var binding: ActivityCartDetailsBinding
 
-    private var realm: Realm = Realm.getDefaultInstance()
-    private var cart: Cart? = null
+    private lateinit var database: AppDatabase
+    private var cart: CartEntity? = null
     private var cartId: Long = 0
-    private var products: RealmResults<Product>? = null
+    private var products: List<ProductEntity>? = null
     private var historyAdapterCart: CartProductsAdapter? = null
     private var searchView: SearchView? = null
     private var searchTerms: String = ""
@@ -53,23 +52,21 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        database = AppDatabase.getDatabase(this)
         cartId = intent.getLongExtra(PARAM_CART_ID, 0)
 
-        realm = Realm.getDefaultInstance()
+        lifecycleScope.launch {
+            cart = database.cartDao().getAll().find { it.id == cartId }
 
-        cart = realm.where(Cart::class.java).equalTo("id", cartId).findFirst()
-
-        if (cart == null) {
-            toast(R.string.error_cart_not_found)
-
-            finish()
-        } else {
-            supportActionBar?.title = cart!!.name
-
-            initViews()
+            if (cart == null) {
+                toast(R.string.error_cart_not_found)
+                finish()
+            } else {
+                supportActionBar?.title = cart!!.name
+                initViews()
+            }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -134,49 +131,44 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         return true
     }
 
-    private fun getProducts(): RealmResults<Product>? {
-        val query = realm.where(Product::class.java).equalTo("cartId", cartId)
-
-        if (searchTerms.isNotEmpty())
-            query?.contains("name", searchTerms, Case.INSENSITIVE)
-
-        val productsResults = query?.findAll()
-
-        return productsResults?.sort("id", Sort.DESCENDING)
-    }
-
-    override fun onDestroy() {
-        realm.close()
-        super.onDestroy()
+    private suspend fun getProductsList(): List<ProductEntity> {
+        val allProducts = database.productDao().getByCartId(cartId)
+        return if (searchTerms.isNotEmpty()) {
+            allProducts.filter { it.name.contains(searchTerms, ignoreCase = true) }
+        } else {
+            allProducts
+        }.sortedByDescending { it.id }
     }
 
     override fun onClick(view: View?) {
-        sendCartV1(products, cart!!.name)
+        sendCart(products, cart!!.name)
     }
 
     private fun renderData() = with(binding) {
-        products = getProducts()
+        lifecycleScope.launch {
+            products = getProductsList()
 
-        var volumes = 0.0
-        var total = 0.0
+            var volumes = 0.0
+            var total = 0.0
 
-        if (products!!.isNotEmpty()) {
-            products!!.forEach {
-                volumes += it.quantity
-                total += it.price * it.quantity
+            if (products!!.isNotEmpty()) {
+                products!!.forEach {
+                    volumes += it.quantity
+                    total += it.price * it.quantity
+                }
             }
+
+            tvQuantities.text = getString(
+                R.string.products_details,
+                products!!.size,
+                products!!.size.addPluralCharacter(),
+                volumes.formatQuantity(),
+                volumes.addPluralCharacter()
+            )
+            tvTotal.text = total.formatPrice()
+
+            historyAdapterCart?.setData(products)
         }
-
-        tvQuantities.text = getString(
-            R.string.products_details,
-            products!!.size,
-            products!!.size.addPluralCharacter(),
-            volumes.formatQuantity(),
-            volumes.addPluralCharacter()
-        )
-        tvTotal.text = total.formatPrice()
-
-        historyAdapterCart?.setData(products)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -185,15 +177,13 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 .setTitle(R.string.confirmation)
                 .setMessage(R.string.confirm_delete_cart)
                 .setPositiveButton(R.string.confirm) { _, _ ->
-                    realm.executeTransaction {
-                        products?.deleteAllFromRealm()
-
-                        cart!!.deleteFromRealm()
+                    lifecycleScope.launch {
+                        products?.forEach { database.productDao().delete(it) }
+                        cart?.let { database.cartDao().delete(it) }
+                        
+                        toast(R.string.cart_deleted)
+                        finish()
                     }
-
-                    toast(R.string.cart_deleted)
-
-                    finish()
                 }
                 .setNegativeButton(R.string.cancel, null)
                 .show()

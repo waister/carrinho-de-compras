@@ -9,33 +9,32 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.ListProductsAdapter
+import com.renobile.carrinho.database.AppDatabase
+import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.database.entities.PurchaseListEntity
 import com.renobile.carrinho.databinding.ActivityListDetailsBinding
-import com.renobile.carrinho.domain.Product
-import com.renobile.carrinho.domain.PurchaseList
 import com.renobile.carrinho.util.PARAM_LIST_ID
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
-import com.renobile.carrinho.util.sendListV1
+import com.renobile.carrinho.util.sendList
 import com.renobile.carrinho.util.toast
-import io.realm.Case
-import io.realm.Realm
-import io.realm.RealmResults
-import io.realm.Sort
+import kotlinx.coroutines.launch
 
 class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var binding: ActivityListDetailsBinding
 
-    private var realm: Realm = Realm.getDefaultInstance()
-    private var list: PurchaseList? = null
+    private lateinit var database: AppDatabase
+    private var list: PurchaseListEntity? = null
     private var listId: Long = 0
-    private var products: RealmResults<Product>? = null
+    private var products: List<ProductEntity>? = null
     private var productsAdapter: ListProductsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,23 +44,21 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        database = AppDatabase.getDatabase(this)
         listId = intent.getLongExtra(PARAM_LIST_ID, 0)
 
-        realm = Realm.getDefaultInstance()
+        lifecycleScope.launch {
+            list = database.purchaseListDao().getAll().find { it.id == listId }
 
-        list = realm.where(PurchaseList::class.java).equalTo("id", listId).findFirst()
-
-        if (list == null) {
-            toast(R.string.error_list_not_found)
-
-            finish()
-        } else {
-            supportActionBar?.title = list!!.name
-
-            initViews()
+            if (list == null) {
+                toast(R.string.error_list_not_found)
+                finish()
+            } else {
+                supportActionBar?.title = list!!.name
+                initViews()
+            }
         }
 
         setupInsets()
@@ -103,51 +100,44 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
         return true
     }
 
-    private fun getProducts(terms: String = ""): RealmResults<Product>? {
-        var query = realm.where(Product::class.java)
-            .equalTo("listId", listId)
-
-        if (terms.isNotEmpty()) {
-            query = query?.contains("name", terms, Case.INSENSITIVE)
-        }
-
-        val productsResults = query?.findAll()
-
-        return productsResults?.sort("id", Sort.DESCENDING)
-    }
-
-    override fun onDestroy() {
-        realm.close()
-        super.onDestroy()
+    private suspend fun getProductsList(terms: String = ""): List<ProductEntity> {
+        val allProducts = database.productDao().getByListId(listId)
+        return if (terms.isNotEmpty()) {
+            allProducts.filter { it.name.contains(terms, ignoreCase = true) }
+        } else {
+            allProducts
+        }.sortedByDescending { it.id }
     }
 
     override fun onClick(view: View?) {
-        sendListV1(products, list!!.name)
+        sendList(products, list!!.name)
     }
 
     private fun renderData(terms: String = "") = with(binding) {
-        products = getProducts(terms)
+        lifecycleScope.launch {
+            products = getProductsList(terms)
 
-        var volumes = 0.0
-        var total = 0.0
+            var volumes = 0.0
+            var total = 0.0
 
-        if (products!!.isNotEmpty()) {
-            products!!.forEach {
-                volumes += it.quantity
-                total += it.price * it.quantity
+            if (products!!.isNotEmpty()) {
+                products!!.forEach {
+                    volumes += it.quantity
+                    total += it.price * it.quantity
+                }
             }
+
+            tvQuantities.text = getString(
+                R.string.products_details,
+                products!!.size,
+                products!!.size.addPluralCharacter(),
+                volumes.formatQuantity(),
+                volumes.addPluralCharacter()
+            )
+            tvTotal.text = total.formatPrice()
+
+            productsAdapter?.setData(products)
         }
-
-        tvQuantities.text = getString(
-            R.string.products_details,
-            products!!.size,
-            products!!.size.addPluralCharacter(),
-            volumes.formatQuantity(),
-            volumes.addPluralCharacter()
-        )
-        tvTotal.text = total.formatPrice()
-
-        productsAdapter?.setData(products)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -156,15 +146,13 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 .setTitle(R.string.confirmation)
                 .setMessage(R.string.confirm_delete_list)
                 .setPositiveButton(R.string.confirm) { _, _ ->
-                    realm.executeTransaction {
-                        products?.deleteAllFromRealm()
-
-                        list!!.deleteFromRealm()
+                    lifecycleScope.launch {
+                        products?.forEach { database.productDao().delete(it) }
+                        list?.let { database.purchaseListDao().delete(it) }
+                        
+                        toast(R.string.list_deleted)
+                        finish()
                     }
-
-                    toast(R.string.list_deleted)
-
-                    finish()
                 }
                 .setNegativeButton(R.string.cancel, null)
                 .show()

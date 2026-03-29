@@ -23,6 +23,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.github.kittinunf.fuel.core.FuelError
@@ -40,16 +41,13 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
-import com.renobile.carrinho.domain.Product
-import io.realm.RealmResults
+import com.renobile.carrinho.database.entities.ProductEntity
 import java.text.DateFormat
 import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
-import androidx.core.graphics.createBitmap
-import com.renobile.carrinho.database.entities.ProductEntity
 
 fun AppCompatEditText.maskMoney() {
     this.addTextChangedListener(MaskMoney(this))
@@ -57,40 +55,6 @@ fun AppCompatEditText.maskMoney() {
 
 fun storeAppLink(): String =
     "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
-
-fun Activity?.sendCartV1(products: RealmResults<Product>? = null, cartName: String) {
-    if (this == null) return
-
-    if (!products.isNullOrEmpty()) {
-        var text = getString(R.string.label_my_cart)
-
-        var volumes = 0.0
-        var total = 0.0
-
-        products.forEach {
-            val price = it.price * it.quantity
-
-            volumes += it.quantity
-            total += price
-
-            text += "${it.quantity} - ${it.name} - ${price.formatPrice()}\n"
-        }
-
-        text += getString(
-            R.string.share_cart_text,
-            products.size.addPluralCharacter(),
-            products.size,
-            volumes.addPluralCharacter(),
-            volumes.formatQuantity(),
-            total.formatPrice(),
-            storeAppLink()
-        )
-
-        share(text, getString(R.string.send_list_label, cartName))
-    } else {
-        toast(R.string.error_empty_cart)
-    }
-}
 
 fun Activity?.sendCart(products: List<ProductEntity>? = null, cartName: String) {
     if (this == null) return
@@ -123,40 +87,6 @@ fun Activity?.sendCart(products: List<ProductEntity>? = null, cartName: String) 
         share(text, getString(R.string.send_list_label, cartName))
     } else {
         toast(R.string.error_empty_cart)
-    }
-}
-
-fun Activity?.sendListV1(products: RealmResults<Product>? = null, listName: String) {
-    if (this == null) return
-
-    if (!products.isNullOrEmpty()) {
-        var text = getString(R.string.label_my_list)
-
-        var volumes = 0.0
-        var total = 0.0
-
-        products.forEach {
-            val price = it.price * it.quantity
-
-            volumes += it.quantity
-            total += price
-
-            text += "${it.quantity} - ${it.name} - ${price.formatPrice()}\n"
-        }
-
-        text += getString(
-            R.string.share_cart_text,
-            products.size.addPluralCharacter(),
-            products.size,
-            volumes.addPluralCharacter(),
-            volumes.formatQuantity(),
-            total.formatPrice(),
-            storeAppLink()
-        )
-
-        share(text, getString(R.string.send_list_label, listName))
-    } else {
-        toast(R.string.error_empty_list)
     }
 }
 
