@@ -33,7 +33,7 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
         super.onStart(owner)
     }
 
-    override fun onActivityPaused(activity: Activity) {}
+    override fun onActivityPaused(activity: Activity) = Unit
 
     override fun onActivityStarted(activity: Activity) {
         currentActivity = activity
@@ -43,11 +43,11 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
         currentActivity = null
     }
 
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
 
-    override fun onActivityStopped(activity: Activity) {}
+    override fun onActivityStopped(activity: Activity) = Unit
 
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
 
     override fun onActivityResumed(activity: Activity) {
         currentActivity = activity

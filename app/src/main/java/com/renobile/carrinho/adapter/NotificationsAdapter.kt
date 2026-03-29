@@ -6,6 +6,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.renobile.carrinho.activity.NotificationDetailsActivity
 import com.renobile.carrinho.databinding.ItemNotificationBinding
 import com.renobile.carrinho.util.*
@@ -38,7 +39,7 @@ class NotificationsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (itemsArr != null) {
-            holder.setData(itemsArr!!.get(position) as JSONObject)
+            holder.setData(itemsArr!![position] as JSONObject)
         }
     }
 
@@ -47,7 +48,8 @@ class NotificationsAdapter(
             if (itemsArr != null) {
                 return itemsArr!!.length()
             }
-        } catch (_: IllegalStateException) {
+        } catch (e: IllegalStateException) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
         return 0
     }

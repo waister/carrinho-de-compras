@@ -3,6 +3,7 @@ package com.renobile.carrinho.util
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 import java.text.NumberFormat
 
@@ -28,12 +29,13 @@ class MaskMoney(private val editText: EditText) : TextWatcher {
 
             editText.setText(value)
             editText.setSelection(value.length)
-        } catch (ignored: NumberFormatException) {
+        } catch (e: NumberFormatException) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
 
     }
 
-    override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
+    override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) = Unit
 
-    override fun afterTextChanged(editable: Editable) {}
+    override fun afterTextChanged(editable: Editable) = Unit
 }

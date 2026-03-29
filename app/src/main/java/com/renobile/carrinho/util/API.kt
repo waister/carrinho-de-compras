@@ -1,5 +1,6 @@
 package com.renobile.carrinho.util
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -52,7 +53,8 @@ fun JSONObject?.getStringVal(tag: String, default: String = ""): String {
     if (this != null && has(tag)) {
         try {
             return getString(tag).getStringValid()
-        } catch (_: JSONException) {
+        } catch (e: JSONException) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
     return default
@@ -62,7 +64,8 @@ fun JSONObject?.getIntVal(tag: String, default: Int = 0): Int {
     if (this != null && has(tag)) {
         try {
             return getInt(tag)
-        } catch (_: JSONException) {
+        } catch (e: JSONException) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
     return default
@@ -72,7 +75,8 @@ fun JSONObject?.getLongVal(tag: String, default: Long = 0): Long {
     if (this != null && has(tag)) {
         try {
             return getLong(tag)
-        } catch (_: JSONException) {
+        } catch (e: JSONException) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
     return default
@@ -82,7 +86,8 @@ fun JSONObject?.getBooleanVal(tag: String, default: Boolean = false): Boolean {
     if (this != null && has(tag)) {
         try {
             return getBoolean(tag)
-        } catch (_: JSONException) {
+        } catch (e: JSONException) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
     return default
@@ -93,7 +98,7 @@ fun String?.getValidJSONObject(): JSONObject? {
         try {
             return JSONObject(this)
         } catch (e: JSONException) {
-            e.printStackTrace()
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
     return null
@@ -104,7 +109,7 @@ fun JSONObject?.getJSONObjectVal(tag: String): JSONObject? {
         try {
             return this.getJSONObject(tag)
         } catch (e: JSONException) {
-            e.printStackTrace()
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
     return null
@@ -115,7 +120,7 @@ fun JSONObject?.getJSONArrayVal(tag: String): JSONArray? {
         try {
             return this.getJSONArray(tag)
         } catch (e: JSONException) {
-            e.printStackTrace()
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
     return null

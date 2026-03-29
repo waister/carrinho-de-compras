@@ -111,7 +111,7 @@ class StartActivity : AppCompatActivity() {
             var stringID = "$milliseconds$random"
 
             if (stringID.length > 18) {
-                stringID = stringID.substring(0, 18)
+                stringID = stringID.take(18)
             } else if (stringID.length < 18) {
                 stringID = stringID.padEnd(18, '9')
             }

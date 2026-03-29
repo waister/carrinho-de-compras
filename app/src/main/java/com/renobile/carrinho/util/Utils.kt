@@ -36,6 +36,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
@@ -47,6 +48,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
+import androidx.core.graphics.createBitmap
 
 fun AppCompatEditText.maskMoney() {
     this.addTextChangedListener(MaskMoney(this))
@@ -58,8 +60,8 @@ fun storeAppLink(): String =
 fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String) {
     if (this == null) return
 
-    if (products != null && products.size > 0) {
-        var text = ""
+    if (!products.isNullOrEmpty()) {
+        var text = getString(R.string.label_my_cart)
 
         var volumes = 0.0
         var total = 0.0
@@ -85,15 +87,15 @@ fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String
 
         share(text, getString(R.string.send_list_label, cartName))
     } else {
-        toast(R.string.error_empty)
+        toast(R.string.error_empty_cart)
     }
 }
 
-fun Activity?.sendList(products: RealmResults<Product>? = null, cartName: String) {
+fun Activity?.sendList(products: RealmResults<Product>? = null, listName: String) {
     if (this == null) return
 
-    if (products != null && products.size > 0) {
-        var text = ""
+    if (!products.isNullOrEmpty()) {
+        var text = getString(R.string.label_my_list)
 
         var volumes = 0.0
         var total = 0.0
@@ -117,9 +119,9 @@ fun Activity?.sendList(products: RealmResults<Product>? = null, cartName: String
             storeAppLink()
         )
 
-        share(text, getString(R.string.send_list_label, cartName))
+        share(text, getString(R.string.send_list_label, listName))
     } else {
-        toast(R.string.error_empty)
+        toast(R.string.error_empty_list)
     }
 }
 
@@ -140,7 +142,6 @@ fun Context.share(text: String, subject: String = "") {
 }
 
 fun Context.toast(message: Int) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-fun Context.toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
 fun String?.getStringValid(): String {
     if (!this.isNullOrEmpty() && this != "null" && this != "[null]") {
@@ -188,7 +189,7 @@ fun Context?.loadBannerAd(
     adUnitId: String,
     adSize: AdSize? = null,
     collapsible: Boolean = false,
-    shimmer: ShimmerFrameLayout? = null
+    shimmer: ShimmerFrameLayout? = null,
 ) {
     val logTag = "LOAD_ADMOB_BANNER"
 
@@ -282,7 +283,7 @@ fun String?.formatDate(): String {
                 DateFormat.getDateInstance(DateFormat.SHORT).format(parsed.time)
         }
     } catch (e: ParseException) {
-        e.printStackTrace()
+        if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
     }
     return ""
 }
@@ -298,7 +299,7 @@ fun String?.formatDatetime(): String {
                     .format(parsed.time)
         }
     } catch (e: ParseException) {
-        e.printStackTrace()
+        if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
     }
     return ""
 }
@@ -349,7 +350,7 @@ fun Bitmap?.getCircleCroppedBitmap(): Bitmap? {
 
     if (bitmap != null) {
         try {
-            output = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+            output = createBitmap(bitmap.width, bitmap.height)
             val canvas = Canvas(output)
 
             val color = -0xbdbdbe
@@ -373,7 +374,7 @@ fun Bitmap?.getCircleCroppedBitmap(): Bitmap? {
             paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
             canvas.drawBitmap(bitmap, rect, rect, paint)
         } catch (e: Exception) {
-            e.printStackTrace()
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
 

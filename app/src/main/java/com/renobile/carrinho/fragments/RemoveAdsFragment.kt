@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -17,6 +20,7 @@ import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.material.appbar.AppBarLayout
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.StartActivity
@@ -51,6 +55,8 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
     ): View {
         _binding = FragmentRemoveAdsBinding.inflate(inflater, container, false)
 
+        setupInsets()
+
         if (arguments?.getBoolean(PARAM_SHOW_BACK) == true)
             binding.toolbar.apply {
                 setNavigationIcon(R.drawable.ic_arrow_left)
@@ -58,6 +64,19 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
             }
 
         return binding.root
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.clRoot) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar) ?: 
+                         binding.toolbar.parent as? AppBarLayout
+
+            appBar?.updatePadding(top = systemBars.top)
+            
+            insets
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

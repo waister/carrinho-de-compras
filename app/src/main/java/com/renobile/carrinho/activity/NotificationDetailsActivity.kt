@@ -5,9 +5,13 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.github.kittinunf.fuel.httpGet
+import com.google.android.material.appbar.AppBarLayout
 import com.orhanobut.hawk.Hawk
-import com.renobile.carrinho.R.drawable
+import com.renobile.carrinho.R
 import com.renobile.carrinho.R.string
 import com.renobile.carrinho.databinding.ActivityNotificationDetailsBinding
 import com.renobile.carrinho.util.API_BODY
@@ -43,6 +47,8 @@ class NotificationDetailsActivity : AppCompatActivity() {
         binding = ActivityNotificationDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val itemId = intent.getStringExtra(PARAM_ITEM_ID)
@@ -59,6 +65,22 @@ class NotificationDetailsActivity : AppCompatActivity() {
 
             loadNotification()
 
+        }
+
+        setupInsets()
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rlRoot) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar)
+            appBar?.updatePadding(top = systemBars.top)
+            view.updatePadding(
+                left = systemBars.left,
+                right = systemBars.right,
+                bottom = systemBars.bottom
+            )
+            insets
         }
     }
 
@@ -121,8 +143,8 @@ class NotificationDetailsActivity : AppCompatActivity() {
             if (image.isValidUrl()) {
                 Picasso.get()
                     .load(getThumbUrl(image))
-                    .placeholder(drawable.ic_image_loading)
-                    .error(drawable.ic_image_error)
+                    .placeholder(R.drawable.ic_image_loading)
+                    .error(R.drawable.ic_image_error)
                     .into(ivImage)
             } else {
                 ivImage.hide()

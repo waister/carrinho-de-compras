@@ -16,8 +16,6 @@ const val FORMAT_DATETIME_API = "yyyy-MM-dd HH:mm:ss"
 const val PARAM_CART_ID = "CartId"
 const val PARAM_LIST_ID = "ListId"
 
-const val REQUEST_CODE_RELOAD = 1003
-
 const val ONE_SECOND: Long = 1000
 const val ONE_MINUTE: Long = ONE_SECOND * 60
 const val ONE_HOUR: Long = ONE_MINUTE * 60

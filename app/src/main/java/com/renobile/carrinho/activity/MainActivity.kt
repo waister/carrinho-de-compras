@@ -3,7 +3,6 @@ package com.renobile.carrinho.activity
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -13,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -93,14 +93,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.rlRoot) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rlRoot) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(
-                left = systemBars.left,
-                top = systemBars.top,
-                right = systemBars.right,
-                bottom = systemBars.bottom
-            )
+
+            binding.bnNavigation.updatePadding(bottom = systemBars.bottom)
+
             insets
         }
 
@@ -210,7 +207,7 @@ class MainActivity : AppCompatActivity() {
             R.id.action_more -> 4 to FRAGMENT_MORE
             else -> 0 to FRAGMENT_MAIN
         }
-        
+
         viewFragment(position, tabName)
         binding.bnNavigation.selectedItemId = itemId
     }
@@ -240,7 +237,7 @@ class MainActivity : AppCompatActivity() {
                                 .setTitle(R.string.updated_title)
                                 .setMessage(R.string.update_needed)
                                 .setPositiveButton(R.string.updated_positive) { _, _ ->
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(storeAppLink()))
+                                    val intent = Intent(Intent.ACTION_VIEW, storeAppLink().toUri())
                                     startActivity(intent)
                                 }
                                 .setNegativeButton(R.string.updated_logout) { _, _ -> finish() }
@@ -251,7 +248,7 @@ class MainActivity : AppCompatActivity() {
                                 .setTitle(R.string.updated_title)
                                 .setMessage(R.string.update_available)
                                 .setPositiveButton(R.string.updated_positive) { _, _ ->
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(storeAppLink()))
+                                    val intent = Intent(Intent.ACTION_VIEW, storeAppLink().toUri())
                                     startActivity(intent)
                                 }
                                 .setNegativeButton(R.string.updated_negative, null)
@@ -287,13 +284,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, permissionTag) != PackageManager.PERMISSION_GRANTED) {
-                if (shouldShowPushNotificationQuestionDialog())
-                    alertNotificationsIsImportant()
-                else
-                    permissionLauncher.launch(permissionTag)
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
+                this,
+                permissionTag
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            if (shouldShowPushNotificationQuestionDialog())
+                alertNotificationsIsImportant()
+            else
+                permissionLauncher.launch(permissionTag)
         }
     }
 

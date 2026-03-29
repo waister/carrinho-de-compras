@@ -1,7 +1,6 @@
 package com.renobile.carrinho.activity
 
 import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -10,8 +9,12 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.CartsAdapter
 import com.renobile.carrinho.databinding.ActivityCartsHistoryBinding
@@ -42,6 +45,8 @@ class CartsHistoryActivity : AppCompatActivity() {
         binding = ActivityCartsHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         realm = Realm.getDefaultInstance()
@@ -56,6 +61,22 @@ class CartsHistoryActivity : AppCompatActivity() {
                     finish()
             }
         })
+
+        setupInsets()
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rlRoot) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar)
+            appBar?.updatePadding(top = systemBars.top)
+            view.updatePadding(
+                left = systemBars.left,
+                right = systemBars.right,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
     }
 
     private fun initViews() = with(binding) {
@@ -96,7 +117,7 @@ class CartsHistoryActivity : AppCompatActivity() {
 
         searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
 
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         searchView!!.setSearchableInfo(searchManager.getSearchableInfo(componentName))
 
         searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -170,7 +191,7 @@ class CartsHistoryActivity : AppCompatActivity() {
     private fun renderData() = with(binding) {
         carts = getCarts()
 
-        tvEmpty.isVisible(carts!!.size == 0)
+        tvEmpty.isVisible(carts!!.isEmpty())
 
         cartsAdapter?.setData(carts)
     }

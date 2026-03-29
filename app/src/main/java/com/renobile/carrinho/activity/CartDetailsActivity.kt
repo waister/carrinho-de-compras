@@ -10,8 +10,12 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.CartProductsAdapter
 import com.renobile.carrinho.databinding.ActivityCartDetailsBinding
@@ -76,6 +80,22 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     finish()
             }
         })
+
+        setupInsets()
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.clRoot) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar)
+            appBar?.updatePadding(top = systemBars.top)
+            view.updatePadding(
+                left = systemBars.left,
+                right = systemBars.right,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
     }
 
     private fun initViews() = with(binding) {
@@ -140,7 +160,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         var volumes = 0.0
         var total = 0.0
 
-        if (products!!.size > 0) {
+        if (products!!.isNotEmpty()) {
             products!!.forEach {
                 volumes += it.quantity
                 total += it.price * it.quantity

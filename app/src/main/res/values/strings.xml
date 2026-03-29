@@ -42,6 +42,7 @@
     <string name="archived_cart">Carrinho arquivado</string>
     <string name="search_products">Procurar produtos</string>
     <string name="search_carts">Procurar carrinhos</string>
+    <string name="search_lists">Procurar listas</string>
     <string name="product_details">%s unidade%s a %s cada</string>
     <string name="product_details_no_price">%s unidade%s</string>
     <string name="products_empty">Nenhum produto adicionado</string>
@@ -80,7 +81,8 @@
     <string name="error_quantity">Digite a quantidade!</string>
     <string name="error_quantity_min">O produto precisa ter pelo menos uma unidade!</string>
     <string name="error_price">Digite o preço!</string>
-    <string name="error_empty">Seu carrinho está vazio!</string>
+    <string name="error_empty_cart">Seu carrinho está vazio!</string>
+    <string name="error_empty_list">Sua lista está vazia!</string>
     <string name="error_cart_not_found">Carrinho não encontrado!</string>
     <string name="error_list_not_found">Lista não encontrada!</string>
     <string name="error_email_invalid">Ops, digite um e-mail valido!</string>
@@ -107,6 +109,8 @@
     <string name="share_app_text">Baixe o App Carrinho de Compras, está me ajudando muito e é 100% gratuito ;-)</string>
     <string name="feedback_subject">Feedback do aplicativo Carrinho de Compras</string>
     <string name="send_list_label">%s - App Carrinho de Compras</string>
+    <string name="label_my_cart">Meu carrinho de compras:\n\n</string>
+    <string name="label_my_list">Minha lista de compras:\n\n</string>
     <string name="share_cart_text">\nProduto%s: %d\nUnidade%s: %s\nValor total: %s\n\n----\nInstale você também: %s</string>
     <string name="products_details">%d produto%s e %s unidade%s</string>
     <string name="update_now">Atualizar agora</string>

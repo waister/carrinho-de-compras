@@ -7,7 +7,6 @@ import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -15,14 +14,32 @@ import android.os.VibratorManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.github.kittinunf.fuel.httpGet
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.StartActivity
-import com.renobile.carrinho.util.*
+import com.renobile.carrinho.util.API_ABOUT_APP
+import com.renobile.carrinho.util.API_FEEDBACK
+import com.renobile.carrinho.util.API_NOTIFICATIONS
+import com.renobile.carrinho.util.API_PREMIUM
+import com.renobile.carrinho.util.API_ROUTE_IDENTIFY
+import com.renobile.carrinho.util.API_TOKEN
+import com.renobile.carrinho.util.API_WAKEUP
+import com.renobile.carrinho.util.PARAM_ITEM_ID
+import com.renobile.carrinho.util.PARAM_TYPE
+import com.renobile.carrinho.util.PREF_FCM_TOKEN
+import com.renobile.carrinho.util.getCircleCroppedBitmap
+import com.renobile.carrinho.util.getThumbUrl
+import com.renobile.carrinho.util.isDebug
+import com.renobile.carrinho.util.isValidUrl
+import com.renobile.carrinho.util.printFuelLog
+import com.renobile.carrinho.util.storeAppLink
+import com.renobile.carrinho.util.stringToInt
 import java.io.IOException
 import java.net.ConnectException
 import java.net.URL
@@ -117,7 +134,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         if (link.isValidUrl()) {
 
-            notifyIntent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+            notifyIntent = Intent(Intent.ACTION_VIEW, link.toUri())
 
         } else {
 
@@ -158,9 +175,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     builder.setLargeIcon(icon.getCircleCroppedBitmap())
                 }
             } catch (e: IOException) {
-                e.printStackTrace()
+                if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
             } catch (e: ConnectException) {
-                e.printStackTrace()
+                if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
 

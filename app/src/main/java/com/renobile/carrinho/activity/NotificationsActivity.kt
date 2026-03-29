@@ -4,9 +4,13 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import com.github.kittinunf.fuel.httpGet
+import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.adapter.NotificationsAdapter
 import com.renobile.carrinho.databinding.ActivityNotificationsBinding
@@ -36,9 +40,27 @@ class NotificationsActivity : AppCompatActivity() {
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         loadNotifications()
+
+        setupInsets()
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rlRoot) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar)
+            appBar?.updatePadding(top = systemBars.top)
+            view.updatePadding(
+                left = systemBars.left,
+                right = systemBars.right,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

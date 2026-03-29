@@ -12,6 +12,7 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.renobile.carrinho.R
 
 class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdatedListener, LifecycleEventObserver {
@@ -63,7 +64,8 @@ class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdated
         try {
             @Suppress("DEPRECATION")
             appUpdateManager.startUpdateFlowForResult(info, type, activity, 500)
-        } catch (_: Throwable) {
+        } catch (e: Throwable) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
         currentType = type
     }

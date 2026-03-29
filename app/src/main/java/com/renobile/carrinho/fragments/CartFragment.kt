@@ -17,9 +17,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.CartsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
@@ -65,15 +69,25 @@ class CartFragment : Fragment() {
     private var _addProductDialog: AlertDialog? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentCartBinding.inflate(inflater, container, false)
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
 
+        setupInsets()
         initViews()
 
         return binding.root
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.clRoot) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar)
+            appBar?.updatePadding(top = systemBars.top)
+            insets
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,10 +96,8 @@ class CartFragment : Fragment() {
 
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!searchView!!.isIconified)
-                    searchView!!.onActionViewCollapsed()
-                else
-                    activity?.finish()
+                if (!searchView!!.isIconified) searchView!!.onActionViewCollapsed()
+                else activity?.finish()
             }
         })
     }
@@ -119,6 +131,7 @@ class CartFragment : Fragment() {
                 val intent = Intent(requireContext(), CartsHistoryActivity::class.java)
                 startActivity(intent)
             }
+
             R.id.action_share_app -> activity?.shareApp()
         }
         return super.onOptionsItemSelected(item)
@@ -159,13 +172,9 @@ class CartFragment : Fragment() {
             bindingItem.etName.requestFocus()
             bindingItem.tvAlert.setText(R.string.create_cart_notice)
 
-            _addCardDialog = AlertDialog.Builder(requireActivity())
-                .setView(bindingItem.root)
-                .setCancelable(false)
-                .setTitle(R.string.create_cart)
-                .setPositiveButton(R.string.confirm, null)
-                .setNegativeButton(R.string.cancel, null)
-                .create()
+            _addCardDialog = AlertDialog.Builder(requireActivity()).setView(bindingItem.root).setCancelable(false)
+                .setTitle(R.string.create_cart).setPositiveButton(R.string.confirm, null)
+                .setNegativeButton(R.string.cancel, null).create()
 
             _addCardDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             _addCardDialog!!.setOnShowListener { dialog ->
@@ -234,18 +243,14 @@ class CartFragment : Fragment() {
     }
 
     private fun clearCart() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.confirmation)
-            .setMessage(R.string.confirm_delete_all)
+        AlertDialog.Builder(requireContext()).setTitle(R.string.confirmation).setMessage(R.string.confirm_delete_all)
             .setPositiveButton(R.string.confirm) { _, _ ->
                 realm.executeTransaction {
                     realm.where(Product::class.java).equalTo("cartId", cartId).findAll().deleteAllFromRealm()
 
                     renderData()
                 }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            }.setNegativeButton(R.string.cancel, null).show()
     }
 
     private fun initViews() = with(binding) {
@@ -287,9 +292,7 @@ class CartFragment : Fragment() {
                     if (product != null) {
                         val options = resources.getStringArray(R.array.product_options)
 
-                        AlertDialog.Builder(requireContext())
-                            .setTitle(product.name)
-                            .setItems(options) { _, i ->
+                        AlertDialog.Builder(requireContext()).setTitle(product.name).setItems(options) { _, i ->
                                 when (i) {
                                     0 -> {
                                         addOrEditProduct(product)
@@ -307,24 +310,11 @@ class CartFragment : Fragment() {
                                         deleteProduct(product)
                                     }
                                 }
-                            }
-                            .show()
+                            }.show()
                     }
                 }
             })
         )
-
-//        rvProducts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                super.onScrolled(recyclerView, dx, dy)
-//
-//                if (dy > 0) {
-//                    if (fabAdd.isShown) fabAdd.hide()
-//                } else if (dy < 0) {
-//                    if (!fabAdd.isShown) fabAdd.show()
-//                }
-//            }
-//        })
 
         renderData()
     }
@@ -363,12 +353,9 @@ class CartFragment : Fragment() {
             success = R.string.product_edited
         }
 
-        _addProductDialog = AlertDialog.Builder(requireActivity())
-            .setCancelable(false)
-            .setView(bindingItem.root)
-            .setTitle(title)
-            .setPositiveButton(positive, null).setNegativeButton(negative, null)
-            .create()
+        _addProductDialog =
+            AlertDialog.Builder(requireActivity()).setCancelable(false).setView(bindingItem.root).setTitle(title)
+                .setPositiveButton(positive, null).setNegativeButton(negative, null).create()
 
         _addProductDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         _addProductDialog!!.setOnShowListener { dialog ->
@@ -385,7 +372,7 @@ class CartFragment : Fragment() {
 
             val productsList = realm.where(Product::class.java).sort("name", Sort.ASCENDING).findAll()
 
-            if (productsList != null && productsList.size > 0) {
+            if (!productsList.isNullOrEmpty()) {
                 val list = mutableListOf<String>()
 
                 productsList.forEach {
@@ -469,9 +456,7 @@ class CartFragment : Fragment() {
     }
 
     private fun deleteProduct(product: Product) = with(binding) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.confirmation)
-            .setMessage(R.string.confirm_delete)
+        AlertDialog.Builder(requireContext()).setTitle(R.string.confirmation).setMessage(R.string.confirm_delete)
             .setPositiveButton(R.string.confirm) { _, _ ->
                 realm.executeTransaction {
                     product.deleteFromRealm()
@@ -480,9 +465,7 @@ class CartFragment : Fragment() {
                 renderData()
 
                 clRoot.longSnackbar(R.string.success_delete)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            }.setNegativeButton(R.string.cancel, null).show()
     }
 
     private fun renderData() = with(binding) {
@@ -518,7 +501,7 @@ class CartFragment : Fragment() {
             var volumes = 0.0
             var total = 0.0
 
-            if (items!!.size > 0) {
+            if (items!!.isNotEmpty()) {
                 items.forEach {
                     volumes += it.quantity
                     total += it.price * it.quantity

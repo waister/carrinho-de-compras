@@ -16,9 +16,13 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.ListsHistoryActivity
 import com.renobile.carrinho.activity.MainActivity
@@ -65,15 +69,25 @@ class ListFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentListBinding.inflate(inflater, container, false)
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
 
+        setupInsets()
         initViews()
 
         return binding.root
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.clRoot) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar)
+            appBar?.updatePadding(top = systemBars.top)
+            insets
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,6 +124,7 @@ class ListFragment : Fragment() {
                 val intent = Intent(requireContext(), ListsHistoryActivity::class.java)
                 startActivity(intent)
             }
+
             R.id.action_share_app -> activity?.shareApp()
         }
         return super.onOptionsItemSelected(item)
@@ -310,18 +325,6 @@ class ListFragment : Fragment() {
             })
         )
 
-//        rvProducts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                super.onScrolled(recyclerView, dx, dy)
-//
-//                if (dy > 0) {
-//                    if (fabAdd.isShown) fabAdd.hide()
-//                } else if (dy < 0) {
-//                    if (!fabAdd.isShown) fabAdd.show()
-//                }
-//            }
-//        })
-
         renderData()
     }
 
@@ -385,7 +388,7 @@ class ListFragment : Fragment() {
                 .sort("name", Sort.ASCENDING)
                 .findAll()
 
-            if (productsList != null && productsList.size > 0) {
+            if (!productsList.isNullOrEmpty()) {
                 val list = mutableListOf<String>()
 
                 productsList.forEach {
@@ -521,7 +524,7 @@ class ListFragment : Fragment() {
             var volumes = 0.0
             var total = 0.0
 
-            if (items!!.size > 0) {
+            if (items!!.isNotEmpty()) {
                 items.forEach {
                     volumes += it.quantity
                     total += it.price * it.quantity

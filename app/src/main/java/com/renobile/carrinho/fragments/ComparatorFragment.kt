@@ -14,7 +14,11 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import com.google.android.material.appbar.AppBarLayout
 import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.MainActivity
@@ -26,8 +30,8 @@ import com.renobile.carrinho.util.PREF_SIZE_FIRST
 import com.renobile.carrinho.util.PREF_SIZE_SECOND
 import com.renobile.carrinho.util.formatPercent
 import com.renobile.carrinho.util.fromHtml
-import com.renobile.carrinho.util.getNumber
 import com.renobile.carrinho.util.getDouble
+import com.renobile.carrinho.util.getNumber
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.hideKeyboard
 import com.renobile.carrinho.util.setEmpty
@@ -43,13 +47,23 @@ class ComparatorFragment : Fragment(), TextWatcher {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentComparatorBinding.inflate(inflater, container, false)
 
+        setupInsets()
         initViews()
 
         return binding.root
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.clRoot) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar)
+            appBar?.updatePadding(top = systemBars.top)
+            insets
+        }
     }
 
     private fun initViews() = with(binding) {
@@ -79,9 +93,9 @@ class ComparatorFragment : Fragment(), TextWatcher {
         llResult.hide()
     }
 
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
