@@ -1,6 +1,5 @@
 package com.renobile.carrinho.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +21,6 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.R
-import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.databinding.FragmentRemoveAdsBinding
 import com.renobile.carrinho.util.ONE_DAY
 import com.renobile.carrinho.util.PARAM_SHOW_BACK
@@ -35,6 +33,7 @@ import com.renobile.carrinho.util.havePlan
 import com.renobile.carrinho.util.haveVideoPlan
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isDebug
+import com.renobile.carrinho.util.restartApp
 import com.renobile.carrinho.util.show
 
 class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
@@ -68,12 +67,12 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.clRoot) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            
-            val appBar = binding.root.findViewById<AppBarLayout>(R.id.app_bar) ?: 
-                         binding.toolbar.parent as? AppBarLayout
+
+            val appBar =
+                binding.root.findViewById<AppBarLayout>(R.id.app_bar) ?: binding.toolbar.parent as? AppBarLayout
 
             appBar?.updatePadding(top = systemBars.top)
-            
+
             insets
         }
     }
@@ -231,20 +230,12 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
                     .setTitle(R.string.plan_success_title)
                     .setMessage(R.string.plan_success_body)
                     .setPositiveButton(R.string.restart_app) { _, _ ->
-                        restartApp()
+                        activity?.restartApp()
                     }
                     .create()
 
             _alertDialog?.show()
         }
-    }
-
-    private fun restartApp() {
-        val intent = Intent(activity, StartActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
-
-        activity?.finish()
     }
 
     private fun alertErrorLoad() {

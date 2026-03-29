@@ -12,6 +12,7 @@ const val API_ROUTE_NOTIFICATIONS = "/notifications"
 const val API_ROUTE_NOTIFICATION = "/notification/"
 
 const val API_SUCCESS = "success"
+const val API_CONFIGS = "configs"
 const val API_VERSION_LAST = "version_last"
 const val API_VERSION_MIN = "version_min"
 const val API_SHARE_LINK = "store_link"

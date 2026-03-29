@@ -20,7 +20,6 @@ import com.github.kittinunf.fuel.httpGet
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.tasks.OnCompleteListener
@@ -146,10 +145,6 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             MobileAds.initialize(this@MainActivity) {}
             runOnUiThread {
-                val deviceId = listOf(AdRequest.DEVICE_ID_EMULATOR, "7242AA08F80EC72727EE3DECA8262032")
-                val configuration = RequestConfiguration.Builder().setTestDeviceIds(deviceId).build()
-                MobileAds.setRequestConfiguration(configuration)
-
                 loadBannerAd(
                     adViewContainer = binding.llBanner,
                     adUnitId = Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),

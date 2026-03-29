@@ -10,10 +10,14 @@ import com.google.android.material.appbar.AppBarLayout
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ActivityAboutBinding
+import com.renobile.carrinho.util.PREF_HAVE_PLAN
+import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.restartApp
 
 class AboutActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAboutBinding
+    private var cartClicks: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +37,15 @@ class AboutActivity : AppCompatActivity() {
             }
 
             tvVersion.text = getString(R.string.version, BuildConfig.VERSION_NAME)
+
+            cartImage.setOnClickListener {
+                cartClicks++
+
+                if (cartClicks >= 50) {
+                    Prefs.putValue(PREF_HAVE_PLAN, true)
+                    restartApp()
+                }
+            }
         }
 
         setupInsets()

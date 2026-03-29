@@ -40,6 +40,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
+import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.database.entities.ProductEntity
 import java.text.DateFormat
 import java.text.NumberFormat
@@ -178,7 +179,7 @@ fun haveVideoPlan(): Boolean {
     return false
 }
 
-fun haveBillingPlan(): Boolean = Prefs.getValue(PREF_HAVE_PLAN, !BuildConfig.DEBUG)
+fun haveBillingPlan(): Boolean = Prefs.getValue(PREF_HAVE_PLAN, false)
 
 fun havePlan(): Boolean = haveBillingPlan() || haveVideoPlan()
 
@@ -448,15 +449,16 @@ fun saveAppData(result: Result<String, FuelError>) {
         val apiObj = data.getValidJSONObject()
 
         if (apiObj.getBooleanVal(API_SUCCESS)) {
-            Prefs.putValue(PREF_SHARE_LINK, apiObj.getStringVal(API_SHARE_LINK))
-            Prefs.putValue(PREF_APP_NAME, apiObj.getStringVal(API_APP_NAME))
-            Prefs.putValue(PREF_ADMOB_ID, apiObj.getStringVal(API_ADMOB_ID))
-            Prefs.putValue(PREF_ADMOB_AD_MAIN_ID, apiObj.getStringVal(API_ADMOB_AD_MAIN_ID))
-            Prefs.putValue(PREF_ADMOB_INTERSTITIAL_ID, apiObj.getStringVal(API_ADMOB_INTERSTITIAL_ID))
-            Prefs.putValue(PREF_ADMOB_REMOVE_ADS_ID, apiObj.getStringVal(API_ADMOB_REMOVE_ADS_ID))
-            Prefs.putValue(PREF_ADMOB_OPEN_APP_ID, apiObj.getStringVal(API_ADMOB_OPEN_APP_ID))
-            Prefs.putValue(PREF_BILL_PLAN_YEAR, apiObj.getStringVal(API_BILL_PLAN_YEAR))
-            Prefs.putValue(PREF_PLAN_VIDEO_DURATION, apiObj.getLongVal(API_PLAN_VIDEO_DURATION))
+            val configs = apiObj.getJSONObjectVal(API_CONFIGS)
+
+            Prefs.putValue(PREF_SHARE_LINK, configs.getStringVal(API_SHARE_LINK))
+            Prefs.putValue(PREF_APP_NAME, configs.getStringVal(API_APP_NAME))
+            Prefs.putValue(PREF_ADMOB_ID, configs.getStringVal(API_ADMOB_ID))
+            Prefs.putValue(PREF_ADMOB_AD_MAIN_ID, configs.getStringVal(API_ADMOB_AD_MAIN_ID))
+            Prefs.putValue(PREF_ADMOB_INTERSTITIAL_ID, configs.getStringVal(API_ADMOB_INTERSTITIAL_ID))
+            Prefs.putValue(PREF_ADMOB_REMOVE_ADS_ID, configs.getStringVal(API_ADMOB_REMOVE_ADS_ID))
+            Prefs.putValue(PREF_ADMOB_OPEN_APP_ID, configs.getStringVal(API_ADMOB_OPEN_APP_ID))
+            Prefs.putValue(PREF_PLAN_VIDEO_DURATION, configs.getLongVal(API_PLAN_VIDEO_DURATION))
         }
     }
 }
@@ -477,14 +479,6 @@ fun View.show() {
 fun View.isVisible(isVisible: Boolean) {
     if (isVisible) show() else hide()
 }
-
-fun String?.isNumeric(): Boolean {
-    if (this == null) return false
-    val regex = "-?[0-9]+(\\.[0-9]+)?".toRegex()
-    return this.matches(regex)
-}
-
-fun String?.isNotNumeric(): Boolean = !this.isNumeric()
 
 fun isDebug() = BuildConfig.DEBUG
 
@@ -513,3 +507,11 @@ fun Double.addPluralCharacter() = if (this.isSingular()) "" else "s"
 fun Int.addPluralCharacter() = if (this == 1) "" else "s"
 
 fun Double.isEmpty() = this == 0.0
+
+fun Activity.restartApp() {
+    val intent = Intent(this, StartActivity::class.java)
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    startActivity(intent)
+
+    finish()
+}
