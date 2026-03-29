@@ -2,6 +2,7 @@ package com.renobile.carrinho.activity
 
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -24,7 +25,6 @@ import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import org.jetbrains.anko.intentFor
 
 class CartsHistoryActivity : AppCompatActivity() {
 
@@ -76,11 +76,9 @@ class CartsHistoryActivity : AppCompatActivity() {
                     val cart = carts!![position]
 
                     if (cart != null) {
-                        startActivity(
-                            intentFor<CartDetailsActivity>(
-                                PARAM_CART_ID to cart.id
-                            )
-                        )
+                        val intent = Intent(this@CartsHistoryActivity, CartDetailsActivity::class.java)
+                        intent.putExtra(PARAM_CART_ID, cart.id)
+                        startActivity(intent)
                     }
                 }
             })

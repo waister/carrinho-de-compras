@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -23,12 +24,11 @@ import com.renobile.carrinho.util.formatQuantity
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.sendCart
 import com.renobile.carrinho.util.show
+import com.renobile.carrinho.util.toast
 import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.toast
 
 class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -120,9 +120,9 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
         if (searchTerms.isNotEmpty())
             query?.contains("name", searchTerms, Case.INSENSITIVE)
 
-        val products = query?.findAll()
+        val productsResults = query?.findAll()
 
-        return products?.sort("id", Sort.DESCENDING)
+        return productsResults?.sort("id", Sort.DESCENDING)
     }
 
     override fun onDestroy() {
@@ -161,8 +161,10 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_delete) {
-            alert(getString(R.string.confirm_delete_cart), getString(R.string.confirmation)) {
-                positiveButton(R.string.confirm) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.confirmation)
+                .setMessage(R.string.confirm_delete_cart)
+                .setPositiveButton(R.string.confirm) { _, _ ->
                     realm.executeTransaction {
                         products?.deleteAllFromRealm()
 
@@ -173,8 +175,8 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
                     finish()
                 }
-                negativeButton(R.string.cancel) {}
-            }.show()
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         } else {
             finish()
         }

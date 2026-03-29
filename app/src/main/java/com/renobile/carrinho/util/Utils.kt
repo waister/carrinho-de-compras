@@ -2,6 +2,7 @@ package com.renobile.carrinho.util
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -20,6 +21,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
 import com.facebook.shimmer.ShimmerFrameLayout
@@ -39,9 +41,6 @@ import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.domain.Product
 import io.realm.RealmResults
-import org.jetbrains.anko.find
-import org.jetbrains.anko.share
-import org.jetbrains.anko.toast
 import java.text.DateFormat
 import java.text.NumberFormat
 import java.text.ParseException
@@ -123,6 +122,25 @@ fun Activity?.sendList(products: RealmResults<Product>? = null, cartName: String
         toast(R.string.error_empty)
     }
 }
+
+fun Activity.share(text: String, subject: String = "") {
+    val intent = Intent(Intent.ACTION_SEND)
+    intent.type = "text/plain"
+    intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+    intent.putExtra(Intent.EXTRA_TEXT, text)
+    startActivity(Intent.createChooser(intent, null))
+}
+
+fun Context.share(text: String, subject: String = "") {
+    val intent = Intent(Intent.ACTION_SEND)
+    intent.type = "text/plain"
+    intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+    intent.putExtra(Intent.EXTRA_TEXT, text)
+    startActivity(Intent.createChooser(intent, null))
+}
+
+fun Context.toast(message: Int) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+fun Context.toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
 fun String?.getStringValid(): String {
     if (!this.isNullOrEmpty() && this != "null" && this != "[null]") {
@@ -373,7 +391,7 @@ fun View?.longSnackbar(text: String) {
 fun View?.customSnackbar(text: String, length: Int) {
     if (this != null) {
         val snackbar = Snackbar.make(this, text, length)
-        val textView = snackbar.view.find<TextView>(R.id.snackbar_text)
+        val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
         textView.setTextColor(Color.WHITE)
         snackbar.show()
     }

@@ -1,5 +1,6 @@
 package com.renobile.carrinho.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
@@ -23,7 +24,6 @@ import com.renobile.carrinho.util.appLog
 import com.renobile.carrinho.util.isNotNumeric
 import com.renobile.carrinho.util.printFuelLog
 import com.renobile.carrinho.util.saveAppData
-import org.jetbrains.anko.intentFor
 import java.util.Calendar
 import kotlin.random.Random
 
@@ -78,17 +78,22 @@ class StartActivity : AppCompatActivity() {
         Log.i(TAG, "Received type from notification: $type")
         Log.i(TAG, "Received itemId from notification: $itemId")
 
-        startActivity(intentFor<MainActivity>(PARAM_TYPE to type))
+        val mainIntent = Intent(this, MainActivity::class.java)
+        mainIntent.putExtra(PARAM_TYPE, type)
+        startActivity(mainIntent)
 
         when (type) {
             API_NOTIFICATIONS -> {
-                if (itemId != null && itemId.isEmpty())
-                    startActivity(intentFor<NotificationsActivity>())
-                else
-                    startActivity(intentFor<NotificationDetailsActivity>(PARAM_ITEM_ID to itemId))
+                if (itemId != null && itemId.isEmpty()) {
+                    startActivity(Intent(this, NotificationsActivity::class.java))
+                } else {
+                    val intent = Intent(this, NotificationDetailsActivity::class.java)
+                    intent.putExtra(PARAM_ITEM_ID, itemId)
+                    startActivity(intent)
+                }
             }
 
-            API_ABOUT_APP -> startActivity(intentFor<AboutActivity>())
+            API_ABOUT_APP -> startActivity(Intent(this, AboutActivity::class.java))
         }
 
         finish()

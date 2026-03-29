@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_cart"
+        android:icon="@drawable/ic_cart_outline"
+        android:title="@string/cart" />
+    <item
+        android:id="@+id/action_list"
+        android:icon="@drawable/ic_format_list_checks"
+        android:title="@string/list" />
+    <item
+        android:id="@+id/action_compare"
+        android:icon="@drawable/ic_select_compare"
+        android:title="@string/compare" />
+    <item
+        android:id="@+id/action_premium"
+        android:icon="@drawable/ic_crown"
+        android:title="@string/premium" />
+    <item
+        android:id="@+id/action_more"
+        android:icon="@drawable/ic_dots_horizontal"
+        android:title="@string/more" />
+</menu>

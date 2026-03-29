@@ -2,13 +2,13 @@ package com.renobile.carrinho.adapter
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.renobile.carrinho.activity.NotificationDetailsActivity
 import com.renobile.carrinho.databinding.ItemNotificationBinding
 import com.renobile.carrinho.util.*
-import org.jetbrains.anko.intentFor
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -63,11 +63,9 @@ class NotificationsAdapter(
             tvDate.text = date.formatDate()
 
             itemView.setOnClickListener {
-                activity.startActivity(
-                    activity.intentFor<NotificationDetailsActivity>(
-                        PARAM_ITEM_ID to itemObj.getStringVal(API_ID)
-                    )
-                )
+                val intent = Intent(activity, NotificationDetailsActivity::class.java)
+                intent.putExtra(PARAM_ITEM_ID, itemObj.getStringVal(API_ID))
+                activity.startActivity(intent)
             }
         }
     }

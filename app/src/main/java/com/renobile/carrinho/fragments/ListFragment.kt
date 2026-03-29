@@ -2,6 +2,7 @@ package com.renobile.carrinho.fragments
 
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -40,14 +41,11 @@ import com.renobile.carrinho.util.sendList
 import com.renobile.carrinho.util.setEmpty
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.show
+import com.renobile.carrinho.util.toast
 import io.realm.Case
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.selector
-import org.jetbrains.anko.toast
 
 class ListFragment : Fragment() {
 
@@ -106,10 +104,13 @@ class ListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_new -> createNewList()
-            R.id.action_send -> activity.sendList(products, purchaseList!!.name)
+            R.id.action_send -> activity?.sendList(products, purchaseList!!.name)
             R.id.action_clear -> clearList()
-            R.id.action_history -> activity?.startActivity(activity?.intentFor<ListsHistoryActivity>())
-            R.id.action_share_app -> activity.shareApp()
+            R.id.action_history -> {
+                val intent = Intent(requireContext(), ListsHistoryActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.action_share_app -> activity?.shareApp()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -226,10 +227,11 @@ class ListFragment : Fragment() {
     }
 
     private fun clearList() {
-        activity?.alert(R.string.confirm_delete_all, R.string.confirmation) {
-            positiveButton(R.string.confirm) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.confirmation)
+            .setMessage(R.string.confirm_delete_all)
+            .setPositiveButton(R.string.confirm) { _, _ ->
                 realm.executeTransaction {
-                    //realm.delete(Product::class.java)
                     realm.where(Product::class.java)
                         .equalTo("listId", listId)
                         .findAll()
@@ -238,8 +240,8 @@ class ListFragment : Fragment() {
                     renderData()
                 }
             }
-            negativeButton(R.string.cancel) {}
-        }?.show()
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun initViews() = with(binding) {
@@ -281,25 +283,28 @@ class ListFragment : Fragment() {
                     if (product != null) {
                         val options = resources.getStringArray(R.array.product_options)
 
-                        activity?.selector(product.name, options.toList()) { _, i ->
-                            when (i) {
-                                0 -> {
-                                    addOrEditProduct(product)
-                                }
+                        AlertDialog.Builder(requireContext())
+                            .setTitle(product.name)
+                            .setItems(options) { _, i ->
+                                when (i) {
+                                    0 -> {
+                                        addOrEditProduct(product)
+                                    }
 
-                                1 -> {
-                                    changeQuantity(product, +1)
-                                }
+                                    1 -> {
+                                        changeQuantity(product, +1)
+                                    }
 
-                                2 -> {
-                                    changeQuantity(product, -1)
-                                }
+                                    2 -> {
+                                        changeQuantity(product, -1)
+                                    }
 
-                                3 -> {
-                                    deleteProduct(product)
+                                    3 -> {
+                                        deleteProduct(product)
+                                    }
                                 }
                             }
-                        }
+                            .show()
                     }
                 }
             })
@@ -376,14 +381,14 @@ class ListFragment : Fragment() {
                 }
             }
 
-            val products = realm.where(Product::class.java)
+            val productsList = realm.where(Product::class.java)
                 .sort("name", Sort.ASCENDING)
                 .findAll()
 
-            if (products != null && products.size > 0) {
+            if (productsList != null && productsList.size > 0) {
                 val list = mutableListOf<String>()
 
-                products.forEach {
+                productsList.forEach {
                     if (!list.contains(it.name))
                         list.add(it.name)
                 }
@@ -405,7 +410,7 @@ class ListFragment : Fragment() {
                 }
 
                 if (error != 0) {
-                    activity?.toast(error)
+                    requireContext().toast(error)
                 } else {
                     val productId = if (product == null) {
                         val maxId = realm.where(Product::class.java).max("id")
@@ -438,7 +443,7 @@ class ListFragment : Fragment() {
 
                         binding.clRoot.longSnackbar(success)
                     } else {
-                        activity?.toast(success)
+                        requireContext().toast(success)
                     }
                 }
             }
@@ -464,8 +469,10 @@ class ListFragment : Fragment() {
     }
 
     private fun deleteProduct(product: Product) {
-        activity?.alert(getString(R.string.confirm_delete), getString(R.string.confirmation)) {
-            positiveButton(R.string.confirm) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.confirmation)
+            .setMessage(R.string.confirm_delete)
+            .setPositiveButton(R.string.confirm) { _, _ ->
                 realm.executeTransaction {
                     product.deleteFromRealm()
                 }
@@ -474,8 +481,8 @@ class ListFragment : Fragment() {
 
                 binding.clRoot.longSnackbar(R.string.success_delete)
             }
-            negativeButton(R.string.cancel) {}
-        }?.show()
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun renderData() = with(binding) {

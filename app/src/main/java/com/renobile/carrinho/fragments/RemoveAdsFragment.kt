@@ -32,8 +32,7 @@ import com.renobile.carrinho.util.haveVideoPlan
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isDebug
 import com.renobile.carrinho.util.show
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.okButton
+import java.util.Calendar
 
 class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
 
@@ -48,7 +47,7 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentRemoveAdsBinding.inflate(inflater, container, false)
 
@@ -231,7 +230,12 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
     }
 
     private fun alertErrorLoad() {
-        activity?.alert(R.string.error_load_video, R.string.ops) { okButton {} }?.show()
+        if (activity == null) return
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.ops)
+            .setMessage(R.string.error_load_video)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     companion object {

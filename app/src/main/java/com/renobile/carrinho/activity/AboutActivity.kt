@@ -1,11 +1,11 @@
 package com.renobile.carrinho.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ActivityAboutBinding
-import org.jetbrains.anko.intentFor
 
 class AboutActivity : AppCompatActivity() {
 
@@ -24,7 +24,8 @@ class AboutActivity : AppCompatActivity() {
             }
 
             btRemoveAds.setOnClickListener {
-                startActivity(intentFor<RemoveAdsActivity>())
+                val intent = Intent(this@AboutActivity, RemoveAdsActivity::class.java)
+                startActivity(intent)
             }
 
             tvVersion.text = getString(R.string.version, BuildConfig.VERSION_NAME)

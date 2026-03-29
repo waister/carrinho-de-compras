@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.orhanobut.hawk.Hawk
@@ -32,8 +33,7 @@ import com.renobile.carrinho.util.hideKeyboard
 import com.renobile.carrinho.util.setEmpty
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.show
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.toast
+import com.renobile.carrinho.util.toast
 import java.util.Locale
 
 class ComparatorFragment : Fragment(), TextWatcher {
@@ -111,7 +111,7 @@ class ComparatorFragment : Fragment(), TextWatcher {
     override fun onDestroy() {
         super.onDestroy()
 
-        binding.apply {
+        _binding?.apply {
             Hawk.put(PREF_PRICE_FIRST, etPriceFirst.text.toString())
             Hawk.put(PREF_SIZE_FIRST, etSizeFirst.text.toString())
             Hawk.put(PREF_PRICE_SECOND, etPriceSecond.text.toString())
@@ -127,14 +127,16 @@ class ComparatorFragment : Fragment(), TextWatcher {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_clear -> clearForm()
-            R.id.action_share -> activity.shareApp()
+            R.id.action_share -> activity?.shareApp()
         }
         return super.onOptionsItemSelected(item)
     }
 
     private fun clearForm() = with(binding) {
-        activity?.alert(R.string.confirmation_message, R.string.confirmation) {
-            positiveButton(R.string.clear) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.confirmation)
+            .setMessage(R.string.confirmation_message)
+            .setPositiveButton(R.string.clear) { _, _ ->
                 etPriceFirst.setEmpty()
                 etSizeFirst.setEmpty()
                 etPriceSecond.setEmpty()
@@ -143,8 +145,8 @@ class ComparatorFragment : Fragment(), TextWatcher {
                 etPriceFirst.clearFocus()
                 etPriceFirst.hideKeyboard()
             }
-            negativeButton(R.string.cancel) {}
-        }?.show()
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun submit() {
@@ -152,7 +154,7 @@ class ComparatorFragment : Fragment(), TextWatcher {
 
         calculate(true)
 
-        activity.hideKeyboard()
+        activity?.hideKeyboard()
     }
 
     private fun calculate(showToast: Boolean) = with(binding) {
@@ -204,7 +206,7 @@ class ComparatorFragment : Fragment(), TextWatcher {
                 message = R.string.error_empty_size
             }
 
-            activity?.toast(message)
+            requireContext().toast(message)
         }
 
         return@with

@@ -1,6 +1,7 @@
 package com.renobile.carrinho.activity
 
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -20,7 +21,6 @@ import com.renobile.carrinho.util.getValidJSONObject
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.printFuelLog
 import com.renobile.carrinho.util.show
-import org.jetbrains.anko.displayMetrics
 import org.json.JSONArray
 
 class NotificationsActivity : AppCompatActivity() {
@@ -93,6 +93,8 @@ class NotificationsActivity : AppCompatActivity() {
 
         rvNotifications.setHasFixedSize(true)
 
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
         val columns = if (displayMetrics.widthPixels > 1900) 2 else 1
 
         val layoutManager = GridLayoutManager(this@NotificationsActivity, columns)

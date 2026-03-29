@@ -6,14 +6,14 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     namespace "com.renobile.carrinho"
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.renobile.carrinho"
         minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 21
-        versionName "2.1.2"
+        targetSdkVersion 35
+        versionCode 22
+        versionName "2.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -43,14 +43,12 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    implementation "org.jetbrains.anko:anko-commons:$anko_version"
-    implementation "org.jetbrains.anko:anko-sdk25:$anko_version"
-    implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.activity:activity-ktx:1.9.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.orhanobut:hawk:2.0.1'
-    implementation 'com.redmadrobot:inputmask:2.3.0'
+    implementation 'com.redmadrobot:input-mask-android:6.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     testImplementation 'junit:junit:4.13.2'
 
@@ -60,7 +58,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:24.0.0'
     implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
     implementation 'com.google.firebase:firebase-analytics:22.0.2'
-    implementation 'com.eightbitlab:bottomnavigationbar:0.9.6'
+    
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'

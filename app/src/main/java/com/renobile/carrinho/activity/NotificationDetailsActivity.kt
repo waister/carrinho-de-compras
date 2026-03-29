@@ -3,6 +3,7 @@ package com.renobile.carrinho.activity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kittinunf.fuel.httpGet
 import com.orhanobut.hawk.Hawk
@@ -28,8 +29,6 @@ import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isValidUrl
 import com.renobile.carrinho.util.show
 import com.squareup.picasso.Picasso
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.okButton
 import org.json.JSONObject
 
 class NotificationDetailsActivity : AppCompatActivity() {
@@ -94,10 +93,12 @@ class NotificationDetailsActivity : AppCompatActivity() {
             }
 
             if (errorMessage.isNotEmpty()) {
-                alert(errorMessage, getString(string.ops)) {
-                    okButton { finish() }
-                    onCancelled { finish() }
-                }.show()
+                AlertDialog.Builder(this@NotificationDetailsActivity)
+                    .setTitle(string.ops)
+                    .setMessage(errorMessage)
+                    .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
+                    .setOnCancelListener { finish() }
+                    .show()
             }
         }
     }

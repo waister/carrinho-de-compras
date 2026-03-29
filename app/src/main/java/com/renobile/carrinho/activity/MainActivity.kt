@@ -1,15 +1,21 @@
 package com.renobile.carrinho.activity
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.eightbitlab.bottomnavigationbar.BottomBarItem
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
@@ -59,10 +65,6 @@ import com.renobile.carrinho.util.storeAppLink
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.browse
-import org.jetbrains.anko.longToast
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -81,46 +83,45 @@ class MainActivity : AppCompatActivity() {
         }
 
     companion object {
-        private const val POSITION_CART: Int = 0
-        private const val POSITION_LIST: Int = 1
-        private const val POSITION_COMPARATOR: Int = 2
-        private const val POSITION_REMOVE_ADS: Int = 3
-        private const val POSITION_MORE: Int = 4
-
         private const val TIMES_TO_APPEAR = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.apply {
-            bnNavigation.addTab(BottomBarItem(R.drawable.ic_cart_outline, R.string.cart))
-            bnNavigation.addTab(BottomBarItem(R.drawable.ic_format_list_checks, R.string.list))
-            bnNavigation.addTab(BottomBarItem(R.drawable.ic_select_compare, R.string.compare))
-            bnNavigation.addTab(BottomBarItem(R.drawable.ic_crown, R.string.premium))
-            bnNavigation.addTab(BottomBarItem(R.drawable.ic_dots_horizontal, R.string.more))
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rlRoot) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(
+                left = systemBars.left,
+                top = systemBars.top,
+                right = systemBars.right,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
 
-            bnNavigation.setOnSelectListener { position ->
-                val tabName = when (position) {
-                    POSITION_LIST -> FRAGMENT_LIST
-                    POSITION_COMPARATOR -> FRAGMENT_COMPARATOR
-                    POSITION_REMOVE_ADS -> FRAGMENT_REMOVE_ADS
-                    POSITION_MORE -> FRAGMENT_MORE
-                    else -> FRAGMENT_MAIN
-                }
-
-                viewFragment(position, tabName)
+        binding.bnNavigation.setOnItemSelectedListener { item ->
+            val (position, tabName) = when (item.itemId) {
+                R.id.action_list -> 1 to FRAGMENT_LIST
+                R.id.action_compare -> 2 to FRAGMENT_COMPARATOR
+                R.id.action_premium -> 3 to FRAGMENT_REMOVE_ADS
+                R.id.action_more -> 4 to FRAGMENT_MORE
+                else -> 0 to FRAGMENT_MAIN
             }
+
+            viewFragment(position, tabName)
+            true
         }
 
         when (intent.getStringExtra(PARAM_TYPE)) {
-            API_LIST -> forceSelectTab(POSITION_LIST)
-            API_COMPARATOR -> forceSelectTab(POSITION_COMPARATOR)
-            API_PREMIUM -> forceSelectTab(POSITION_REMOVE_ADS)
-            else -> forceSelectTab(POSITION_CART)
+            API_LIST -> forceSelectTab(R.id.action_list)
+            API_COMPARATOR -> forceSelectTab(R.id.action_compare)
+            API_PREMIUM -> forceSelectTab(R.id.action_premium)
+            else -> forceSelectTab(R.id.action_cart)
         }
 
         if (!isDebug())
@@ -201,10 +202,17 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.commit()
     }
 
-    private fun forceSelectTab(position: Int) {
-        viewFragment(position, FRAGMENT_MAIN)
-
-        binding.bnNavigation.selectTab(position, true)
+    private fun forceSelectTab(itemId: Int) {
+        val (position, tabName) = when (itemId) {
+            R.id.action_list -> 1 to FRAGMENT_LIST
+            R.id.action_compare -> 2 to FRAGMENT_COMPARATOR
+            R.id.action_premium -> 3 to FRAGMENT_REMOVE_ADS
+            R.id.action_more -> 4 to FRAGMENT_MORE
+            else -> 0 to FRAGMENT_MAIN
+        }
+        
+        viewFragment(position, tabName)
+        binding.bnNavigation.selectedItemId = itemId
     }
 
     private fun checkVersion() {
@@ -228,26 +236,26 @@ class MainActivity : AppCompatActivity() {
                         val versionMin = apiObj.getIntVal(API_VERSION_MIN)
 
                         if (BuildConfig.VERSION_CODE < versionMin) {
-                            alert(
-                                getString(R.string.update_needed),
-                                getString(R.string.updated_title)
-                            ) {
-                                positiveButton(R.string.updated_positive) {
-                                    browse(storeAppLink())
+                            AlertDialog.Builder(this)
+                                .setTitle(R.string.updated_title)
+                                .setMessage(R.string.update_needed)
+                                .setPositiveButton(R.string.updated_positive) { _, _ ->
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(storeAppLink()))
+                                    startActivity(intent)
                                 }
-                                negativeButton(R.string.updated_logout) { finish() }
-                                onCancelled { finish() }
-                            }.show()
+                                .setNegativeButton(R.string.updated_logout) { _, _ -> finish() }
+                                .setOnCancelListener { finish() }
+                                .show()
                         } else if (BuildConfig.VERSION_CODE < versionLast) {
-                            alert(
-                                getString(R.string.update_available),
-                                getString(R.string.updated_title)
-                            ) {
-                                positiveButton(R.string.updated_positive) {
-                                    browse(storeAppLink())
+                            AlertDialog.Builder(this)
+                                .setTitle(R.string.updated_title)
+                                .setMessage(R.string.update_available)
+                                .setPositiveButton(R.string.updated_positive) { _, _ ->
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(storeAppLink()))
+                                    startActivity(intent)
                                 }
-                                negativeButton(R.string.updated_negative) {}
-                            }.show()
+                                .setNegativeButton(R.string.updated_negative, null)
+                                .show()
                         }
                     }
                 }
@@ -304,7 +312,7 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun alertNotificationsIsImportant() {
         if (_alertDialog == null)
-            _alertDialog = AlertDialog.Builder(applicationContext)
+            _alertDialog = AlertDialog.Builder(this)
                 .setTitle(R.string.notification_question_title)
                 .setMessage(R.string.notifications_important)
                 .setCancelable(false)
@@ -331,7 +339,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showMessage() {
-        applicationContext.longToast(R.string.notification_change_idea)
+        Toast.makeText(applicationContext, R.string.notification_change_idea, Toast.LENGTH_LONG).show()
     }
 
 }

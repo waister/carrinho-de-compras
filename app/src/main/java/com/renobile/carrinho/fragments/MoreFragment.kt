@@ -1,5 +1,7 @@
 package com.renobile.carrinho.fragments
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +16,6 @@ import com.renobile.carrinho.databinding.FragmentMoreBinding
 import com.renobile.carrinho.databinding.ItemButtonMenuBinding
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.storeAppLink
-import org.jetbrains.anko.browse
-import org.jetbrains.anko.intentFor
 
 class MoreFragment : Fragment() {
 
@@ -38,23 +38,35 @@ class MoreFragment : Fragment() {
     }
 
     private fun addButton(title: Int, icon: Int) {
-        val bindingItem = ItemButtonMenuBinding.inflate(layoutInflater).root.apply {
+        val button = ItemButtonMenuBinding.inflate(layoutInflater).root.apply {
             setText(title)
             setCompoundDrawablesWithIntrinsicBounds(
-                ContextCompat.getDrawable(requireActivity(), icon), null, null, null
+                ContextCompat.getDrawable(requireContext(), icon), null, null, null
             )
             setOnClickListener {
                 when (title) {
-                    R.string.notifications -> startActivity(activity?.intentFor<NotificationsActivity>())
-                    R.string.about_app -> startActivity(activity?.intentFor<AboutActivity>())
-                    R.string.share_app -> activity.shareApp()
-                    R.string.rate_app -> activity?.browse(storeAppLink())
-                    R.string.remove_ads -> startActivity(activity?.intentFor<RemoveAdsActivity>())
+                    R.string.notifications -> {
+                        val intent = Intent(requireContext(), NotificationsActivity::class.java)
+                        startActivity(intent)
+                    }
+                    R.string.about_app -> {
+                        val intent = Intent(requireContext(), AboutActivity::class.java)
+                        startActivity(intent)
+                    }
+                    R.string.share_app -> activity?.shareApp()
+                    R.string.rate_app -> {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(storeAppLink()))
+                        startActivity(intent)
+                    }
+                    R.string.remove_ads -> {
+                        val intent = Intent(requireContext(), RemoveAdsActivity::class.java)
+                        startActivity(intent)
+                    }
                 }
             }
         }
 
-        binding.llMain.addView(bindingItem)
+        binding.llMain.addView(button)
     }
 
 }
