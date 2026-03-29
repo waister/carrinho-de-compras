@@ -57,5 +57,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="?android:attr/windowBackground"
+        app:itemTextAppearanceActive="@style/BottomNavigationView.TextAppearance"
+        app:itemTextAppearanceInactive="@style/BottomNavigationView.TextAppearance"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 </RelativeLayout>

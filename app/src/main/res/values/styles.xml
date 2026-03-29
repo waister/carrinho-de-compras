@@ -17,14 +17,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:colorBackground">@color/white</item>
+        <item name="android:windowBackground">@color/white</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textColorPrimary">@color/colorTextPrimary</item>
         <item name="android:textColorSecondary">@color/colorTextSecondary</item>
         <item name="android:textColorSecondaryInverse">@color/white</item>
         <item name="android:listDivider">@color/colorDivider</item>
-        <item name="android:windowBackground">@color/white</item>
-        <!--<item name="android:navigationBarColor" tools:ignore="NewApi">@color/colorPrimary</item>-->
         <item name="colorButtonNormal">@color/colorAccent</item>
     </style>
 
@@ -141,6 +139,10 @@
 
     <style name="ShimmerView">
         <item name="android:background">@color/shimmer_color_light</item>
+    </style>
+
+    <style name="BottomNavigationView.TextAppearance" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">12sp</item>
     </style>
 
 </resources>
