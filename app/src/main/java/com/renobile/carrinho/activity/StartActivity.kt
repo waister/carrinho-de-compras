@@ -20,7 +20,6 @@ import com.renobile.carrinho.util.PARAM_ITEM_ID
 import com.renobile.carrinho.util.PARAM_TYPE
 import com.renobile.carrinho.util.PREF_ADMOB_ID
 import com.renobile.carrinho.util.PREF_DEVICE_ID
-import com.renobile.carrinho.util.PREF_DEVICE_ID_OLD
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
 import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.appLog
@@ -44,7 +43,7 @@ class StartActivity : AppCompatActivity() {
         binding = ActivityStartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.w(TAG, "Token FCM: " + Prefs.get(PREF_FCM_TOKEN, ""))
+        Log.w(TAG, "Token FCM: " + Prefs.getValue(PREF_FCM_TOKEN, ""))
 
         createDeviceID()
 
@@ -52,7 +51,7 @@ class StartActivity : AppCompatActivity() {
             // TODO: realiza a migração do Realm para o Room, remover no próximo release
             RealmToRoomMigration(this@StartActivity).migrate()
 
-            if (Prefs.get(PREF_ADMOB_ID, "").isEmpty())
+            if (Prefs.getValue(PREF_ADMOB_ID, "").isEmpty())
                 identifyApp()
             else
                 initApp()
@@ -65,8 +64,8 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun identifyApp() {
-        if (Prefs.get(PREF_ADMOB_ID, "").isEmpty()) {
-            val token = Prefs.get(PREF_FCM_TOKEN, "")
+        if (Prefs.getValue(PREF_ADMOB_ID, "").isEmpty()) {
+            val token = Prefs.getValue(PREF_FCM_TOKEN, "")
             val params = listOf(API_TOKEN to token)
 
             API_ROUTE_IDENTIFY.httpGet(params).responseString { request, response, result ->
@@ -109,15 +108,13 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun createDeviceID() {
-        val currentDeviceID = Prefs.get(PREF_DEVICE_ID, "")
+        val currentDeviceID = Prefs.getValue(PREF_DEVICE_ID, "")
         val isIdentifierV3 = currentDeviceID.contains(IDENTIFIER_VERSION)
 
         if (currentDeviceID.isEmpty() || !isIdentifierV3) {
-            if (!isIdentifierV3) Prefs.put(PREF_DEVICE_ID_OLD, currentDeviceID) // TODO: remover no próximo release
-
             val newDeviceId = generateDeviceIdentifier()
 
-            Prefs.put(PREF_DEVICE_ID, newDeviceId)
+            Prefs.putValue(PREF_DEVICE_ID, newDeviceId)
             CustomApplication().updateFuelParams()
 
             appLog("GENERATE_DEVICE_ID", "New device ID: $newDeviceId")

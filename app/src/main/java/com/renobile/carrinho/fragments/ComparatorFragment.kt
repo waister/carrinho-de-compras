@@ -107,16 +107,16 @@ class ComparatorFragment : Fragment(), TextWatcher {
 
         binding.apply {
             if (etPriceFirst.text.isNullOrEmpty())
-                etPriceFirst.setText(Prefs.get(PREF_PRICE_FIRST, ""))
+                etPriceFirst.setText(Prefs.getValue(PREF_PRICE_FIRST, ""))
 
             if (etSizeFirst.text.isNullOrEmpty())
-                etSizeFirst.setText(Prefs.get(PREF_SIZE_FIRST, ""))
+                etSizeFirst.setText(Prefs.getValue(PREF_SIZE_FIRST, ""))
 
             if (etPriceSecond.text.isNullOrEmpty())
-                etPriceSecond.setText(Prefs.get(PREF_PRICE_SECOND, ""))
+                etPriceSecond.setText(Prefs.getValue(PREF_PRICE_SECOND, ""))
 
             if (etSizeSecond.text.isNullOrEmpty())
-                etSizeSecond.setText(Prefs.get(PREF_SIZE_SECOND, ""))
+                etSizeSecond.setText(Prefs.getValue(PREF_SIZE_SECOND, ""))
         }
 
         calculate(false)
@@ -126,10 +126,10 @@ class ComparatorFragment : Fragment(), TextWatcher {
         super.onDestroy()
 
         _binding?.apply {
-            Prefs.put(PREF_PRICE_FIRST, etPriceFirst.text.toString())
-            Prefs.put(PREF_SIZE_FIRST, etSizeFirst.text.toString())
-            Prefs.put(PREF_PRICE_SECOND, etPriceSecond.text.toString())
-            Prefs.put(PREF_SIZE_SECOND, etSizeSecond.text.toString())
+            Prefs.putValue(PREF_PRICE_FIRST, etPriceFirst.text.toString())
+            Prefs.putValue(PREF_SIZE_FIRST, etSizeFirst.text.toString())
+            Prefs.putValue(PREF_PRICE_SECOND, etPriceSecond.text.toString())
+            Prefs.putValue(PREF_SIZE_SECOND, etSizeSecond.text.toString())
         }
     }
 

@@ -108,7 +108,7 @@ class NotificationDetailsActivity : AppCompatActivity() {
                 if (notificationObj != null) {
                     errorMessage = ""
 
-                    Prefs.put(PREF_NOTIFICATION_JSON + notificationId, notificationObj)
+                    Prefs.putValue(PREF_NOTIFICATION_JSON + notificationId, notificationObj)
 
                     renderNotification(notificationObj)
                 }

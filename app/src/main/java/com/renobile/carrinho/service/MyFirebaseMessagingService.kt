@@ -64,7 +64,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         Log.i(TAG, "New token: $token")
 
-        Prefs.put(PREF_FCM_TOKEN, token)
+        Prefs.putValue(PREF_FCM_TOKEN, token)
 
         val params = listOf(API_TOKEN to token)
         API_ROUTE_IDENTIFY.httpGet(params).responseString { request, response, result ->

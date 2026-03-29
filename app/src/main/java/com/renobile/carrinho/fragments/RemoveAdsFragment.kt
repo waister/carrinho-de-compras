@@ -36,7 +36,6 @@ import com.renobile.carrinho.util.haveVideoPlan
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isDebug
 import com.renobile.carrinho.util.show
-import java.util.Calendar
 
 class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
 
@@ -91,7 +90,7 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
         appLog(TAG, "User earned the reward amount: $amount")
         appLog(TAG, "User earned the reward type: $type")
 
-        Prefs.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
+        Prefs.putValue(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
     }
 
     override fun onDestroy() {
@@ -103,7 +102,7 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
         tvThanks.hide()
         cvWatch.hide()
 
-        adMobRemoveAds = Prefs.get(PREF_ADMOB_REMOVE_ADS_ID, "")
+        adMobRemoveAds = Prefs.getValue(PREF_ADMOB_REMOVE_ADS_ID, "")
 
         if (isDebug()) adMobRemoveAds = "ca-app-pub-3940256099942544/5224354917"
 
@@ -197,7 +196,7 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
 
         }
 
-        val panVideoDuration = Prefs.get(PREF_PLAN_VIDEO_DURATION, ONE_DAY)
+        val panVideoDuration = Prefs.getValue(PREF_PLAN_VIDEO_DURATION, ONE_DAY)
         val panVideoDurationDays = panVideoDuration / ONE_DAY
         val description = getString(R.string.watch_to_by_body, panVideoDurationDays)
 

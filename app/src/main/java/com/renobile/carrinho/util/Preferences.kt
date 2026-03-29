@@ -3,12 +3,10 @@ package com.renobile.carrinho.util
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.application.CustomApplication
 import org.json.JSONObject
 
 const val PREF_DEVICE_ID = "PrefDeviceId"
-const val PREF_DEVICE_ID_OLD = "DeviceId2"
 const val PREF_FCM_TOKEN = "PrefFcmToken"
 const val PREF_SHARE_LINK = "PrefStoreLink"
 const val PREF_HAVE_PLAN = "PrefHavePlan"
@@ -37,7 +35,7 @@ object Prefs {
         CustomApplication.instance.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
-    fun <T> put(key: String, value: T) {
+    fun <T> putValue(key: String, value: T) {
         preferences.edit {
             when (value) {
                 is String -> putString(key, value)
@@ -52,42 +50,18 @@ object Prefs {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> get(key: String, defaultValue: T): T {
-
-        return if (preferences.contains(key)) {
-
-            when (defaultValue) {
-                is String -> preferences.getString(key, defaultValue) as T
-                is Int -> preferences.getInt(key, defaultValue) as T
-                is Boolean -> preferences.getBoolean(key, defaultValue) as T
-                is Long -> preferences.getLong(key, defaultValue) as T
-                is Float -> preferences.getFloat(key, defaultValue) as T
-                else -> throw IllegalArgumentException("Unsupported preference type")
-            }
-
-        } else {
-
-            // TODO: remover no próximo release
-            if (Hawk.contains(key)) {
-                val value = when (defaultValue) {
-                    is String -> Hawk.get<String>(key, defaultValue) as T
-                    is Int -> Hawk.get<Int>(key, defaultValue) as T
-                    is Boolean -> Hawk.get<Boolean>(key, defaultValue) as T
-                    is Long -> Hawk.get<Long>(key, defaultValue) as T
-                    is Float -> Hawk.get<Float>(key, defaultValue) as T
-                    else -> defaultValue
-                }
-
-                put(key, value)
-
-                return value
-            }
-
-            defaultValue
+    fun <T> getValue(key: String, defaultValue: T): T {
+        return when (defaultValue) {
+            is String -> preferences.getString(key, defaultValue) as T
+            is Int -> preferences.getInt(key, defaultValue) as T
+            is Boolean -> preferences.getBoolean(key, defaultValue) as T
+            is Long -> preferences.getLong(key, defaultValue) as T
+            is Float -> preferences.getFloat(key, defaultValue) as T
+            else -> throw IllegalArgumentException("Unsupported preference type")
         }
     }
 
-    fun remove(key: String) {
+    fun removeKey(key: String) {
         preferences.edit { remove(key) }
     }
 
@@ -96,15 +70,7 @@ object Prefs {
     }
 
     fun getJSONObject(key: String): JSONObject? {
-        val jsonString = if (preferences.contains(key)) {
-            preferences.getString(key, null)
-        } else {
-            // TODO: remover no próximo release
-            Hawk.get<String?>(key, null)?.also { migrated ->
-                put(key, migrated)
-            }
-        }
-
+        val jsonString = preferences.getString(key, null)
         return jsonString?.let { JSONObject(it) }
     }
 }

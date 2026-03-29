@@ -71,7 +71,7 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
             return
         }
 
-        var adUnitId = Prefs.get(PREF_ADMOB_OPEN_APP_ID, "")
+        var adUnitId = Prefs.getValue(PREF_ADMOB_OPEN_APP_ID, "")
 
         if (isDebug()) adUnitId = "ca-app-pub-3940256099942544/9257395921"
 
