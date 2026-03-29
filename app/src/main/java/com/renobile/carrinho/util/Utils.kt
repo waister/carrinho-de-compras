@@ -38,7 +38,6 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.database.entities.ProductEntity
@@ -170,16 +169,16 @@ fun printFuelLog(request: Request, response: Response, result: Result<String, Fu
 }
 
 fun haveVideoPlan(): Boolean {
-    val planVideoMillis = Hawk.get(PREF_PLAN_VIDEO_MILLIS, 0L)
+    val planVideoMillis = Prefs.get(PREF_PLAN_VIDEO_MILLIS, 0L)
     if (planVideoMillis != 0L) {
-        val panVideoDuration = Hawk.get(PREF_PLAN_VIDEO_DURATION, FIVE_DAYS)
-        val expiration = Hawk.get(PREF_PLAN_VIDEO_MILLIS, 0L) + panVideoDuration
+        val panVideoDuration = Prefs.get(PREF_PLAN_VIDEO_DURATION, FIVE_DAYS)
+        val expiration = Prefs.get(PREF_PLAN_VIDEO_MILLIS, 0L) + panVideoDuration
         return expiration > System.currentTimeMillis()
     }
     return false
 }
 
-fun haveBillingPlan(): Boolean = Hawk.get(PREF_HAVE_PLAN, !BuildConfig.DEBUG)
+fun haveBillingPlan(): Boolean = Prefs.get(PREF_HAVE_PLAN, !BuildConfig.DEBUG)
 
 fun havePlan(): Boolean = haveBillingPlan() || haveVideoPlan()
 
@@ -263,9 +262,9 @@ fun Context?.displayWidth() = if (this != null) resources.displayMetrics.widthPi
 fun Context?.shareApp() {
     if (this == null) return
 
-    val app = Hawk.get(PREF_APP_NAME, "")
+    val app = Prefs.get(PREF_APP_NAME, "")
     val default = "${APP_HOST}app/link/${BuildConfig.API_APP_NAME}"
-    val link = Hawk.get(PREF_SHARE_LINK, default)
+    val link = Prefs.get(PREF_SHARE_LINK, default)
 
     share(getString(R.string.share_text, link), getString(R.string.share_subject, app))
 }
@@ -449,15 +448,15 @@ fun saveAppData(result: Result<String, FuelError>) {
         val apiObj = data.getValidJSONObject()
 
         if (apiObj.getBooleanVal(API_SUCCESS)) {
-            Hawk.put(PREF_SHARE_LINK, apiObj.getStringVal(API_SHARE_LINK))
-            Hawk.put(PREF_APP_NAME, apiObj.getStringVal(API_APP_NAME))
-            Hawk.put(PREF_ADMOB_ID, apiObj.getStringVal(API_ADMOB_ID))
-            Hawk.put(PREF_ADMOB_AD_MAIN_ID, apiObj.getStringVal(API_ADMOB_AD_MAIN_ID))
-            Hawk.put(PREF_ADMOB_INTERSTITIAL_ID, apiObj.getStringVal(API_ADMOB_INTERSTITIAL_ID))
-            Hawk.put(PREF_ADMOB_REMOVE_ADS_ID, apiObj.getStringVal(API_ADMOB_REMOVE_ADS_ID))
-            Hawk.put(PREF_ADMOB_OPEN_APP_ID, apiObj.getStringVal(API_ADMOB_OPEN_APP_ID))
-            Hawk.put(PREF_BILL_PLAN_YEAR, apiObj.getStringVal(API_BILL_PLAN_YEAR))
-            Hawk.put(PREF_PLAN_VIDEO_DURATION, apiObj.getLongVal(API_PLAN_VIDEO_DURATION))
+            Prefs.put(PREF_SHARE_LINK, apiObj.getStringVal(API_SHARE_LINK))
+            Prefs.put(PREF_APP_NAME, apiObj.getStringVal(API_APP_NAME))
+            Prefs.put(PREF_ADMOB_ID, apiObj.getStringVal(API_ADMOB_ID))
+            Prefs.put(PREF_ADMOB_AD_MAIN_ID, apiObj.getStringVal(API_ADMOB_AD_MAIN_ID))
+            Prefs.put(PREF_ADMOB_INTERSTITIAL_ID, apiObj.getStringVal(API_ADMOB_INTERSTITIAL_ID))
+            Prefs.put(PREF_ADMOB_REMOVE_ADS_ID, apiObj.getStringVal(API_ADMOB_REMOVE_ADS_ID))
+            Prefs.put(PREF_ADMOB_OPEN_APP_ID, apiObj.getStringVal(API_ADMOB_OPEN_APP_ID))
+            Prefs.put(PREF_BILL_PLAN_YEAR, apiObj.getStringVal(API_BILL_PLAN_YEAR))
+            Prefs.put(PREF_PLAN_VIDEO_DURATION, apiObj.getLongVal(API_PLAN_VIDEO_DURATION))
         }
     }
 }

@@ -19,7 +19,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.AppBarLayout
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.MainActivity
 import com.renobile.carrinho.databinding.FragmentComparatorBinding
@@ -28,6 +27,7 @@ import com.renobile.carrinho.util.PREF_PRICE_FIRST
 import com.renobile.carrinho.util.PREF_PRICE_SECOND
 import com.renobile.carrinho.util.PREF_SIZE_FIRST
 import com.renobile.carrinho.util.PREF_SIZE_SECOND
+import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.formatPercent
 import com.renobile.carrinho.util.fromHtml
 import com.renobile.carrinho.util.getDouble
@@ -107,16 +107,16 @@ class ComparatorFragment : Fragment(), TextWatcher {
 
         binding.apply {
             if (etPriceFirst.text.isNullOrEmpty())
-                etPriceFirst.setText(Hawk.get(PREF_PRICE_FIRST, ""))
+                etPriceFirst.setText(Prefs.get(PREF_PRICE_FIRST, ""))
 
             if (etSizeFirst.text.isNullOrEmpty())
-                etSizeFirst.setText(Hawk.get(PREF_SIZE_FIRST, ""))
+                etSizeFirst.setText(Prefs.get(PREF_SIZE_FIRST, ""))
 
             if (etPriceSecond.text.isNullOrEmpty())
-                etPriceSecond.setText(Hawk.get(PREF_PRICE_SECOND, ""))
+                etPriceSecond.setText(Prefs.get(PREF_PRICE_SECOND, ""))
 
             if (etSizeSecond.text.isNullOrEmpty())
-                etSizeSecond.setText(Hawk.get(PREF_SIZE_SECOND, ""))
+                etSizeSecond.setText(Prefs.get(PREF_SIZE_SECOND, ""))
         }
 
         calculate(false)
@@ -126,10 +126,10 @@ class ComparatorFragment : Fragment(), TextWatcher {
         super.onDestroy()
 
         _binding?.apply {
-            Hawk.put(PREF_PRICE_FIRST, etPriceFirst.text.toString())
-            Hawk.put(PREF_SIZE_FIRST, etSizeFirst.text.toString())
-            Hawk.put(PREF_PRICE_SECOND, etPriceSecond.text.toString())
-            Hawk.put(PREF_SIZE_SECOND, etSizeSecond.text.toString())
+            Prefs.put(PREF_PRICE_FIRST, etPriceFirst.text.toString())
+            Prefs.put(PREF_SIZE_FIRST, etSizeFirst.text.toString())
+            Prefs.put(PREF_PRICE_SECOND, etPriceSecond.text.toString())
+            Prefs.put(PREF_SIZE_SECOND, etSizeSecond.text.toString())
         }
     }
 

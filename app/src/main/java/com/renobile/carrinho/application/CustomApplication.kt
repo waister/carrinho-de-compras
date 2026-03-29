@@ -17,15 +17,22 @@ import com.renobile.carrinho.util.APP_HOST
 import com.renobile.carrinho.util.AppOpenManager
 import com.renobile.carrinho.util.PREF_DEVICE_ID
 import com.renobile.carrinho.util.PREF_DEVICE_ID_OLD
+import com.renobile.carrinho.util.Prefs
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
 class CustomApplication : MultiDexApplication() {
 
+    companion object {
+        lateinit var instance: CustomApplication
+            private set
+    }
+
     override fun onCreate() {
         super.onCreate()
+        instance = this
 
-        Hawk.init(this).build()
+        Hawk.init(this).build() // TODO: remover no próximo release
 
         Thread {
             MobileAds.initialize(this) {}
@@ -48,8 +55,8 @@ class CustomApplication : MultiDexApplication() {
 
     fun updateFuelParams() {
         FuelManager.instance.baseParams = listOf(
-            API_IDENTIFIER to Hawk.get(PREF_DEVICE_ID, ""),
-            API_IDENTIFIER_OLD to Hawk.get(PREF_DEVICE_ID_OLD, ""),
+            API_IDENTIFIER to Prefs.get(PREF_DEVICE_ID, ""),
+            API_IDENTIFIER_OLD to Prefs.get(PREF_DEVICE_ID_OLD, ""),
             API_VERSION to BuildConfig.VERSION_CODE,
             API_PLATFORM to API_ANDROID,
             API_DEBUG to (if (BuildConfig.DEBUG) "1" else "0"),

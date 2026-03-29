@@ -1,6 +1,7 @@
 package com.renobile.carrinho.activity
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
@@ -8,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.github.kittinunf.fuel.httpGet
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.application.CustomApplication
 import com.renobile.carrinho.database.RealmToRoomMigration
 import com.renobile.carrinho.databinding.ActivityStartBinding
@@ -22,12 +22,13 @@ import com.renobile.carrinho.util.PREF_ADMOB_ID
 import com.renobile.carrinho.util.PREF_DEVICE_ID
 import com.renobile.carrinho.util.PREF_DEVICE_ID_OLD
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
+import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.appLog
-import com.renobile.carrinho.util.isNotNumeric
+import com.renobile.carrinho.util.isDebug
 import com.renobile.carrinho.util.printFuelLog
 import com.renobile.carrinho.util.saveAppData
 import kotlinx.coroutines.launch
-import java.util.Calendar
+import java.util.UUID
 import kotlin.random.Random
 
 class StartActivity : AppCompatActivity() {
@@ -43,15 +44,15 @@ class StartActivity : AppCompatActivity() {
         binding = ActivityStartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.w(TAG, "Token FCM: " + Hawk.get(PREF_FCM_TOKEN, ""))
+        Log.w(TAG, "Token FCM: " + Prefs.get(PREF_FCM_TOKEN, ""))
 
         createDeviceID()
 
         lifecycleScope.launch {
-            // TODO: realiza a migração do Realm para o Room, remover na próxima atualização
+            // TODO: realiza a migração do Realm para o Room, remover no próximo release
             RealmToRoomMigration(this@StartActivity).migrate()
 
-            if (Hawk.get(PREF_ADMOB_ID, "").isEmpty())
+            if (Prefs.get(PREF_ADMOB_ID, "").isEmpty())
                 identifyApp()
             else
                 initApp()
@@ -64,8 +65,8 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun identifyApp() {
-        if (Hawk.get(PREF_ADMOB_ID, "").isEmpty()) {
-            val token = Hawk.get(PREF_FCM_TOKEN, "")
+        if (Prefs.get(PREF_ADMOB_ID, "").isEmpty()) {
+            val token = Prefs.get(PREF_FCM_TOKEN, "")
             val params = listOf(API_TOKEN to token)
 
             API_ROUTE_IDENTIFY.httpGet(params).responseString { request, response, result ->
@@ -108,33 +109,44 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun createDeviceID() {
-        val currentDeviceID = Hawk.get(PREF_DEVICE_ID, "")
-        val isNotNumeric = currentDeviceID.isNotNumeric()
+        val currentDeviceID = Prefs.get(PREF_DEVICE_ID, "")
+        val isIdentifierV3 = currentDeviceID.contains(IDENTIFIER_VERSION)
 
-        if (currentDeviceID.isEmpty() || isNotNumeric) {
-            if (isNotNumeric) Hawk.put(PREF_DEVICE_ID_OLD, currentDeviceID)
+        if (currentDeviceID.isEmpty() || !isIdentifierV3) {
+            if (!isIdentifierV3) Prefs.put(PREF_DEVICE_ID_OLD, currentDeviceID) // TODO: remover no próximo release
 
-            val milliseconds = Calendar.getInstance().timeInMillis.toString()
-            val random = Random.nextInt(10000, 99999)
-            var stringID = "$milliseconds$random"
+            val newDeviceId = generateDeviceIdentifier()
 
-            if (stringID.length > 18) {
-                stringID = stringID.take(18)
-            } else if (stringID.length < 18) {
-                stringID = stringID.padEnd(18, '9')
-            }
+            Prefs.put(PREF_DEVICE_ID, newDeviceId)
+            CustomApplication().updateFuelParams()
 
-            Hawk.put(PREF_DEVICE_ID, stringID)
-            (application as CustomApplication).updateFuelParams()
-
-            appLog("GENERATE_DEVICE_ID", "New device ID: $stringID")
+            appLog("GENERATE_DEVICE_ID", "New device ID: $newDeviceId")
         } else {
             appLog("GENERATE_DEVICE_ID", "Ignored, current ID: $currentDeviceID")
         }
     }
 
+    private fun generateDeviceIdentifier(): String {
+        val deviceID = try {
+            val uniqueDevicePseudoID =
+                "35" + Build.BOARD.length % 10 + Build.BRAND.length % 10 + Build.DEVICE.length % 10 +
+                        Build.DISPLAY.length % 10 + Build.HOST.length % 10 + Build.ID.length % 10 +
+                        Build.MANUFACTURER.length % 10 + Build.MODEL.length % 10 + Build.PRODUCT.length % 10 +
+                        Build.TAGS.length % 10 + Build.TYPE.length % 10 + Build.USER.length % 10
+            val serial = Build.getRadioVersion()
+
+            UUID(uniqueDevicePseudoID.hashCode().toLong(), serial.hashCode().toLong()).toString()
+        } catch (e: Exception) {
+            if (isDebug()) e.printStackTrace()
+            UUID(System.currentTimeMillis(), Random.nextLong(1000000, 9999999)).toString()
+        }
+
+        return "$deviceID${IDENTIFIER_VERSION}"
+    }
+
     companion object {
         const val TAG = "SplashActivity"
+        const val IDENTIFIER_VERSION: String = "-v3"
     }
 
 }

@@ -9,7 +9,6 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.application.CustomApplication
 import java.util.Date
 
@@ -72,7 +71,7 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
             return
         }
 
-        var adUnitId = Hawk.get(PREF_ADMOB_OPEN_APP_ID, "")
+        var adUnitId = Prefs.get(PREF_ADMOB_OPEN_APP_ID, "")
 
         if (isDebug()) adUnitId = "ca-app-pub-3940256099942544/9257395921"
 

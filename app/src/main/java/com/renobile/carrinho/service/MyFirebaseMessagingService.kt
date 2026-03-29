@@ -19,7 +19,6 @@ import com.github.kittinunf.fuel.httpGet
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.StartActivity
@@ -33,6 +32,7 @@ import com.renobile.carrinho.util.API_WAKEUP
 import com.renobile.carrinho.util.PARAM_ITEM_ID
 import com.renobile.carrinho.util.PARAM_TYPE
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
+import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.getCircleCroppedBitmap
 import com.renobile.carrinho.util.getThumbUrl
 import com.renobile.carrinho.util.isDebug
@@ -64,7 +64,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         Log.i(TAG, "New token: $token")
 
-        Hawk.put(PREF_FCM_TOKEN, token)
+        Prefs.put(PREF_FCM_TOKEN, token)
 
         val params = listOf(API_TOKEN to token)
         API_ROUTE_IDENTIFY.httpGet(params).responseString { request, response, result ->

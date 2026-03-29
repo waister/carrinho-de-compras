@@ -10,7 +10,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.github.kittinunf.fuel.httpGet
 import com.google.android.material.appbar.AppBarLayout
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.R.string
 import com.renobile.carrinho.databinding.ActivityNotificationDetailsBinding
@@ -24,6 +23,7 @@ import com.renobile.carrinho.util.API_ROUTE_NOTIFICATION
 import com.renobile.carrinho.util.API_TITLE
 import com.renobile.carrinho.util.PARAM_ITEM_ID
 import com.renobile.carrinho.util.PREF_NOTIFICATION_JSON
+import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.formatDatetime
 import com.renobile.carrinho.util.getJSONObjectVal
 import com.renobile.carrinho.util.getStringVal
@@ -53,7 +53,7 @@ class NotificationDetailsActivity : AppCompatActivity() {
 
         val itemId = intent.getStringExtra(PARAM_ITEM_ID)
 
-        val notificationObj = Hawk.get<JSONObject>(PREF_NOTIFICATION_JSON + itemId)
+        val notificationObj = Prefs.getJSONObject(PREF_NOTIFICATION_JSON + itemId)
 
         if (notificationObj != null) {
 
@@ -108,7 +108,7 @@ class NotificationDetailsActivity : AppCompatActivity() {
                 if (notificationObj != null) {
                     errorMessage = ""
 
-                    Hawk.put(PREF_NOTIFICATION_JSON + notificationId, notificationObj)
+                    Prefs.put(PREF_NOTIFICATION_JSON + notificationId, notificationObj)
 
                     renderNotification(notificationObj)
                 }

@@ -21,7 +21,6 @@ import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.material.appbar.AppBarLayout
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.R
 import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.databinding.FragmentRemoveAdsBinding
@@ -30,6 +29,7 @@ import com.renobile.carrinho.util.PARAM_SHOW_BACK
 import com.renobile.carrinho.util.PREF_ADMOB_REMOVE_ADS_ID
 import com.renobile.carrinho.util.PREF_PLAN_VIDEO_DURATION
 import com.renobile.carrinho.util.PREF_PLAN_VIDEO_MILLIS
+import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.appLog
 import com.renobile.carrinho.util.havePlan
 import com.renobile.carrinho.util.haveVideoPlan
@@ -91,7 +91,7 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
         appLog(TAG, "User earned the reward amount: $amount")
         appLog(TAG, "User earned the reward type: $type")
 
-        Hawk.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
+        Prefs.put(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
     }
 
     override fun onDestroy() {
@@ -103,7 +103,7 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
         tvThanks.hide()
         cvWatch.hide()
 
-        adMobRemoveAds = Hawk.get(PREF_ADMOB_REMOVE_ADS_ID, "")
+        adMobRemoveAds = Prefs.get(PREF_ADMOB_REMOVE_ADS_ID, "")
 
         if (isDebug()) adMobRemoveAds = "ca-app-pub-3940256099942544/5224354917"
 
@@ -197,7 +197,7 @@ class RemoveAdsFragment : Fragment(), OnUserEarnedRewardListener {
 
         }
 
-        val panVideoDuration = Hawk.get(PREF_PLAN_VIDEO_DURATION, ONE_DAY)
+        val panVideoDuration = Prefs.get(PREF_PLAN_VIDEO_DURATION, ONE_DAY)
         val panVideoDurationDays = panVideoDuration / ONE_DAY
         val description = getString(R.string.watch_to_by_body, panVideoDurationDays)
 

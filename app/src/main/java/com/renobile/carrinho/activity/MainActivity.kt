@@ -25,7 +25,6 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
-import com.orhanobut.hawk.Hawk
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
 import com.renobile.carrinho.databinding.ActivityMainBinding
@@ -53,6 +52,7 @@ import com.renobile.carrinho.util.PREF_ADMOB_AD_MAIN_ID
 import com.renobile.carrinho.util.PREF_ADMOB_INTERSTITIAL_ID
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
 import com.renobile.carrinho.util.PREF_PUSH_NOTIFICATION
+import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.getBooleanVal
 import com.renobile.carrinho.util.getIntVal
 import com.renobile.carrinho.util.getValidJSONObject
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
                 loadBannerAd(
                     adViewContainer = binding.llBanner,
-                    adUnitId = Hawk.get(PREF_ADMOB_AD_MAIN_ID, ""),
+                    adUnitId = Prefs.get(PREF_ADMOB_AD_MAIN_ID, ""),
                     adSize = null,
                     collapsible = false,
                     shimmer = binding.shimmerBanner
@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createInterstitialAd() {
-        var adUnitId = Hawk.get(PREF_ADMOB_INTERSTITIAL_ID, "")
+        var adUnitId = Prefs.get(PREF_ADMOB_INTERSTITIAL_ID, "")
 
         if (havePlan() || adUnitId.isEmpty()) return
 
@@ -213,7 +213,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkVersion() {
-        val token = Hawk.get(PREF_FCM_TOKEN, "")
+        val token = Prefs.get(PREF_FCM_TOKEN, "")
 
         if (token.isNotEmpty()) {
             val params = listOf(API_TOKEN to token)
@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkTokenFcm() {
-        val lastToken = Hawk.get(PREF_FCM_TOKEN, "")
+        val lastToken = Prefs.get(PREF_FCM_TOKEN, "")
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
@@ -272,7 +272,7 @@ class MainActivity : AppCompatActivity() {
 
                 try {
                     if (token != lastToken) {
-                        Hawk.put(PREF_FCM_TOKEN, token)
+                        Prefs.put(PREF_FCM_TOKEN, token)
 
                         checkVersion()
                     }
@@ -297,7 +297,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shouldShowPushNotificationQuestionDialog(): Boolean {
-        val appOpened = Hawk.get(PREF_PUSH_NOTIFICATION, 1)
+        val appOpened = Prefs.get(PREF_PUSH_NOTIFICATION, 1)
         return if (appOpened < TIMES_TO_APPEAR) {
             increaseAppOpened()
             false
@@ -330,11 +330,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun blockPushNotificationQuestion() {
-        Hawk.put(PREF_PUSH_NOTIFICATION, TIMES_TO_APPEAR + 1)
+        Prefs.put(PREF_PUSH_NOTIFICATION, TIMES_TO_APPEAR + 1)
     }
 
     private fun increaseAppOpened() {
-        Hawk.put(PREF_PUSH_NOTIFICATION, Hawk.get(PREF_PUSH_NOTIFICATION, 1) + 1)
+        Prefs.put(PREF_PUSH_NOTIFICATION, Prefs.get(PREF_PUSH_NOTIFICATION, 1) + 1)
     }
 
     private fun showMessage() {
