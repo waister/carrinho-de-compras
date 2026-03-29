@@ -41,7 +41,7 @@ import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isEmpty
 import com.renobile.carrinho.util.longSnackbar
 import com.renobile.carrinho.util.maskMoney
-import com.renobile.carrinho.util.sendList
+import com.renobile.carrinho.util.sendListV1
 import com.renobile.carrinho.util.setEmpty
 import com.renobile.carrinho.util.shareApp
 import com.renobile.carrinho.util.show
@@ -118,7 +118,7 @@ class ListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_new -> createNewList()
-            R.id.action_send -> activity?.sendList(products, purchaseList!!.name)
+            R.id.action_send -> activity?.sendListV1(products, purchaseList!!.name)
             R.id.action_clear -> clearList()
             R.id.action_history -> {
                 val intent = Intent(requireContext(), ListsHistoryActivity::class.java)

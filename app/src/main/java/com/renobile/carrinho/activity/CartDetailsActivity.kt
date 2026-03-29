@@ -26,7 +26,7 @@ import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
 import com.renobile.carrinho.util.hide
-import com.renobile.carrinho.util.sendCart
+import com.renobile.carrinho.util.sendCartV1
 import com.renobile.carrinho.util.show
 import com.renobile.carrinho.util.toast
 import io.realm.Case
@@ -151,7 +151,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(view: View?) {
-        sendCart(products, cart!!.name)
+        sendCartV1(products, cart!!.name)
     }
 
     private fun renderData() = with(binding) {

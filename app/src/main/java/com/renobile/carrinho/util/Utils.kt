@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
 import androidx.core.graphics.createBitmap
+import com.renobile.carrinho.database.entities.ProductEntity
 
 fun AppCompatEditText.maskMoney() {
     this.addTextChangedListener(MaskMoney(this))
@@ -57,7 +58,7 @@ fun AppCompatEditText.maskMoney() {
 fun storeAppLink(): String =
     "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
 
-fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String) {
+fun Activity?.sendCartV1(products: RealmResults<Product>? = null, cartName: String) {
     if (this == null) return
 
     if (!products.isNullOrEmpty()) {
@@ -91,7 +92,75 @@ fun Activity?.sendCart(products: RealmResults<Product>? = null, cartName: String
     }
 }
 
-fun Activity?.sendList(products: RealmResults<Product>? = null, listName: String) {
+fun Activity?.sendCart(products: List<ProductEntity>? = null, cartName: String) {
+    if (this == null) return
+
+    if (!products.isNullOrEmpty()) {
+        var text = getString(R.string.label_my_cart)
+
+        var volumes = 0.0
+        var total = 0.0
+
+        products.forEach {
+            val price = it.price * it.quantity
+
+            volumes += it.quantity
+            total += price
+
+            text += "${it.quantity} - ${it.name} - ${price.formatPrice()}\n"
+        }
+
+        text += getString(
+            R.string.share_cart_text,
+            products.size.addPluralCharacter(),
+            products.size,
+            volumes.addPluralCharacter(),
+            volumes.formatQuantity(),
+            total.formatPrice(),
+            storeAppLink()
+        )
+
+        share(text, getString(R.string.send_list_label, cartName))
+    } else {
+        toast(R.string.error_empty_cart)
+    }
+}
+
+fun Activity?.sendListV1(products: RealmResults<Product>? = null, listName: String) {
+    if (this == null) return
+
+    if (!products.isNullOrEmpty()) {
+        var text = getString(R.string.label_my_list)
+
+        var volumes = 0.0
+        var total = 0.0
+
+        products.forEach {
+            val price = it.price * it.quantity
+
+            volumes += it.quantity
+            total += price
+
+            text += "${it.quantity} - ${it.name} - ${price.formatPrice()}\n"
+        }
+
+        text += getString(
+            R.string.share_cart_text,
+            products.size.addPluralCharacter(),
+            products.size,
+            volumes.addPluralCharacter(),
+            volumes.formatQuantity(),
+            total.formatPrice(),
+            storeAppLink()
+        )
+
+        share(text, getString(R.string.send_list_label, listName))
+    } else {
+        toast(R.string.error_empty_list)
+    }
+}
+
+fun Activity?.sendList(products: List<ProductEntity>? = null, listName: String) {
     if (this == null) return
 
     if (!products.isNullOrEmpty()) {

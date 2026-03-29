@@ -21,7 +21,7 @@ import com.renobile.carrinho.util.PARAM_LIST_ID
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
-import com.renobile.carrinho.util.sendList
+import com.renobile.carrinho.util.sendListV1
 import com.renobile.carrinho.util.toast
 import io.realm.Case
 import io.realm.Realm
@@ -122,7 +122,7 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(view: View?) {
-        sendList(products, list!!.name)
+        sendListV1(products, list!!.name)
     }
 
     private fun renderData(terms: String = "") = with(binding) {
