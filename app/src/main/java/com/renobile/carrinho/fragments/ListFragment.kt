@@ -381,8 +381,7 @@ class ListFragment : Fragment() {
             }
 
             lifecycleScope.launch {
-                val allProducts = database.productDao().getByListId(listId)
-                val names = allProducts.map { it.name }.distinct().sorted()
+                val names = database.productDao().getAllNames()
                 val adapter = ArrayAdapter(requireActivity(), R.layout.simple_dropdown_item, names)
                 bindingItem.etName.setAdapter(adapter)
             }
