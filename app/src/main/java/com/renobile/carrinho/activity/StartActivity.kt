@@ -10,7 +10,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.github.kittinunf.fuel.httpGet
 import com.renobile.carrinho.application.CustomApplication
-import com.renobile.carrinho.database.RealmToRoomMigration
 import com.renobile.carrinho.databinding.ActivityStartBinding
 import com.renobile.carrinho.util.API_ABOUT_APP
 import com.renobile.carrinho.util.API_NOTIFICATIONS
@@ -48,9 +47,6 @@ class StartActivity : AppCompatActivity() {
         createDeviceID()
 
         lifecycleScope.launch {
-            // TODO: realiza a migração do Realm para o Room, remover no próximo release
-            RealmToRoomMigration(this@StartActivity).migrate()
-
             if (Prefs.getValue(PREF_ADMOB_ID, "").isEmpty())
                 identifyApp()
             else
