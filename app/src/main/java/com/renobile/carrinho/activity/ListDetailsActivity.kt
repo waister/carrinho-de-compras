@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -19,15 +21,19 @@ import com.renobile.carrinho.database.AppDatabase
 import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.database.entities.PurchaseListEntity
 import com.renobile.carrinho.databinding.ActivityListDetailsBinding
+import com.renobile.carrinho.databinding.ItemAddProductBinding
 import com.renobile.carrinho.util.PARAM_LIST_ID
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
+import com.renobile.carrinho.util.getDouble
+import com.renobile.carrinho.util.maskMoney
 import com.renobile.carrinho.util.sendList
+import com.renobile.carrinho.util.setEmpty
 import com.renobile.carrinho.util.toast
 import kotlinx.coroutines.launch
 
-class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
+class ListDetailsActivity : AppCompatActivity(), View.OnClickListener, ListProductsAdapter.OnItemClickListener {
 
     private lateinit var binding: ActivityListDetailsBinding
 
@@ -36,6 +42,8 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var listId: Long = 0
     private var products: List<ProductEntity>? = null
     private var productsAdapter: ListProductsAdapter? = null
+
+    private var _addProductDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,15 +97,96 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener {
         val divider = DividerItemDecoration(this@ListDetailsActivity, layoutManager.orientation)
         rvProducts.addItemDecoration(divider)
 
-        productsAdapter = ListProductsAdapter(this@ListDetailsActivity)
+        productsAdapter = ListProductsAdapter(this@ListDetailsActivity, this@ListDetailsActivity)
         rvProducts.adapter = productsAdapter
 
         renderData()
     }
 
+    override fun onItemClick(view: View, position: Int) {
+        // Handle item click if needed
+    }
+
+    override fun onMoveToCartClick(product: ProductEntity) {
+        lifecycleScope.launch {
+            val activeCart = database.cartDao().getAll().find { it.dateClose == 0L }
+            if (activeCart == null) {
+                toast(R.string.create_cart_needed)
+            } else {
+                showMoveToCartDialog(product, activeCart.id)
+            }
+        }
+    }
+
+    private fun showMoveToCartDialog(product: ProductEntity, cartId: Long) {
+        val bindingItem = ItemAddProductBinding.inflate(layoutInflater)
+
+        bindingItem.etName.setText(product.name)
+        bindingItem.etQuantity.setText(product.quantity.formatQuantity())
+        bindingItem.etPrice.setText(product.price.formatPrice())
+
+        bindingItem.etName.isEnabled = false
+        bindingItem.tvAlert.text = getString(R.string.move_to_cart_notice)
+        bindingItem.tvAlert.visibility = View.VISIBLE
+
+        bindingItem.etPrice.maskMoney()
+        bindingItem.etPrice.requestFocus()
+
+        _addProductDialog = AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setView(bindingItem.root)
+            .setTitle(R.string.move_to_cart)
+            .setPositiveButton(R.string.confirm, null)
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+
+        _addProductDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        _addProductDialog!!.setOnShowListener { dialog ->
+            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+
+            bindingItem.etPrice.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    button.performClick()
+                    true
+                } else {
+                    false
+                }
+            }
+
+            button.setOnClickListener {
+                val quantity = bindingItem.etQuantity.getDouble()
+                val price = bindingItem.etPrice.getDouble()
+
+                if (price <= 0) {
+                    toast(R.string.error_price)
+                } else {
+                    lifecycleScope.launch {
+                        val updatedProduct = product.copy(
+                            cartId = cartId,
+                            listId = 0L,
+                            quantity = quantity,
+                            price = price
+                        )
+                        database.productDao().insert(updatedProduct)
+                        renderData()
+                        toast(R.string.product_added)
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+
+        _addProductDialog!!.show()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.list_details, menu)
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _addProductDialog?.dismiss()
     }
 
     private suspend fun getProductsList(terms: String = ""): List<ProductEntity> {

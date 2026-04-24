@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="product_options">
+    <string-array name="product_list_options">
         <item>Alterar produto</item>
+        <item>Mover para o carrinho</item>
         <item>+1 unidade</item>
         <item>-1 unidade</item>
         <item>Remover da lista</item>
+    </string-array>
+    <string-array name="product_cart_options">
+        <item>Alterar produto</item>
+        <item>+1 unidade</item>
+        <item>-1 unidade</item>
+        <item>Remover do carrinho</item>
     </string-array>
 </resources>

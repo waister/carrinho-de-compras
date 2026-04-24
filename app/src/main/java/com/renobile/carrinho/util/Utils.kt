@@ -476,8 +476,12 @@ fun View.show() {
     visibility = View.VISIBLE
 }
 
-fun View.isVisible(isVisible: Boolean) {
-    if (isVisible) show() else hide()
+fun <T: View> T.isVisible(isVisible: Boolean, block: (T) -> Unit = {}) {
+    if (isVisible) {
+        block(this)
+        show()
+    } else
+        hide()
 }
 
 fun isDebug() = BuildConfig.DEBUG

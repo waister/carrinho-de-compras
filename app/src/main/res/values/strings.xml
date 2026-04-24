@@ -197,4 +197,7 @@
     <string name="update_alert_title">Atualização</string>
     <string name="update_alert_message">A atualização acabou de ser baixada, toque no botão para iniciar a instalação.</string>
     <string name="update_alert_button">Instalar</string>
+    <string name="move_to_cart">Mover para o carrinho</string>
+    <string name="move_to_cart_notice">Adicione o preço do item para mover para o carrinho.</string>
+    <string name="confirm_move_to_cart">Confirmar movimento</string>
 </resources>

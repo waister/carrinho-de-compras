@@ -281,43 +281,47 @@ class ListFragment : Fragment() {
         val divider = DividerItemDecoration(activity, layoutManager.orientation)
         rvProducts.addItemDecoration(divider)
 
-        listProductsAdapter = ListProductsAdapter(requireActivity())
-        rvProducts.adapter = listProductsAdapter
+        listProductsAdapter = ListProductsAdapter(requireActivity(), object : ListProductsAdapter.OnItemClickListener {
+            override fun onItemClick(view: View, position: Int) {
+                val product = products?.getOrNull(position)
 
-        rvProducts.addOnItemTouchListener(
-            ListProductsAdapter(requireActivity(), object : ListProductsAdapter.OnItemClickListener {
-                override fun onItemClick(view: View, position: Int) {
-                    val product = products?.getOrNull(position)
+                if (product != null) {
+                    val options = resources.getStringArray(R.array.product_list_options)
 
-                    if (product != null) {
-                        val options = resources.getStringArray(R.array.product_options)
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(product.name)
+                        .setItems(options) { _, i ->
+                            when (i) {
+                                0 -> {
+                                    addOrEditProduct(product)
+                                }
 
-                        AlertDialog.Builder(requireContext())
-                            .setTitle(product.name)
-                            .setItems(options) { _, i ->
-                                when (i) {
-                                    0 -> {
-                                        addOrEditProduct(product)
-                                    }
+                                1 -> {
+                                    moveToCart(product)
+                                }
 
-                                    1 -> {
-                                        changeQuantity(product, 1.0)
-                                    }
+                                2 -> {
+                                    changeQuantity(product, 1.0)
+                                }
 
-                                    2 -> {
-                                        changeQuantity(product, -1.0)
-                                    }
+                                3 -> {
+                                    changeQuantity(product, -1.0)
+                                }
 
-                                    3 -> {
-                                        deleteProduct(product)
-                                    }
+                                4 -> {
+                                    deleteProduct(product)
                                 }
                             }
-                            .show()
-                    }
+                        }
+                        .show()
                 }
-            })
-        )
+            }
+
+            override fun onMoveToCartClick(product: ProductEntity) {
+                moveToCart(product)
+            }
+        })
+        rvProducts.adapter = listProductsAdapter
 
         renderData()
     }
@@ -459,6 +463,78 @@ class ListFragment : Fragment() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    private fun moveToCart(product: ProductEntity) {
+        lifecycleScope.launch {
+            val activeCart = database.cartDao().getAll().find { it.dateClose == 0L }
+            if (activeCart == null) {
+                requireContext().toast(R.string.create_cart_needed)
+            } else {
+                showMoveToCartDialog(product, activeCart.id)
+            }
+        }
+    }
+
+    private fun showMoveToCartDialog(product: ProductEntity, cartId: Long) {
+        val bindingItem = ItemAddProductBinding.inflate(layoutInflater)
+
+        bindingItem.etName.setText(product.name)
+        bindingItem.etQuantity.setText(product.quantity.formatQuantity())
+        bindingItem.etPrice.setText(product.price.formatPrice())
+
+        bindingItem.etName.isEnabled = false
+        bindingItem.tvAlert.text = getString(R.string.move_to_cart_notice)
+        bindingItem.tvAlert.visibility = View.VISIBLE
+
+        bindingItem.etPrice.maskMoney()
+        bindingItem.etPrice.requestFocus()
+
+        _addProductDialog = AlertDialog.Builder(requireActivity())
+            .setCancelable(false)
+            .setView(bindingItem.root)
+            .setTitle(R.string.move_to_cart)
+            .setPositiveButton(R.string.confirm, null)
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+
+        _addProductDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        _addProductDialog!!.setOnShowListener { dialog ->
+            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+
+            bindingItem.etPrice.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    button.performClick()
+                    true
+                } else {
+                    false
+                }
+            }
+
+            button.setOnClickListener {
+                val quantity = bindingItem.etQuantity.getDouble()
+                val price = bindingItem.etPrice.getDouble()
+
+                if (price <= 0) {
+                    requireContext().toast(R.string.error_price)
+                } else {
+                    lifecycleScope.launch {
+                        val updatedProduct = product.copy(
+                            cartId = cartId,
+                            listId = 0L,
+                            quantity = quantity,
+                            price = price
+                        )
+                        database.productDao().insert(updatedProduct)
+                        renderData()
+                        requireContext().toast(R.string.product_added)
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+
+        _addProductDialog!!.show()
     }
 
     private fun renderData() = with(binding) {

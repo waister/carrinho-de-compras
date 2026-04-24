@@ -284,40 +284,36 @@ class CartFragment : Fragment() {
         val divider = DividerItemDecoration(activity, layoutManager.orientation)
         rvProducts.addItemDecoration(divider)
 
-        historyAdapterCart = CartProductsAdapter(requireActivity())
-        rvProducts.adapter = historyAdapterCart
+        historyAdapterCart = CartProductsAdapter(requireActivity(), object : CartProductsAdapter.OnItemClickListener {
+            override fun onItemClick(view: View, position: Int) {
+                val product = products?.getOrNull(position)
 
-        rvProducts.addOnItemTouchListener(
-            CartProductsAdapter(requireActivity(), object : CartProductsAdapter.OnItemClickListener {
-                override fun onItemClick(view: View, position: Int) {
-                    val product = products?.getOrNull(position)
+                if (product != null) {
+                    val options = resources.getStringArray(R.array.product_cart_options)
 
-                    if (product != null) {
-                        val options = resources.getStringArray(R.array.product_options)
-
-                        AlertDialog.Builder(requireContext()).setTitle(product.name).setItems(options) { _, i ->
-                            when (i) {
-                                0 -> {
-                                    addOrEditProduct(product)
-                                }
-
-                                1 -> {
-                                    changeQuantity(product, 1.0)
-                                }
-
-                                2 -> {
-                                    changeQuantity(product, -1.0)
-                                }
-
-                                3 -> {
-                                    deleteProduct(product)
-                                }
+                    AlertDialog.Builder(requireContext()).setTitle(product.name).setItems(options) { _, i ->
+                        when (i) {
+                            0 -> {
+                                addOrEditProduct(product)
                             }
-                        }.show()
-                    }
+
+                            1 -> {
+                                changeQuantity(product, 1.0)
+                            }
+
+                            2 -> {
+                                changeQuantity(product, -1.0)
+                            }
+
+                            3 -> {
+                                deleteProduct(product)
+                            }
+                        }
+                    }.show()
                 }
-            })
-        )
+            }
+        })
+        rvProducts.adapter = historyAdapterCart
 
         renderData()
     }
@@ -356,8 +352,13 @@ class CartFragment : Fragment() {
         }
 
         _addProductDialog =
-            AlertDialog.Builder(requireActivity()).setCancelable(false).setView(bindingItem.root).setTitle(title)
-                .setPositiveButton(positive, null).setNegativeButton(negative, null).create()
+            AlertDialog.Builder(requireActivity())
+                .setCancelable(false)
+                .setView(bindingItem.root)
+                .setTitle(title)
+                .setPositiveButton(positive, null)
+                .setNegativeButton(negative, null)
+                .create()
 
         _addProductDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         _addProductDialog!!.setOnShowListener { dialog ->

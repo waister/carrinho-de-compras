@@ -9,6 +9,16 @@
     android:paddingTop="@dimen/fab_margin"
     android:paddingRight="@dimen/fab_margin">
 
+    <TextView
+        android:id="@+id/tv_alert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:textColor="@color/colorStatusRed"
+        android:visibility="gone"
+        tools:text="Warning message"
+        tools:visibility="visible" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

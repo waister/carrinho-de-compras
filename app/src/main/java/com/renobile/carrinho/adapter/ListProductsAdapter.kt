@@ -2,9 +2,7 @@ package com.renobile.carrinho.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.GestureDetector
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -14,13 +12,15 @@ import com.renobile.carrinho.databinding.ItemProductsBinding
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
+import com.renobile.carrinho.util.isVisible
 import com.renobile.carrinho.util.setEmpty
+import com.renobile.carrinho.util.show
 
 class ListProductsAdapter(
     private val context: Context,
     private val listener: OnItemClickListener? = null
 ) :
-    RecyclerView.Adapter<ListProductsAdapter.ViewHolder>(), RecyclerView.OnItemTouchListener {
+    RecyclerView.Adapter<ListProductsAdapter.ViewHolder>() {
 
     private var products: List<ProductEntity>? = null
 
@@ -77,29 +77,22 @@ class ListProductsAdapter(
                         plural,
                     )
                 }
+
+                btMoveToCart.isVisible(true) {
+                    it.setOnClickListener {
+                        listener?.onMoveToCartClick(product)
+                    }
+                }
+
+                root.setOnClickListener {
+                    listener?.onItemClick(it, bindingAdapterPosition)
+                }
             }
         }
     }
 
     interface OnItemClickListener {
         fun onItemClick(view: View, position: Int)
+        fun onMoveToCartClick(product: ProductEntity)
     }
-
-    private var mGestureDetector: GestureDetector =
-        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapUp(e: MotionEvent): Boolean = true
-        })
-
-    override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
-        val childView = view.findChildViewUnder(e.x, e.y)
-        if (childView != null && listener != null && mGestureDetector.onTouchEvent(e)) {
-            listener.onItemClick(childView, view.getChildAdapterPosition(childView))
-            return true
-        }
-        return false
-    }
-
-    override fun onTouchEvent(view: RecyclerView, motionEvent: MotionEvent) {}
-
-    override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
 }
