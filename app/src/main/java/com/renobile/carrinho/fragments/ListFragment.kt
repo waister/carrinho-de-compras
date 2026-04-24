@@ -386,6 +386,18 @@ class ListFragment : Fragment() {
                 bindingItem.etName.setAdapter(adapter)
             }
 
+            bindingItem.btnPlus.setOnClickListener {
+                val current = bindingItem.etQuantity.getDouble()
+                bindingItem.etQuantity.setText((current + 1.0).formatQuantity())
+            }
+
+            bindingItem.btnMinus.setOnClickListener {
+                val current = bindingItem.etQuantity.getDouble()
+                if (current > 1.0) {
+                    bindingItem.etQuantity.setText((current - 1.0).formatQuantity())
+                }
+            }
+
             button.setOnClickListener {
                 val name = bindingItem.etName.text.toString()
                 val quantity = bindingItem.etQuantity.getDouble()
@@ -488,6 +500,18 @@ class ListFragment : Fragment() {
 
         bindingItem.etPrice.maskMoney()
         bindingItem.etPrice.requestFocus()
+
+        bindingItem.btnPlus.setOnClickListener {
+            val current = bindingItem.etQuantity.getDouble()
+            bindingItem.etQuantity.setText((current + 1.0).formatQuantity())
+        }
+
+        bindingItem.btnMinus.setOnClickListener {
+            val current = bindingItem.etQuantity.getDouble()
+            if (current > 1.0) {
+                bindingItem.etQuantity.setText((current - 1.0).formatQuantity())
+            }
+        }
 
         _addProductDialog = AlertDialog.Builder(requireActivity())
             .setCancelable(false)

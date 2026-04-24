@@ -132,6 +132,18 @@ class ListDetailsActivity : AppCompatActivity(), View.OnClickListener, ListProdu
         bindingItem.etPrice.maskMoney()
         bindingItem.etPrice.requestFocus()
 
+        bindingItem.btnPlus.setOnClickListener {
+            val current = bindingItem.etQuantity.getDouble()
+            bindingItem.etQuantity.setText((current + 1.0).formatQuantity())
+        }
+
+        bindingItem.btnMinus.setOnClickListener {
+            val current = bindingItem.etQuantity.getDouble()
+            if (current > 1.0) {
+                bindingItem.etQuantity.setText((current - 1.0).formatQuantity())
+            }
+        }
+
         _addProductDialog = AlertDialog.Builder(this)
             .setCancelable(false)
             .setView(bindingItem.root)
