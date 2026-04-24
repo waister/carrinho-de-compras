@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -33,6 +32,7 @@ import com.renobile.carrinho.util.PARAM_ITEM_ID
 import com.renobile.carrinho.util.PARAM_TYPE
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
 import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.appLog
 import com.renobile.carrinho.util.getCircleCroppedBitmap
 import com.renobile.carrinho.util.getThumbUrl
 import com.renobile.carrinho.util.isDebug
@@ -62,7 +62,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
 
-        Log.i(TAG, "New token: $token")
+        appLog(TAG, "New token: $token")
 
         Prefs.putValue(PREF_FCM_TOKEN, token)
 
@@ -75,11 +75,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        Log.i(TAG, "Firebase Cloud Messaging new message received!")
+        appLog(TAG, "Firebase Cloud Messaging new message received!")
 
         val data = remoteMessage.data
 
-        Log.i(TAG, "Push message data: $data")
+        appLog(TAG, "Push message data: $data")
 
         var type = ""
         var title = ""
@@ -105,13 +105,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
 
-        Log.i(TAG, "Push type: $type")
-        Log.i(TAG, "Push title: $title")
-        Log.i(TAG, "Push body: $body")
-        Log.i(TAG, "Push link: $link")
-        Log.i(TAG, "Push image: $image")
-        Log.i(TAG, "Push version: $version")
-        Log.i(TAG, "Push itemId: $itemId")
+        appLog(TAG, "Push type: $type")
+        appLog(TAG, "Push title: $title")
+        appLog(TAG, "Push body: $body")
+        appLog(TAG, "Push link: $link")
+        appLog(TAG, "Push image: $image")
+        appLog(TAG, "Push version: $version")
+        appLog(TAG, "Push itemId: $itemId")
 
         if (title.isEmpty() || type == API_WAKEUP)
             return
@@ -166,7 +166,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         if (image.isNotEmpty()) {
             val thumbUrl = getThumbUrl(image, 100, 100)
 
-            Log.i(TAG, "Push thumb url: $thumbUrl")
+            appLog(TAG, "Push thumb url: $thumbUrl")
 
             try {
                 val url = URL(thumbUrl)
@@ -199,7 +199,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         manager.notify(1, builder.build())
 
-        Log.i(TAG, "Push notification displayed - vibrate: $vibrate")
+        appLog(TAG, "Push notification displayed - vibrate: $vibrate")
 
         if (vibrate.isNotEmpty()) {
             val pattern = longArrayOf(0, 100, 0, 100)

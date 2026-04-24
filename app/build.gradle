@@ -1,16 +1,19 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'com.google.firebase.crashlytics'
+plugins {
+    alias libs.plugins.android.application
+    alias libs.plugins.jetbrains.kotlin.android
+    alias libs.plugins.jetbrains.kotlin.kapt
+    alias libs.plugins.google.gms.google.services
+    alias libs.plugins.google.firebase.crashlytics
+}
 
 android {
     namespace "com.renobile.carrinho"
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         applicationId "com.renobile.carrinho"
-        minSdkVersion 21
-        targetSdkVersion 35
+        minSdkVersion 23
+        targetSdkVersion 37
         versionCode 24
         versionName "2.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -27,56 +30,56 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = "17"
     }
-    viewBinding {
-        enabled = true
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.6.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.activity:activity-ktx:1.9.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.redmadrobot:input-mask-android:6.1.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    testImplementation 'junit:junit:4.13.2'
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.activity.ktx
+    implementation libs.material
+    implementation libs.androidx.constraintlayout
+    implementation libs.input.mask.android
+    implementation libs.androidx.cardview
+    testImplementation libs.junit
 
-    implementation 'com.github.kittinunf.fuel:fuel-android:2.3.1'
-    implementation 'com.google.android.gms:play-services-ads:23.2.0'
-    implementation 'com.google.firebase:firebase-core:21.1.1'
-    implementation 'com.google.firebase:firebase-messaging:24.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
-    implementation 'com.google.firebase:firebase-analytics:22.0.2'
+    implementation libs.fuel.android
+    implementation libs.play.services.ads
+    
+    // Firebase BoM
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.messaging
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.analytics
 
-    implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.4.1'
-    implementation 'androidx.core:core-splashscreen:1.0.1'
-    implementation 'com.google.android.play:app-update-ktx:2.1.0'
-    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+    implementation libs.picasso
+    implementation libs.androidx.multidex
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.common.java8
+    implementation libs.androidx.lifecycle.process
+    implementation libs.androidx.core.splashscreen
+    implementation libs.app.update.ktx
+    implementation libs.shimmer
 
     // Room
-    def room_version = "2.6.1"
-    implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
+    implementation libs.androidx.room.runtime
+    kapt libs.androidx.room.compiler
+    implementation libs.androidx.room.ktx
 }
-
-apply plugin: 'com.google.gms.google-services'

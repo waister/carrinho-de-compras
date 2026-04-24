@@ -3,7 +3,6 @@ package com.renobile.carrinho.activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -42,7 +41,8 @@ class StartActivity : AppCompatActivity() {
         binding = ActivityStartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.w(TAG, "Token FCM: " + Prefs.getValue(PREF_FCM_TOKEN, ""))
+        appLog(TAG, "Token FCM: " + Prefs.getValue(PREF_FCM_TOKEN, ""))
+        appLog(TAG, "AdMob ID: " + Prefs.getValue(PREF_ADMOB_ID, ""))
 
         createDeviceID()
 
@@ -79,8 +79,8 @@ class StartActivity : AppCompatActivity() {
     private fun initApp() {
         val type = intent.getStringExtra(PARAM_TYPE)
         val itemId = intent.getStringExtra(PARAM_ITEM_ID)
-        Log.i(TAG, "Received type from notification: $type")
-        Log.i(TAG, "Received itemId from notification: $itemId")
+        appLog(TAG, "Received type from notification: $type")
+        appLog(TAG, "Received itemId from notification: $itemId")
 
         val mainIntent = Intent(this, MainActivity::class.java)
         mainIntent.putExtra(PARAM_TYPE, type)

@@ -1,0 +1,63 @@
+[versions]
+activityKtx = "1.13.0"
+agp = "9.2.0"
+appUpdateKtx = "2.1.0"
+appcompat = "1.7.1"
+cardview = "1.0.0"
+com-google-firebase = "firebase-crashlytics"
+com-google-firebaseX2 = "firebase-messaging"
+constraintlayout = "2.2.1"
+core-splashscreen = "1.2.0"
+firebaseBom = "34.12.0"
+fuelAndroid = "2.3.1"
+google-firebase = "firebase-analytics"
+google-firebase-crashlytics = "3.0.7"
+google-gms-google-services = "4.4.4"
+inputMaskAndroid = "6.1.0"
+jetbrains-kotlin-kapt = "2.3.21"
+junit = "4.13.2"
+kotlin = "2.3.21"
+lifecycle = "2.10.0"
+material = "1.13.0"
+multidex = "2.0.1"
+picasso = "2.71828"
+playServicesAds = "25.2.0"
+room = "2.8.4"
+shimmer = "0.5.0"
+
+[libraries]
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+androidx-lifecycle-common-java8 = { group = "androidx.lifecycle", name = "lifecycle-common-java8", version.ref = "lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-multidex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+app-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "appUpdateKtx" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+fuel-android = { group = "com.github.kittinunf.fuel", name = "fuel-android", version.ref = "fuelAndroid" }
+input-mask-android = { group = "com.redmadrobot", name = "input-mask-android", version.ref = "inputMaskAndroid" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso" }
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+shimmer = { group = "com.facebook.shimmer", name = "shimmer", version.ref = "shimmer" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+com-google-firebase = { id = "com.google.firebase", version.ref = "com-google-firebase" }
+com-google-firebaseX2 = { id = "com.google.firebase", version.ref = "google-firebase" }
+google-firebase = { id = "com.google.firebase", version.ref = "com-google-firebaseX2" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "google-firebase-crashlytics" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-gms-google-services" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "jetbrains-kotlin-kapt" }

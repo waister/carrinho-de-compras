@@ -150,7 +150,7 @@ fun String?.getStringValid(): String {
 }
 
 fun printFuelLog(request: Request, response: Response, result: Result<String, FuelError>) {
-    Log.w("FUEL_API_CALL", "API was called to route: ${request.url}")
+    appLog("FUEL_API_CALL", "API was called to route: ${request.url}")
 
     if (BuildConfig.DEBUG) {
         val url = request.url

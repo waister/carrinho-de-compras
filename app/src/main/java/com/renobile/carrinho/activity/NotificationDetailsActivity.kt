@@ -1,7 +1,6 @@
 package com.renobile.carrinho.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +23,7 @@ import com.renobile.carrinho.util.API_TITLE
 import com.renobile.carrinho.util.PARAM_ITEM_ID
 import com.renobile.carrinho.util.PREF_NOTIFICATION_JSON
 import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.appLog
 import com.renobile.carrinho.util.formatDatetime
 import com.renobile.carrinho.util.getJSONObjectVal
 import com.renobile.carrinho.util.getStringVal
@@ -90,7 +90,7 @@ class NotificationDetailsActivity : AppCompatActivity() {
         val routeApi = API_ROUTE_NOTIFICATION + notificationId
 
         routeApi.httpGet().responseString { request, _, result ->
-            Log.i("NotificationDetails", "Request: $request")
+            appLog("NotificationDetails", "Request: $request")
 
             var errorMessage = getString(string.error_connection)
 
