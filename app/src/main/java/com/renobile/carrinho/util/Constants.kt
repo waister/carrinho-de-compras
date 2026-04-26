@@ -15,6 +15,7 @@ const val FORMAT_DATETIME_API = "yyyy-MM-dd HH:mm:ss"
 
 const val PARAM_CART_ID = "CartId"
 const val PARAM_LIST_ID = "ListId"
+const val PARAM_SEARCH_TERMS = "SearchTerms"
 
 const val ONE_SECOND: Long = 1000
 const val ONE_MINUTE: Long = ONE_SECOND * 60

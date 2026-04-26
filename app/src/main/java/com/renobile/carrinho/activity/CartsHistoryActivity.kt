@@ -22,6 +22,7 @@ import com.renobile.carrinho.database.AppDatabase
 import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.databinding.ActivityCartsHistoryBinding
 import com.renobile.carrinho.util.PARAM_CART_ID
+import com.renobile.carrinho.util.PARAM_SEARCH_TERMS
 import com.renobile.carrinho.util.hide
 import com.renobile.carrinho.util.isVisible
 import com.renobile.carrinho.util.show
@@ -96,6 +97,7 @@ class CartsHistoryActivity : AppCompatActivity() {
                     if (cart != null) {
                         val intent = Intent(this@CartsHistoryActivity, CartDetailsActivity::class.java)
                         intent.putExtra(PARAM_CART_ID, cart.id)
+                        intent.putExtra(PARAM_SEARCH_TERMS, searchTerms)
                         startActivity(intent)
                     }
                 }
@@ -129,15 +131,11 @@ class CartsHistoryActivity : AppCompatActivity() {
 
     private suspend fun getCartsList(): List<CartEntity> {
         val allCarts = database.cartDao().getAll().filter { it.dateClose > 0 }
-        
-        // In the original code, it was updating keywords if empty. 
-        // We can do something similar or assume they are already populated.
-        // For simplicity, let's just filter by name/keywords.
-        
+
         return if (searchTerms.isNotEmpty()) {
-            allCarts.filter { 
-                it.name.contains(searchTerms, ignoreCase = true) || 
-                it.keywords.contains(searchTerms, ignoreCase = true) 
+            allCarts.filter {
+                it.name.contains(searchTerms, ignoreCase = true) ||
+                        it.keywords.contains(searchTerms, ignoreCase = true)
             }
         } else {
             allCarts
@@ -165,9 +163,23 @@ class CartsHistoryActivity : AppCompatActivity() {
 
     private fun renderData() = with(binding) {
         lifecycleScope.launch {
+            updateMissingKeywords()
+
             carts = getCartsList()
             tvEmpty.isVisible(carts.isNullOrEmpty())
             cartsAdapter?.setData(carts)
+        }
+    }
+
+    private suspend fun updateMissingKeywords() {
+        val cartsWithoutKeywords = database.cartDao().getAll().filter { it.dateClose > 0 && it.keywords.isEmpty() }
+
+        cartsWithoutKeywords.forEach { cart ->
+            val products = database.productDao().getByCartId(cart.id)
+            if (products.isNotEmpty()) {
+                val keywords = products.joinToString(", ") { it.name }
+                database.cartDao().insert(cart.copy(keywords = keywords))
+            }
         }
     }
 

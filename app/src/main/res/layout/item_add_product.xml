@@ -14,7 +14,7 @@
         android:id="@+id/tv_alert"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:paddingBottom="10dp"
         android:textColor="@color/colorStatusRed"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,7 +43,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/ly_et_quantity"
-        android:layout_width="120dp"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:hint="@string/quantity"
@@ -87,10 +87,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/ly_et_price"
-        android:layout_width="match_parent"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:hint="@string/price"
-        app:layout_constraintStart_toEndOf="@+id/btn_minus"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ly_et_quantity">
 
         <androidx.appcompat.widget.AppCompatEditText

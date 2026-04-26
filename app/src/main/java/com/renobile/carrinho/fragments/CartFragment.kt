@@ -209,11 +209,13 @@ class CartFragment : Fragment() {
                             }
 
                             cart?.let { currentCart ->
+                                val keywords = products?.joinToString(", ") { it.name } ?: ""
                                 val updatedCart = currentCart.copy(
                                     dateClose = System.currentTimeMillis(),
                                     products = count,
                                     units = volumes,
-                                    valueTotal = total
+                                    valueTotal = total,
+                                    keywords = keywords
                                 )
                                 database.cartDao().insert(updatedCart)
                             }

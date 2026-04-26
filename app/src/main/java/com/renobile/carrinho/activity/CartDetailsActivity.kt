@@ -1,7 +1,6 @@
 package com.renobile.carrinho.activity
 
 import android.app.SearchManager
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -24,6 +23,7 @@ import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.databinding.ActivityCartDetailsBinding
 import com.renobile.carrinho.util.PARAM_CART_ID
+import com.renobile.carrinho.util.PARAM_SEARCH_TERMS
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
@@ -56,6 +56,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
         database = AppDatabase.getDatabase(this)
         cartId = intent.getLongExtra(PARAM_CART_ID, 0)
+        searchTerms = intent.getStringExtra(PARAM_SEARCH_TERMS) ?: ""
 
         lifecycleScope.launch {
             cart = database.cartDao().getAll().find { it.id == cartId }
@@ -117,7 +118,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
         searchView = menu.findItem(R.id.action_search)?.actionView as SearchView
 
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         searchView!!.setSearchableInfo(searchManager.getSearchableInfo(componentName))
 
         searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -128,6 +129,12 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun onQueryTextChange(terms: String): Boolean = doneSearch(terms)
         })
+
+        if (searchTerms.isNotEmpty()) {
+            searchView?.isIconified = false
+            searchView?.setQuery(searchTerms, true)
+        }
+
         return true
     }
 
@@ -180,7 +187,7 @@ class CartDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     lifecycleScope.launch {
                         products?.forEach { database.productDao().delete(it) }
                         cart?.let { database.cartDao().delete(it) }
-                        
+
                         toast(R.string.cart_deleted)
                         finish()
                     }
