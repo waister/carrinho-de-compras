@@ -19,8 +19,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.renobile.carrinho.BuildConfig
+import com.renobile.carrinho.MainActivity
 import com.renobile.carrinho.R
-import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.util.API_ABOUT_APP
 import com.renobile.carrinho.util.API_FEEDBACK
 import com.renobile.carrinho.util.API_NOTIFICATIONS
@@ -118,7 +118,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val channelId = "${type}_channel"
 
-        var notifyIntent = Intent(applicationContext, StartActivity::class.java)
+        var notifyIntent = Intent(applicationContext, MainActivity::class.java)
 
         if (version.isNotEmpty()) {
             val versionCode = version.stringToInt()
