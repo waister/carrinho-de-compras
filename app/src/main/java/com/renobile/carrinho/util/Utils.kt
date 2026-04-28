@@ -25,6 +25,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Request
@@ -39,8 +41,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.renobile.carrinho.BuildConfig
+import com.renobile.carrinho.MainActivity
 import com.renobile.carrinho.R
-import com.renobile.carrinho.activity.StartActivity
 import com.renobile.carrinho.database.entities.ProductEntity
 import java.text.DateFormat
 import java.text.NumberFormat
@@ -48,6 +50,14 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
+
+fun Fragment.findNavControllerSafely(): NavController? {
+    return if (isAdded) {
+        findNavController()
+    } else {
+        null
+    }
+}
 
 fun AppCompatEditText.maskMoney() {
     this.addTextChangedListener(MaskMoney(this))
@@ -476,7 +486,7 @@ fun View.show() {
     visibility = View.VISIBLE
 }
 
-fun <T: View> T.isVisible(isVisible: Boolean, block: (T) -> Unit = {}) {
+fun <T : View> T.isVisible(isVisible: Boolean, block: (T) -> Unit = {}) {
     if (isVisible) {
         block(this)
         show()
@@ -491,6 +501,18 @@ fun AutoCompleteTextView.setEmpty() = this.text?.clear()
 fun AppCompatEditText.setEmpty() = this.text?.clear()
 
 fun TextView.setEmpty() = this.setText(R.string.empty)
+
+fun createCartListNameGeneric(): String {
+    val currentMillis = System.currentTimeMillis()
+
+    val dateFormatDay: DateFormat = SimpleDateFormat("dd", Locale.getDefault())
+    val day = dateFormatDay.format(currentMillis)
+
+    val dateFormatMonth: DateFormat = SimpleDateFormat("MM", Locale.getDefault())
+    val month = dateFormatMonth.format(currentMillis)
+
+    return "Compras $day/$month" // Defaulting to the string pattern if R.string is not available easily
+}
 
 fun Fragment.createCartListName(): String {
     val currentMillis = System.currentTimeMillis()
@@ -513,7 +535,7 @@ fun Int.addPluralCharacter() = if (this == 1) "" else "s"
 fun Double.isEmpty() = this == 0.0
 
 fun Activity.restartApp() {
-    val intent = Intent(this, StartActivity::class.java)
+    val intent = Intent(this, MainActivity::class.java)
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     startActivity(intent)
 

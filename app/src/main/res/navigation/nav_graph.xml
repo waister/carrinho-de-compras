@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/startFragment">
+
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="com.renobile.carrinho.features.start.StartFragment"
+        android:label="Start" />
+
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="com.renobile.carrinho.features.cart.CartFragment"
+        android:label="Cart" />
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.renobile.carrinho.features.list.ListFragment"
+        android:label="List" />
+
+    <fragment
+        android:id="@+id/comparatorFragment"
+        android:name="com.renobile.carrinho.features.comparator.ComparatorFragment"
+        android:label="Comparator" />
+
+    <fragment
+        android:id="@+id/removeAdsFragment"
+        android:name="com.renobile.carrinho.features.removeads.RemoveAdsFragment"
+        android:label="Remove Ads" />
+
+    <fragment
+        android:id="@+id/moreFragment"
+        android:name="com.renobile.carrinho.features.more.MoreFragment"
+        android:label="More" />
+
+    <fragment
+        android:id="@+id/cartsHistoryFragment"
+        android:name="com.renobile.carrinho.features.cart.history.CartsHistoryFragment"
+        android:label="History" />
+
+    <fragment
+        android:id="@+id/cartDetailsFragment"
+        android:name="com.renobile.carrinho.features.cart.detail.CartDetailsFragment"
+        android:label="Details" />
+
+    <fragment
+        android:id="@+id/listsHistoryFragment"
+        android:name="com.renobile.carrinho.features.list.history.ListsHistoryFragment"
+        android:label="Lists History" />
+
+    <fragment
+        android:id="@+id/listDetailsFragment"
+        android:name="com.renobile.carrinho.features.list.detail.ListDetailsFragment"
+        android:label="List Details" />
+
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.renobile.carrinho.features.notification.NotificationsFragment"
+        android:label="Notifications" />
+
+    <fragment
+        android:id="@+id/notificationDetailsFragment"
+        android:name="com.renobile.carrinho.features.notification.detail.NotificationDetailsFragment"
+        android:label="Notification Details">
+
+        <argument
+            android:name="itemId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.renobile.carrinho.features.about.AboutFragment"
+        android:label="About" />
+
+</navigation>
