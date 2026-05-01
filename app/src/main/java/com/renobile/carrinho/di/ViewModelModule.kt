@@ -12,7 +12,7 @@ import com.renobile.carrinho.features.notification.NotificationsViewModel
 import com.renobile.carrinho.features.notification.detail.NotificationDetailsViewModel
 import com.renobile.carrinho.features.removeads.RemoveAdsViewModel
 import com.renobile.carrinho.features.start.StartViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val viewModelModule = module {
