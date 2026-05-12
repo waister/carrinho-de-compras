@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".application.CustomApplication"
+        android:name=".CustomApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -30,61 +30,16 @@
             android:value="true" />
 
         <activity
-            android:name=".activity.StartActivity"
+            android:name=".MainActivity"
+            android:configChanges="keyboardHidden|screenSize"
             android:exported="true"
-            android:theme="@style/SplashTheme"
-            android:windowSoftInputMode="stateAlwaysHidden">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.MainActivity"
-            android:configChanges="keyboardHidden|screenSize"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.CartsHistoryActivity"
-            android:label="@string/archived_carts"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.ListsHistoryActivity"
-            android:label="@string/archived_lists"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.CartDetailsActivity"
-            android:label="@string/archived_cart"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.ListDetailsActivity"
-            android:label="@string/archived_list"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.RemoveAdsActivity"
-            android:label="@string/remove_ads"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.NotificationsActivity"
-            android:label="@string/notifications"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.AboutActivity"
-            android:label="@string/about_app"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.NotificationDetailsActivity"
-            android:label="@string/notification_details"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
 
         <service
             android:name=".service.MyFirebaseMessagingService"

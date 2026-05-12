@@ -9,7 +9,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
-import com.renobile.carrinho.application.CustomApplication
+import com.renobile.carrinho.CustomApplication
 import java.util.Date
 
 class AppOpenManager(private var application: CustomApplication) : DefaultLifecycleObserver,
