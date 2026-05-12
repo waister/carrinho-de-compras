@@ -7,6 +7,7 @@ import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.repositories.CartRepository
 import com.renobile.carrinho.repositories.ProductRepository
+import com.renobile.carrinho.util.createCartListNameGeneric
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,8 +67,6 @@ class CartViewModel(
 
                 if (currentCart != null) {
                     if (currentProducts.isEmpty()) {
-                        // Se o carrinho atual está vazio, apenas atualizamos o nome se foi passado um,
-                        // ou mantemos ele como o "novo" carrinho.
                         if (name.isNotEmpty()) {
                             cartRepository.updateCart(currentCart.copy(name = name))
                         }
@@ -75,7 +74,6 @@ class CartViewModel(
                         _events.send(CartEvents.ShowSnackbar(R.string.create_cart_success))
                         return@launch
                     } else {
-                        // Arquiva o carrinho atual com os produtos
                         val updatedCart = currentCart.copy(
                             dateClose = System.currentTimeMillis(),
                             products = currentProducts.size,
@@ -87,8 +85,7 @@ class CartViewModel(
                     }
                 }
 
-                // Cria o novo carrinho
-                val finalName = if (name.isEmpty()) createCartListName() else name
+                val finalName = name.ifEmpty { createCartListNameGeneric() }
                 val newId = System.currentTimeMillis()
                 val newCart = CartEntity(
                     id = newId,
@@ -107,13 +104,6 @@ class CartViewModel(
                 _uiState.update { it.copy(error = e.message) }
             }
         }
-    }
-
-    private fun createCartListName(): String {
-        val currentMillis = System.currentTimeMillis()
-        val day = java.text.SimpleDateFormat("dd", java.util.Locale.getDefault()).format(currentMillis)
-        val month = java.text.SimpleDateFormat("MM", java.util.Locale.getDefault()).format(currentMillis)
-        return "Compras $day/$month"
     }
 
     fun addOrEditProduct(product: ProductEntity) {

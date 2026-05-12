@@ -1,13 +1,12 @@
 [versions]
 activityKtx = "1.13.0"
-agp = "9.2.0"
+agp = "9.2.1"
 appUpdateKtx = "2.1.0"
 appcompat = "1.7.1"
 cardview = "1.0.0"
 constraintlayout = "2.2.1"
 core-splashscreen = "1.2.0"
-firebaseBom = "34.12.0"
-fuelAndroid = "2.3.1"
+firebaseBom = "34.13.0"
 google-firebase-crashlytics = "3.0.7"
 google-gms-google-services = "4.4.4"
 inputMaskAndroid = "6.1.0"
@@ -21,19 +20,18 @@ ksp = "2.3.7"
 lifecycle = "2.10.0"
 material = "1.13.0"
 multidex = "2.0.1"
-picasso = "2.71828"
 playServicesAds = "25.2.0"
 room = "2.8.4"
 shimmer = "0.5.0"
 koin = "4.2.1"
-retrofit = "2.11.0"
-okhttp = "4.12.0"
-composeBom = "2025.02.00"
-navigationCompose = "2.8.7"
+retrofit = "3.0.0"
+okhttp = "5.3.2"
+composeBom = "2026.05.00"
+navigationCompose = "2.9.8"
 coil = "2.7.0"
-mockk = "1.13.16"
-turbine = "1.2.0"
-kotlinxCoroutinesTest = "1.10.1"
+mockk = "1.14.9"
+turbine = "1.2.1"
+kotlinxCoroutinesTest = "1.11.0"
 
 [libraries]
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
@@ -55,14 +53,12 @@ firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
-fuel-android = { group = "com.github.kittinunf.fuel", name = "fuel-android", version.ref = "fuelAndroid" }
 input-mask-android = { group = "com.redmadrobot", name = "input-mask-android", version.ref = "inputMaskAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-fragment-compose = { group = "androidx.fragment", name = "fragment-compose", version.ref = "fragmentCompose" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 shimmer = { group = "com.facebook.shimmer", name = "shimmer", version.ref = "shimmer" }
 
@@ -78,6 +74,8 @@ androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graph
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationCompose" }

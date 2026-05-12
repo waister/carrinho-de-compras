@@ -78,7 +78,7 @@ class ListViewModel(
                     purchaseListRepository.insertList(updatedList)
                 }
 
-                val finalName = if (name.isEmpty()) createCartListNameGeneric() else name
+                val finalName = name.ifEmpty { createCartListNameGeneric() }
                 val lists = purchaseListRepository.getAllLists()
                 val newId = (lists.firstOrNull()?.id ?: 0L) + 1
                 val newList = PurchaseListEntity(

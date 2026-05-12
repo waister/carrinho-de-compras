@@ -19,3 +19,16 @@ sealed interface CartEvents {
     data class ShowSnackbar(val messageResId: Int) : CartEvents
     data object ShowInterstitialAd : CartEvents
 }
+
+data class CartActions(
+    val onSearchChanged: (String) -> Unit = {},
+    val onCreateCart: (String) -> Unit = {},
+    val onAddOrEditProduct: (ProductEntity) -> Unit = {},
+    val onDeleteProduct: (ProductEntity) -> Unit = {},
+    val onChangeQuantity: (ProductEntity, Double) -> Unit = { _, _ -> },
+    val onSendCart: () -> Unit = {},
+    val onClearCart: () -> Unit = {},
+    val onOpenHistory: () -> Unit = {},
+    val onShareApp: () -> Unit = {},
+    val onShowInterstitialAd: () -> Unit = {}
+)

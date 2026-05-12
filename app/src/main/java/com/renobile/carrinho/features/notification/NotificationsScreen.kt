@@ -23,7 +23,7 @@ import com.renobile.carrinho.network.models.NotificationModel
 @Composable
 fun NotificationsScreen(
     viewModel: NotificationsViewModel,
-    onBack: () -> Unit,
+    onBackClick: () -> Unit,
     onNotificationClick: (String) -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -33,7 +33,7 @@ fun NotificationsScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.notifications)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },

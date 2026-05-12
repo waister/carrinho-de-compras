@@ -21,35 +21,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.renobile.carrinho.R
 import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.ui.theme.MyAppTheme
 import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatPrice
-import java.text.NumberFormat
 import com.renobile.carrinho.util.formatQuantity
+import java.text.NumberFormat
 
 @Composable
 fun CartScreen(
-    viewModel: CartViewModel,
-    actions: CartActions,
-) {
-    val state by viewModel.uiState.collectAsState()
-    CartContent(state = state, actions = actions)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CartContent(
     state: CartState,
     actions: CartActions,
 ) {
@@ -326,6 +318,7 @@ fun EmptyCartView(
 fun ClearCartDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = { Text(stringResource(R.string.confirmation)) },
         text = { Text(stringResource(R.string.confirm_delete_all)) },
         confirmButton = {
@@ -341,6 +334,7 @@ fun ClearCartDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 fun DeleteProductDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = { Text(stringResource(R.string.confirmation)) },
         text = { Text(stringResource(R.string.confirm_delete)) },
         confirmButton = {
@@ -357,6 +351,7 @@ fun CreateCartDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     var cartName by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = { Text(stringResource(R.string.create_cart)) },
         text = {
             Column {
@@ -398,31 +393,47 @@ fun ProductOptionsDialog(
     onDelete: (ProductEntity) -> Unit,
 ) {
     val options = stringArrayResource(R.array.product_cart_options)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(product.name) },
-        text = {
-            Column {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp,
+            modifier = Modifier.widthIn(min = 280.dp, max = 560.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = product.name,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
                 ListItem(
                     headlineContent = { Text(options.getOrNull(0) ?: stringResource(R.string.edit_product)) },
                     modifier = Modifier.clickable { onEdit(product) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
                 ListItem(
                     headlineContent = { Text(options.getOrNull(1) ?: "+ 1.0") },
                     modifier = Modifier.clickable { onChangeQuantity(product, 1.0) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
                 ListItem(
                     headlineContent = { Text(options.getOrNull(2) ?: "- 1.0") },
                     modifier = Modifier.clickable { onChangeQuantity(product, -1.0) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
                 ListItem(
                     headlineContent = { Text(options.getOrNull(3) ?: "Excluir") },
                     modifier = Modifier.clickable { onDelete(product) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
             }
-        },
-        confirmButton = {},
-    )
+        }
+    }
 }
 
 @Composable
@@ -433,9 +444,9 @@ fun AddProductDialog(
 ) {
     var name by remember { mutableStateOf(product?.name ?: "") }
     var quantityText by remember { mutableStateOf(product?.quantity?.formatQuantity() ?: "1") }
-    
+
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
-    
+
     var priceTextFieldValue by remember {
         val initialText = product?.price?.let { if (it == 0.0) "" else it.formatPrice() } ?: ""
         mutableStateOf(TextFieldValue(text = initialText, selection = TextRange(initialText.length)))
@@ -443,6 +454,7 @@ fun AddProductDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(stringResource(if (product == null) R.string.add_product else R.string.edit_product))
         },
@@ -705,15 +717,15 @@ fun CartScreenPreview() {
             ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0),
         ),
     )
-    MaterialTheme {
-        CartContent(state = dummyState, actions = CartActions())
+    MyAppTheme {
+        CartScreen(state = dummyState, actions = CartActions())
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun CartScreenEmptyPreview() {
-    MaterialTheme {
-        CartContent(state = CartState(), actions = CartActions())
+    MyAppTheme {
+        CartScreen(state = CartState(), actions = CartActions())
     }
 }

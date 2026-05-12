@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.compose.content
-import com.renobile.carrinho.R
 import com.renobile.carrinho.util.findNavControllerSafely
 import com.renobile.carrinho.util.shareApp
 
@@ -16,12 +15,32 @@ class MoreFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) = content {
         MoreScreen(
-            onNotifications = { findNavControllerSafely()?.navigate(R.id.notificationsFragment) },
-            onAbout = { findNavControllerSafely()?.navigate(R.id.aboutFragment) },
-            onShare = { activity?.shareApp() },
-            onRemoveAds = { findNavControllerSafely()?.navigate(R.id.removeAdsFragment) },
-            onBack = { findNavControllerSafely()?.popBackStack() }
+            onNotifications = ::onNotifications,
+            onAbout = ::onAbout,
+            onShare = ::onShare,
+            onRemoveAds = ::onRemoveAds,
+            onBack = ::onBack,
         )
     }
 
+
+    private fun onNotifications() {
+        findNavControllerSafely()?.navigate("notifications")
+    }
+
+    private fun onAbout() {
+        findNavControllerSafely()?.navigate("about")
+    }
+
+    private fun onShare() {
+        activity?.shareApp()
+    }
+
+    private fun onRemoveAds() {
+        findNavControllerSafely()?.navigate("removeAds")
+    }
+
+    private fun onBack() {
+        findNavControllerSafely()?.popBackStack()
+    }
 }

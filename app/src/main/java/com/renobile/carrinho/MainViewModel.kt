@@ -1,28 +1,19 @@
 package com.renobile.carrinho
 
 import androidx.lifecycle.ViewModel
-import com.github.kittinunf.fuel.httpGet
-import com.google.android.gms.tasks.OnCompleteListener
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
-import com.renobile.carrinho.util.API_ROUTE_IDENTIFY
-import com.renobile.carrinho.util.API_SUCCESS
-import com.renobile.carrinho.util.API_TOKEN
-import com.renobile.carrinho.util.API_VERSION_LAST
-import com.renobile.carrinho.util.API_VERSION_MIN
+import com.renobile.carrinho.repositories.ConfigRepository
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
 import com.renobile.carrinho.util.Prefs
-import com.renobile.carrinho.util.getBooleanVal
-import com.renobile.carrinho.util.getIntVal
-import com.renobile.carrinho.util.getValidJSONObject
 import com.renobile.carrinho.util.isDebug
-import com.renobile.carrinho.util.printFuelLog
-import com.renobile.carrinho.util.saveAppData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val configRepository: ConfigRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainState())
     val uiState: StateFlow<MainState> = _uiState.asStateFlow()
@@ -31,25 +22,14 @@ class MainViewModel : ViewModel() {
         val token = Prefs.getValue(PREF_FCM_TOKEN, "")
 
         if (token.isNotEmpty()) {
-            val params = listOf(API_TOKEN to token)
+            viewModelScope.launch {
+                configRepository.identify(token).onSuccess { response ->
+                    configRepository.saveConfig(response)
 
-            API_ROUTE_IDENTIFY.httpGet(params).responseString { request, response, result ->
-                printFuelLog(request, response, result)
-
-                val (data, error) = result
-
-                if (error == null) {
-                    val apiObj = data.getValidJSONObject()
-
-                    saveAppData(result)
-
-                    if (apiObj.getBooleanVal(API_SUCCESS)) {
-                        val versionLast = apiObj.getIntVal(API_VERSION_LAST)
-                        val versionMin = apiObj.getIntVal(API_VERSION_MIN)
-
-                        if (BuildConfig.VERSION_CODE < versionMin) {
+                    if (response.success) {
+                        if (BuildConfig.VERSION_CODE < response.versionMin) {
                             _uiState.update { it.copy(versionUpdate = VersionUpdate.Needed) }
-                        } else if (BuildConfig.VERSION_CODE < versionLast) {
+                        } else if (BuildConfig.VERSION_CODE < response.versionLast) {
                             _uiState.update { it.copy(versionUpdate = VersionUpdate.Available) }
                         }
                     }

@@ -58,7 +58,6 @@ class StartViewModel(
         if (currentDeviceID.isEmpty() || !isIdentifierV3) {
             val newDeviceId = generateDeviceIdentifier()
             Prefs.putValue(PREF_DEVICE_ID, newDeviceId)
-            // Note: CustomApplication().updateFuelParams() might still be needed if Fuel is used elsewhere
             appLog("GENERATE_DEVICE_ID", "New device ID: $newDeviceId")
         }
     }

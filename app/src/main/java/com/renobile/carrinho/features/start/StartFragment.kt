@@ -7,9 +7,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.fragment.app.Fragment
 import androidx.fragment.compose.content
 import androidx.navigation.navOptions
-import com.renobile.carrinho.R
 import com.renobile.carrinho.ui.theme.MyAppTheme
-import com.renobile.carrinho.util.*
+import com.renobile.carrinho.util.API_ABOUT_APP
+import com.renobile.carrinho.util.API_NOTIFICATIONS
+import com.renobile.carrinho.util.PARAM_ITEM_ID
+import com.renobile.carrinho.util.PARAM_TYPE
+import com.renobile.carrinho.util.appLog
+import com.renobile.carrinho.util.findNavControllerSafely
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -44,27 +48,23 @@ class StartFragment : Fragment() {
         appLog(TAG, "Received type from notification: $type")
         appLog(TAG, "Received itemId from notification: $itemId")
 
-        val bundle = Bundle()
-
         val route = when (type) {
             API_NOTIFICATIONS -> {
                 if (itemId.isNullOrEmpty()) {
-                    R.id.notificationsFragment
+                    "notifications"
                 } else {
-                    bundle.apply {
-                        putString(PARAM_ITEM_ID, itemId)
-                    }
-                    R.id.notificationDetailsFragment
+                    "notificationDetails/$itemId"
                 }
             }
-            API_ABOUT_APP -> R.id.aboutFragment
-            else -> R.id.cartFragment
+
+            API_ABOUT_APP -> "about"
+            else -> "cart"
         }
 
         val options = navOptions {
-            popUpTo(R.id.startFragment) { inclusive = true }
+            popUpTo("start") { inclusive = true }
         }
-        findNavControllerSafely()?.navigate(route, bundle, options)
+        findNavControllerSafely()?.navigate(route, navOptions = options)
     }
 
     companion object {

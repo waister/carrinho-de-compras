@@ -10,34 +10,18 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
-import android.os.Bundle
 import android.text.Html
 import android.text.Spanned
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.webkit.URLUtil
-import android.widget.AutoCompleteTextView
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.facebook.shimmer.ShimmerFrameLayout
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
-import com.github.kittinunf.result.Result
-import com.google.ads.mediation.admob.AdMobAdapter
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.renobile.carrinho.BuildConfig
@@ -49,7 +33,6 @@ import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.UUID
 
 fun Fragment.findNavControllerSafely(): NavController? {
     return if (isAdded) {
@@ -57,10 +40,6 @@ fun Fragment.findNavControllerSafely(): NavController? {
     } else {
         null
     }
-}
-
-fun AppCompatEditText.maskMoney() {
-    this.addTextChangedListener(MaskMoney(this))
 }
 
 fun storeAppLink(): String =
@@ -159,117 +138,6 @@ fun String?.getStringValid(): String {
     return ""
 }
 
-fun printFuelLog(request: Request, response: Response, result: Result<String, FuelError>) {
-    appLog("FUEL_API_CALL", "API was called to route: ${request.url}")
-
-    if (BuildConfig.DEBUG) {
-        val url = request.url
-
-        println("\n--- FUEL_REQUEST_START - $url\n")
-        println(request)
-        println("\n--- FUEL_REQUEST_END - $url\n")
-
-        println("\n--- FUEL_RESPONSE_START - $url\n")
-        println(response)
-        println("\n--- FUEL_RESPONSE_END - $url\n")
-
-        println("\n--- FUEL_RESULT_START - $url\n")
-        println(result)
-        println("\n--- FUEL_RESULT_END - $url\n")
-    }
-}
-
-fun haveVideoPlan(): Boolean {
-    val planVideoMillis = Prefs.getValue(PREF_PLAN_VIDEO_MILLIS, 0L)
-    if (planVideoMillis != 0L) {
-        val panVideoDuration = Prefs.getValue(PREF_PLAN_VIDEO_DURATION, FIVE_DAYS)
-        val expiration = Prefs.getValue(PREF_PLAN_VIDEO_MILLIS, 0L) + panVideoDuration
-        return expiration > System.currentTimeMillis()
-    }
-    return false
-}
-
-fun haveBillingPlan(): Boolean = Prefs.getValue(PREF_HAVE_PLAN, false)
-
-fun havePlan(): Boolean = haveBillingPlan() || haveVideoPlan()
-
-fun Context?.loadBannerAd(
-    adViewContainer: LinearLayout?,
-    adUnitId: String,
-    adSize: AdSize? = null,
-    collapsible: Boolean = false,
-    shimmer: ShimmerFrameLayout? = null,
-) {
-    val logTag = "LOAD_ADMOB_BANNER"
-
-    if (this == null || adUnitId.isEmpty() || adViewContainer == null || havePlan()) {
-        shimmer?.hide()
-        appLog(logTag, "loadAdMobBanner() falied | $this | $adUnitId | ${havePlan()}")
-        return
-    }
-
-    shimmer?.show()
-
-    appLog(logTag, "adUnitId: $adUnitId")
-
-    val adView = AdView(this)
-    adViewContainer.addView(adView)
-
-    adView.adUnitId = if (isDebug()) "ca-app-pub-3940256099942544/6300978111" else adUnitId
-
-    adView.setAdSize(adSize ?: getAdSize(adViewContainer))
-
-    val extras = Bundle()
-    if (collapsible) {
-        extras.putString("collapsible", "bottom")
-        extras.putString("collapsible_request_id", UUID.randomUUID().toString())
-    }
-
-    val adRequest = AdRequest.Builder()
-        .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
-        .build()
-
-    adView.loadAd(adRequest)
-
-    adView.adListener = object : AdListener() {
-        override fun onAdLoaded() {
-            super.onAdLoaded()
-            shimmer?.hide()
-            appLog(logTag, "onAdLoaded()")
-        }
-
-        override fun onAdFailedToLoad(error: LoadAdError) {
-            super.onAdFailedToLoad(error)
-            shimmer?.hide()
-            appLog(logTag, "onAdFailedToLoad(): ${error.message}")
-        }
-
-        override fun onAdOpened() {
-            super.onAdOpened()
-            appLog(logTag, "onAdOpened()")
-        }
-
-        override fun onAdClosed() {
-            super.onAdClosed()
-            appLog(logTag, "onAdClosed()")
-        }
-    }
-
-    appLog(logTag, "ENDS")
-}
-
-fun Context.getAdSize(adViewContainer: LinearLayout): AdSize {
-    var adWidthPixels = adViewContainer.width.toFloat()
-    if (adWidthPixels == 0f)
-        adWidthPixels = displayWidth().toFloat()
-
-    val density = resources.displayMetrics.density
-    val adWidth = (adWidthPixels / density).toInt()
-    return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-}
-
-fun Context?.displayWidth() = if (this != null) resources.displayMetrics.widthPixels else 0
-
 fun Context?.shareApp() {
     if (this == null) return
 
@@ -281,21 +149,6 @@ fun Context?.shareApp() {
 }
 
 fun Long.formatDate(): String = DateFormat.getDateInstance(DateFormat.SHORT).format(this)
-
-fun String?.formatDate(): String {
-    try {
-        if (!this.isNullOrEmpty()) {
-            val locale = Locale.getDefault()
-            val parsed = SimpleDateFormat(FORMAT_DATETIME_API, locale).parse(this)
-
-            if (parsed != null)
-                DateFormat.getDateInstance(DateFormat.SHORT).format(parsed.time)
-        }
-    } catch (e: ParseException) {
-        if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
-    }
-    return ""
-}
 
 fun String?.formatDatetime(): String {
     try {
@@ -311,11 +164,6 @@ fun String?.formatDatetime(): String {
         if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
     }
     return ""
-}
-
-fun View.hideKeyboard() {
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
 fun String?.isValidUrl(): Boolean = !this.isNullOrEmpty() && URLUtil.isValidUrl(this)
@@ -444,86 +292,18 @@ fun EditText?.getDouble(): Double {
     return value.toDouble()
 }
 
-fun Activity?.hideKeyboard() {
-    val view = this?.currentFocus
-    val inputManager = this?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
-    if (view != null)
-        inputManager.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-}
-
-fun saveAppData(result: Result<String, FuelError>) {
-    val (data, error) = result
-
-    if (error == null) {
-        val apiObj = data.getValidJSONObject()
-
-        if (apiObj.getBooleanVal(API_SUCCESS)) {
-            val configs = apiObj.getJSONObjectVal(API_CONFIGS)
-
-            Prefs.putValue(PREF_SHARE_LINK, configs.getStringVal(API_SHARE_LINK))
-            Prefs.putValue(PREF_APP_NAME, configs.getStringVal(API_APP_NAME))
-            Prefs.putValue(PREF_ADMOB_ID, configs.getStringVal(API_ADMOB_ID))
-            Prefs.putValue(PREF_ADMOB_AD_MAIN_ID, configs.getStringVal(API_ADMOB_AD_MAIN_ID))
-            Prefs.putValue(PREF_ADMOB_INTERSTITIAL_ID, configs.getStringVal(API_ADMOB_INTERSTITIAL_ID))
-            Prefs.putValue(PREF_ADMOB_REMOVE_ADS_ID, configs.getStringVal(API_ADMOB_REMOVE_ADS_ID))
-            Prefs.putValue(PREF_ADMOB_OPEN_APP_ID, configs.getStringVal(API_ADMOB_OPEN_APP_ID))
-            Prefs.putValue(PREF_PLAN_VIDEO_DURATION, configs.getLongVal(API_PLAN_VIDEO_DURATION))
-        }
-    }
-}
-
 fun appLog(tag: String, msg: String) {
     if (BuildConfig.DEBUG)
         Log.i("MAGGAPPS_LOG", "➡➡➡ $tag: $msg")
 }
 
-fun View.hide() {
-    visibility = View.GONE
-}
-
-fun View.show() {
-    visibility = View.VISIBLE
-}
-
-fun <T : View> T.isVisible(isVisible: Boolean, block: (T) -> Unit = {}) {
-    if (isVisible) {
-        block(this)
-        show()
-    } else
-        hide()
-}
 
 fun isDebug() = BuildConfig.DEBUG
 
-fun AutoCompleteTextView.setEmpty() = this.text?.clear()
-
-fun AppCompatEditText.setEmpty() = this.text?.clear()
-
-fun TextView.setEmpty() = this.setText(R.string.empty)
-
 fun createCartListNameGeneric(): String {
     val currentMillis = System.currentTimeMillis()
-
-    val dateFormatDay: DateFormat = SimpleDateFormat("dd", Locale.getDefault())
-    val day = dateFormatDay.format(currentMillis)
-
-    val dateFormatMonth: DateFormat = SimpleDateFormat("MM", Locale.getDefault())
-    val month = dateFormatMonth.format(currentMillis)
-
-    return "Compras $day/$month" // Defaulting to the string pattern if R.string is not available easily
-}
-
-fun Fragment.createCartListName(): String {
-    val currentMillis = System.currentTimeMillis()
-
-    val dateFormatDay: DateFormat = SimpleDateFormat("dd", Locale.getDefault())
-    val day = dateFormatDay.format(currentMillis)
-
-    val dateFormatMonth: DateFormat = SimpleDateFormat("MM", Locale.getDefault())
-    val month = dateFormatMonth.format(currentMillis)
-
-    return getString(R.string.cart_name_default, day, month)
+    val date = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(currentMillis)
+    return "Compras $date"
 }
 
 fun Double.isSingular() = this > 0.0 && this < 2.00

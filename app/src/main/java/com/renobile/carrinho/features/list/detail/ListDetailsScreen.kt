@@ -37,6 +37,7 @@ fun ListDetailsScreen(
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
+            containerColor = MaterialTheme.colorScheme.surface,
             title = { Text(stringResource(R.string.confirmation)) },
             text = { Text(stringResource(R.string.confirm_delete_list)) },
             confirmButton = {
@@ -55,6 +56,7 @@ fun ListDetailsScreen(
         if (activeCartId == 0L) {
             AlertDialog(
                 onDismissRequest = { productToMove = null },
+                containerColor = MaterialTheme.colorScheme.surface,
                 title = { Text(stringResource(R.string.confirmation)) },
                 text = { Text(stringResource(R.string.create_cart_needed)) },
                 confirmButton = {
@@ -63,9 +65,9 @@ fun ListDetailsScreen(
             )
         } else {
             AddProductDialog(
-                product = productToMove?.copy(price = 0.0), // Request price when moving
+                product = productToMove?.copy(price = 0.0),
                 onDismiss = { productToMove = null },
-                onConfirm = { name, quantity, price ->
+                onConfirm = { _, quantity, price ->
                     productToMove?.let {
                         viewModel.moveToCart(it, activeCartId, quantity, price)
                     }

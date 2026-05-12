@@ -18,3 +18,16 @@ data class ListState(
 sealed interface ListEvents {
     data class ShowSnackbar(val messageResId: Int) : ListEvents
 }
+
+data class ListActions(
+    val onSearchChanged: (String) -> Unit = {},
+    val onCreateList: (String) -> Unit = {},
+    val onAddOrEditProduct: (ProductEntity) -> Unit = {},
+    val onDeleteProduct: (ProductEntity) -> Unit = {},
+    val onChangeQuantity: (ProductEntity, Double) -> Unit = { _, _ -> },
+    val onClearList: () -> Unit = {},
+    val onOpenHistory: () -> Unit = {},
+    val onSendList: () -> Unit = {},
+    val onShareApp: () -> Unit = {},
+    val onMoveToCart: (ProductEntity, Double, Double) -> Unit = { _, _, _ -> }
+)

@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renobile.carrinho.R
+import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
 fun StartScreen() {
@@ -26,5 +28,13 @@ fun StartScreen() {
             contentDescription = null,
             modifier = Modifier.size(128.dp)
         )
+    }
+}
+
+@Preview
+@Composable
+private fun StartScreenPreview() {
+    MyAppTheme {
+        StartScreen()
     }
 }

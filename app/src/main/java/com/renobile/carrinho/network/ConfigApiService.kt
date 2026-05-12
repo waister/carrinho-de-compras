@@ -6,6 +6,8 @@ import retrofit2.http.Query
 
 data class ConfigResponse(
     @SerializedName("success") val success: Boolean,
+    @SerializedName("version_last") val versionLast: Int,
+    @SerializedName("version_min") val versionMin: Int,
     @SerializedName("configs") val configs: AppConfigs?
 )
 
