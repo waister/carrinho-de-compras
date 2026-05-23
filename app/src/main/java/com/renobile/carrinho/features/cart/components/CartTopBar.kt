@@ -1,11 +1,10 @@
-package com.renobile.carrinho.features.list.components
+package com.renobile.carrinho.features.cart.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -24,21 +23,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.renobile.carrinho.R
-import com.renobile.carrinho.features.cart.components.CartHeader
-import com.renobile.carrinho.features.cart.components.SearchAppBar
-import com.renobile.carrinho.features.list.ListActions
-import com.renobile.carrinho.features.list.ListState
+import com.renobile.carrinho.database.entities.CartEntity
+import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.features.cart.CartActions
+import com.renobile.carrinho.features.cart.CartState
+import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListTopBar(
-    state: ListState = ListState(),
+fun CartTopBar(
+    state: CartState,
     isSearchActive: Boolean = false,
     onSearchActiveChange: (Boolean) -> Unit = {},
-    actions: ListActions = ListActions(),
-    onShowCreateList: () -> Unit = {},
-    onShowClearList: () -> Unit = {},
-    onShowImportList: () -> Unit = {},
+    actions: CartActions = CartActions(),
+    onShowCreateCart: () -> Unit = {},
+    onShowClearCart: () -> Unit = {},
     onToggleMenu: (Boolean) -> Unit = {},
     showMenu: Boolean = false,
 ) {
@@ -56,8 +55,8 @@ fun ListTopBar(
             TopAppBar(
                 title = {
                     Text(
-                        state.list?.let { stringResource(R.string.label_list, it.name) }
-                            ?: stringResource(R.string.purchase_list),
+                        state.cart?.let { stringResource(R.string.label_cart, it.name) }
+                            ?: stringResource(R.string.app_name),
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -69,10 +68,10 @@ fun ListTopBar(
                     IconButton(onClick = { onSearchActiveChange(true) }) {
                         Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_products))
                     }
-                    IconButton(onClick = onShowCreateList) {
+                    IconButton(onClick = onShowCreateCart) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_playlist_plus),
-                            contentDescription = stringResource(R.string.new_list),
+                            painter = painterResource(R.drawable.ic_cart_plus),
+                            contentDescription = stringResource(R.string.new_cart),
                         )
                     }
                     Box {
@@ -84,35 +83,27 @@ fun ListTopBar(
                             onDismissRequest = { onToggleMenu(false) },
                         ) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lists_history)) },
+                                text = { Text(stringResource(R.string.carts_history)) },
                                 onClick = {
                                     onToggleMenu(false)
                                     actions.onOpenHistory()
                                 },
-                                leadingIcon = { Icon(Icons.Default.List, null) },
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.List, null) },
                             )
-                            if (state.list != null) {
+                            if (state.cart != null) {
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.send_list)) },
+                                    text = { Text(stringResource(R.string.send_cart)) },
                                     onClick = {
                                         onToggleMenu(false)
-                                        actions.onSendList()
+                                        actions.onSendCart()
                                     },
                                     leadingIcon = { Icon(Icons.Default.Share, null) },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.import_list)) },
+                                    text = { Text(stringResource(R.string.clear_cart)) },
                                     onClick = {
                                         onToggleMenu(false)
-                                        onShowImportList()
-                                    },
-                                    leadingIcon = { Icon(Icons.Default.Add, null) },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.clear_list)) },
-                                    onClick = {
-                                        onToggleMenu(false)
-                                        onShowClearList()
+                                        onShowClearCart()
                                     },
                                     leadingIcon = { Icon(Icons.Default.Delete, null) },
                                 )
@@ -130,7 +121,7 @@ fun ListTopBar(
                 },
             )
         }
-        if (state.list != null) {
+        if (state.cart != null) {
             CartHeader(
                 total = state.total,
                 productCount = state.products.size,
@@ -140,18 +131,39 @@ fun ListTopBar(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun ListTopBarPreview() {
-    MaterialTheme {
-        ListTopBar()
+private fun CartTopBarNoCartPreview() {
+    MyAppTheme {
+        CartTopBar(
+            state = CartState(),
+        )
     }
 }
 
-@Preview(name = "Searching")
+@Preview(showBackground = true)
 @Composable
-private fun ListTopBarSearchingPreview() {
-    MaterialTheme {
-        ListTopBar(isSearchActive = true)
+private fun CartTopBarWithCartPreview() {
+    MyAppTheme {
+        CartTopBar(
+            state = CartState(
+                cart = CartEntity(1, "Mercado", 0, 0, 0, 0.0, 100.0, ""),
+                products = listOf(
+                    ProductEntity(1, 1, 0, "Arroz", 2.0, 15.0),
+                    ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0),
+                )
+            ),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CartTopBarSearchPreview() {
+    MyAppTheme {
+        CartTopBar(
+            state = CartState(searchTerms = "Arroz"),
+            isSearchActive = true,
+        )
     }
 }

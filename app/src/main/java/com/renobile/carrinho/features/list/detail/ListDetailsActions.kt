@@ -6,5 +6,5 @@ data class ListDetailsActions(
     val onBack: () -> Unit = {},
     val onDeleteList: () -> Unit = {},
     val onShareList: () -> Unit = {},
-    val onMoveToCart: (ProductEntity) -> Unit = {}
+    val onMoveToCart: (ProductEntity, Long, Double, Double) -> Unit = { _, _, _, _ -> }
 )

@@ -32,17 +32,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renobile.carrinho.R
 import com.renobile.carrinho.database.entities.ProductEntity
-import com.renobile.carrinho.database.entities.PurchaseListEntity
-import com.renobile.carrinho.features.cart.AddProductDialog
-import com.renobile.carrinho.features.cart.CartActions
-import com.renobile.carrinho.features.cart.DeleteProductDialog
-import com.renobile.carrinho.features.cart.ProductItem
+import com.renobile.carrinho.features.cart.components.AddProductDialog
+import com.renobile.carrinho.features.cart.components.DeleteProductDialog
+import com.renobile.carrinho.features.cart.components.ProductItem
 import com.renobile.carrinho.features.list.components.ClearListDialog
 import com.renobile.carrinho.features.list.components.CreateListDialog
 import com.renobile.carrinho.features.list.components.EmptyListView
 import com.renobile.carrinho.features.list.components.ImportListDialog
+import com.renobile.carrinho.features.list.components.ListOptionsDialog
 import com.renobile.carrinho.features.list.components.ListTopBar
-import com.renobile.carrinho.features.list.components.ProductListOptionsDialog
 import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
@@ -146,7 +144,7 @@ fun ListScreen(
     }
 
     if (productOptionsToShow != null) {
-        ProductListOptionsDialog(
+        ListOptionsDialog(
             product = productOptionsToShow!!,
             onDismiss = { productOptionsToShow = null },
             onEdit = {
@@ -258,7 +256,6 @@ fun ListScreen(
                     items(state.products, key = { it.id }) { product ->
                         ProductItem(
                             product = product,
-                            actions = CartActions(),
                             onClick = { productOptionsToShow = product },
                             onMoveToCart = { productToMove = product }
                         )
@@ -271,21 +268,10 @@ fun ListScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun ListScreenPreview() {
+private fun ListScreenPreview() {
     val dummyState = ListState(
-        list = PurchaseListEntity(
-            id = 1,
-            name = "Lista Mensal",
-            dateOpen = System.currentTimeMillis(),
-            dateClose = 0L,
-            products = 2,
-            units = 5.0,
-            valueTotal = 50.0
-        ),
-        products = listOf(
-            ProductEntity(1, 0, 1, "Arroz", 2.0, 15.0),
-            ProductEntity(2, 0, 1, "Feijão", 3.0, 10.0),
-        ),
+        list = listPreview,
+        products = listProductsPreview,
     )
     MyAppTheme {
         ListScreen(state = dummyState, actions = ListActions())
@@ -294,7 +280,7 @@ fun ListScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun ListScreenEmptyPreview() {
+private fun ListScreenEmptyPreview() {
     MyAppTheme {
         ListScreen(state = ListState(), actions = ListActions())
     }

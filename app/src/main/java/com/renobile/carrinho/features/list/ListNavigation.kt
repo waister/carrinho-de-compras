@@ -76,7 +76,6 @@ fun NavGraphBuilder.listGraph(
                 val state = viewModel.uiState.value
                 activity?.sendList(state.products, state.list?.name ?: "")
             },
-            onMoveToCart = { /* Handled in Screen */ }
         )
 
         LaunchedEffect(Unit) {

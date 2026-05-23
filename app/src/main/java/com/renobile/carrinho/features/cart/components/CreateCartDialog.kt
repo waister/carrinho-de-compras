@@ -1,4 +1,4 @@
-package com.renobile.carrinho.features.list.components
+package com.renobile.carrinho.features.cart.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,64 +22,53 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renobile.carrinho.R
+import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
-fun CreateListDialog(
+fun CreateCartDialog(
     onDismiss: () -> Unit = {},
     onConfirm: (String) -> Unit = {},
 ) {
-    var listName by remember { mutableStateOf("") }
-
+    var cartName by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.create_list)) },
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text(stringResource(R.string.create_cart)) },
         text = {
             Column {
                 Text(
-                    text = stringResource(R.string.create_list_notice),
+                    text = stringResource(R.string.create_cart_notice),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(bottom = 16.dp),
                 )
                 OutlinedTextField(
-                    value = listName,
-                    onValueChange = {
-                        listName = it
-                    },
-                    label = {
-                        Text(stringResource(R.string.list_name))
-                    },
+                    value = cartName,
+                    onValueChange = { cartName = it },
+                    label = { Text(stringResource(R.string.cart_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
                         capitalization = KeyboardCapitalization.Sentences,
                     ),
-                    keyboardActions = KeyboardActions(onDone = {
-                        onConfirm(listName)
-                    }),
+                    keyboardActions = KeyboardActions(onDone = { onConfirm(cartName) }),
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                onConfirm(listName)
-            }) {
-                Text(stringResource(R.string.confirm))
-            }
+            TextButton(onClick = { onConfirm(cartName) }) { Text(stringResource(R.string.confirm)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         },
     )
 }
 
 @Preview
 @Composable
-private fun CreateListDialogPreview() {
-    MaterialTheme {
-        CreateListDialog()
+private fun CreateCartDialogPreview() {
+    MyAppTheme {
+        CreateCartDialog()
     }
 }

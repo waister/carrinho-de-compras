@@ -1,11 +1,10 @@
-package com.renobile.carrinho.features.list.components
+package com.renobile.carrinho.features.cart.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,19 +13,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renobile.carrinho.R
+import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
-fun EmptyListView(
-    onCreateList: () -> Unit = {},
+fun EmptyCartView(
+    isCartCreated: Boolean,
+    onCreateCart: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = stringResource(R.string.lists_empty),
+                text = stringResource(if (!isCartCreated) R.string.carts_empty else R.string.products_empty),
                 modifier = Modifier.padding(16.dp),
             )
-            Button(onClick = onCreateList) {
-                Text(stringResource(R.string.create_list))
+            if (!isCartCreated) {
+                Button(onClick = onCreateCart) {
+                    Text(stringResource(R.string.create_cart))
+                }
             }
         }
     }
@@ -34,8 +37,16 @@ fun EmptyListView(
 
 @Preview(showBackground = true)
 @Composable
-private fun EmptyListViewPreview() {
-    MaterialTheme {
-        EmptyListView()
+private fun EmptyCartViewNoCartPreview() {
+    MyAppTheme {
+        EmptyCartView(isCartCreated = false)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EmptyCartViewWithCartPreview() {
+    MyAppTheme {
+        EmptyCartView(isCartCreated = true)
     }
 }

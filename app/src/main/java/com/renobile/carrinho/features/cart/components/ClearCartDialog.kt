@@ -1,4 +1,4 @@
-package com.renobile.carrinho.features.list.components
+package com.renobile.carrinho.features.cart.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -8,14 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.renobile.carrinho.R
+import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
-fun ClearListDialog(
+fun ClearCartDialog(
     onDismiss: () -> Unit = {},
     onConfirm: () -> Unit = {},
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = { Text(stringResource(R.string.confirmation)) },
         text = { Text(stringResource(R.string.confirm_delete_all)) },
         confirmButton = {
@@ -29,8 +31,8 @@ fun ClearListDialog(
 
 @Preview
 @Composable
-private fun ClearListDialogPreview() {
-    MaterialTheme {
-        ClearListDialog()
+private fun ClearCartDialogPreview() {
+    MyAppTheme {
+        ClearCartDialog()
     }
 }

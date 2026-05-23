@@ -3,12 +3,18 @@ package com.renobile.carrinho.features.comparator
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.renobile.carrinho.R
-import com.renobile.carrinho.util.*
+import com.renobile.carrinho.util.PREF_PRICE_FIRST
+import com.renobile.carrinho.util.PREF_PRICE_SECOND
+import com.renobile.carrinho.util.PREF_SIZE_FIRST
+import com.renobile.carrinho.util.PREF_SIZE_SECOND
+import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.formatPercent
+import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.parseToDouble
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.Locale
 
 class ComparatorViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -16,7 +22,7 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
     val uiState: StateFlow<ComparatorState> = _uiState.asStateFlow()
 
     init {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 priceFirst = Prefs.getValue(PREF_PRICE_FIRST, ""),
                 sizeFirst = Prefs.getValue(PREF_SIZE_FIRST, ""),
@@ -44,7 +50,7 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun clear() {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 priceFirst = "",
                 sizeFirst = "",
@@ -65,14 +71,14 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
 
         if (priceFirst > 0 && sizeFirst > 0) {
             val realFirst = priceFirst / sizeFirst
-            val resFirst = getApplication<Application>().getString(R.string.result_first, formatPrice(realFirst))
+            val resFirst = getApplication<Application>().getString(R.string.result_first, realFirst.formatPrice())
 
             var resSecond: String? = null
             var resPercent: String? = null
 
             if (priceSecond > 0 && sizeSecond > 0) {
                 val realSecond = priceSecond / sizeSecond
-                resSecond = getApplication<Application>().getString(R.string.result_second, formatPrice(realSecond))
+                resSecond = getApplication<Application>().getString(R.string.result_second, realSecond.formatPrice())
 
                 val firstBiggest = realFirst > realSecond
                 val larger = if (firstBiggest) realFirst else realSecond
@@ -111,13 +117,4 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
         Prefs.putValue(PREF_SIZE_SECOND, state.sizeSecond)
     }
 
-    private fun formatPrice(price: Double): String {
-        val realPrice = if (price < 0.0) 0.0 else price
-        return String.Companion.format(Locale.getDefault(), "R$ %,.3f", realPrice)
-    }
-
-    private fun String.parseToDouble(): Double {
-        val clean = this.replace(Regex("[^0-9,.]"), "").replace(",", ".")
-        return clean.toDoubleOrNull() ?: 0.0
-    }
 }

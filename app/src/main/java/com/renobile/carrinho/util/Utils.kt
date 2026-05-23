@@ -271,6 +271,7 @@ fun Double.formatPercent(): String {
 }
 
 fun Double.formatPrice(): String = NumberFormat.getCurrencyInstance().format(this)
+
 fun Double.formatQuantity(): String = NumberFormat.getNumberInstance().format(this)
 
 fun EditText?.getNumber(): Double {
@@ -320,4 +321,14 @@ fun Activity.restartApp() {
     startActivity(intent)
 
     finish()
+}
+
+fun String.parseToDouble(): Double {
+    val clean = this.replace(Regex("[^0-9,.]"), "").replace(",", ".")
+    return clean.toDoubleOrNull() ?: 0.0
+}
+
+fun String.parseCurrencyToDouble(): Double {
+    val digits = this.replace(Regex("\\D"), "")
+    return if (digits.isEmpty()) 0.0 else digits.toDouble() / 100
 }

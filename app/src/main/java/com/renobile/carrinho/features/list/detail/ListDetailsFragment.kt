@@ -33,7 +33,6 @@ class ListDetailsFragment : Fragment() {
                 val state = viewModel.uiState.value
                 activity?.sendList(state.products, state.list?.name ?: "")
             },
-            onMoveToCart = { /* Handled inside Screen/ViewModel */ }
         )
 
         LaunchedEffect(Unit) {

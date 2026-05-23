@@ -124,7 +124,7 @@ fun ImportListDialog(
 
 @Preview
 @Composable
-fun ImportListDialogPreview() {
+private fun ImportListDialogPreview() {
     MaterialTheme {
         ImportListDialog()
     }
