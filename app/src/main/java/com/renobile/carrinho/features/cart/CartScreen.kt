@@ -678,6 +678,7 @@ fun ProductItem(
     product: ProductEntity,
     @Suppress("UNUSED_PARAMETER") actions: CartActions,
     onClick: () -> Unit,
+    onMoveToCart: (() -> Unit)? = null,
 ) {
     ListItem(
         headlineContent = { Text(product.name) },
@@ -691,6 +692,19 @@ fun ProductItem(
                 ),
             )
         },
+        leadingContent = if (onMoveToCart != null) {
+            {
+                Icon(
+                    painter = painterResource(R.drawable.ic_cart_plus),
+                    contentDescription = stringResource(R.string.move_to_cart),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable { onMoveToCart() }
+                        .padding(4.dp)
+                )
+            }
+        } else null,
         trailingContent = {
             Text((product.quantity * product.price).formatPrice())
         },

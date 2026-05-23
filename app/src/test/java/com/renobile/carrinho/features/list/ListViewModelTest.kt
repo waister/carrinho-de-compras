@@ -62,4 +62,30 @@ class ListViewModelTest {
             }) 
         }
     }
+
+    @Test
+    fun `given active list, when import items with quantity, then products are inserted with correct quantity`() = runTest {
+        // Given
+        val activeList = PurchaseListEntity(
+            id = 1, name = "My List", dateOpen = 100, dateClose = 0,
+            products = 0, units = 0.0, valueTotal = 0.0
+        )
+        coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
+
+        val viewModel = ListViewModel(purchaseListRepository, productRepository, cartRepository)
+        val itemsToImport = listOf("3 Laranjas", "2.5 Abacates", "Feijão")
+
+        // When
+        viewModel.importList(itemsToImport)
+
+        // Then
+        coVerify {
+            productRepository.insertProducts(match {
+                it.size == 3 &&
+                it[0].name == "Laranjas" && it[0].quantity == 3.0 &&
+                it[1].name == "Abacates" && it[1].quantity == 2.5 &&
+                it[2].name == "Feijão" && it[2].quantity == 1.0
+            })
+        }
+    }
 }

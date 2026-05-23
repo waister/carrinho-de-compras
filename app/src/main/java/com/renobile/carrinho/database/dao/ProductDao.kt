@@ -5,13 +5,13 @@ import com.renobile.carrinho.database.entities.ProductEntity
 
 @Dao
 interface ProductDao {
-    @Query("SELECT * FROM products WHERE cartId = :cartId")
+    @Query("SELECT * FROM products WHERE cartId = :cartId ORDER BY id DESC")
     suspend fun getByCartId(cartId: Long): List<ProductEntity>
 
     @Query("SELECT DISTINCT name FROM products ORDER BY name ASC")
     suspend fun getAllNames(): List<String>
 
-    @Query("SELECT * FROM products WHERE listId = :listId")
+    @Query("SELECT * FROM products WHERE listId = :listId ORDER BY id DESC")
     suspend fun getByListId(listId: Long): List<ProductEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

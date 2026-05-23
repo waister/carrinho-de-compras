@@ -36,14 +36,14 @@ class ListViewModel(
         loadData()
     }
 
-    fun loadData() {
+    fun loadData(showLoading: Boolean = true) {
         viewModelScope.launch {
-            fetchData()
+            fetchData(showLoading)
         }
     }
 
-    private suspend fun fetchData() {
-        _uiState.update { it.copy(isLoading = true) }
+    private suspend fun fetchData(showLoading: Boolean = true) {
+        if (showLoading) _uiState.update { it.copy(isLoading = true) }
         try {
             val lists = withContext(Dispatchers.IO) { purchaseListRepository.getAllLists() }
             val activeList = lists.find { it.dateClose == 0L }
@@ -69,7 +69,7 @@ class ListViewModel(
 
     fun onSearchTermsChanged(terms: String) {
         _uiState.update { it.copy(searchTerms = terms) }
-        loadData()
+        loadData(showLoading = false)
     }
 
     fun createList(name: String) {
@@ -113,7 +113,7 @@ class ListViewModel(
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) { productRepository.insertProduct(product) }
-                fetchData()
+                fetchData(showLoading = false)
                 _events.send(ListEvents.ShowSnackbar(R.string.product_added))
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
@@ -125,7 +125,7 @@ class ListViewModel(
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) { productRepository.deleteProduct(product) }
-                fetchData()
+                fetchData(showLoading = false)
                 _events.send(ListEvents.ShowSnackbar(R.string.success_delete))
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
@@ -141,7 +141,7 @@ class ListViewModel(
                 products.forEach { 
                     withContext(Dispatchers.IO) { productRepository.deleteProduct(it) } 
                 }
-                fetchData()
+                fetchData(showLoading = false)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -157,7 +157,7 @@ class ListViewModel(
             try {
                 val updatedProduct = product.copy(quantity = product.quantity + delta)
                 withContext(Dispatchers.IO) { productRepository.insertProduct(updatedProduct) }
-                fetchData()
+                fetchData(showLoading = false)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -174,14 +174,18 @@ class ListViewModel(
                 }
 
                 val updatedProduct = product.copy(
+                    id = System.currentTimeMillis(),
                     cartId = activeCart.id,
                     listId = 0L,
                     quantity = quantity,
                     price = price
                 )
-                withContext(Dispatchers.IO) { productRepository.insertProduct(updatedProduct) }
+                withContext(Dispatchers.IO) { 
+                    productRepository.deleteProduct(product)
+                    productRepository.insertProduct(updatedProduct) 
+                }
+                fetchData(showLoading = false)
                 _events.send(ListEvents.ShowSnackbar(R.string.product_added))
-                fetchData()
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
@@ -203,13 +207,26 @@ class ListViewModel(
                 
                 // Usar IDs baseados em tempo atual + index para garantir unicidade imediata
                 val baseTimestamp = System.currentTimeMillis()
-                val products = items.mapIndexed { index, itemName ->
+                val products = items.mapIndexed { index, itemText ->
+                    val trimmed = itemText.trim()
+                    val parts = trimmed.split(" ", limit = 2)
+                    val (quantity, name) = if (parts.size == 2) {
+                        val q = parts[0].replace(',', '.').toDoubleOrNull()
+                        if (q != null && parts[1].isNotBlank()) {
+                            q to parts[1].trim()
+                        } else {
+                            1.0 to trimmed
+                        }
+                    } else {
+                        1.0 to trimmed
+                    }
+
                     ProductEntity(
-                        id = baseTimestamp + index + Random.nextLong(1000000, 9000000), 
+                        id = baseTimestamp + index + Random.nextLong(1000000, 9000000),
                         cartId = 0L,
                         listId = currentList.id,
-                        name = itemName,
-                        quantity = 1.0,
+                        name = name,
+                        quantity = quantity,
                         price = 0.0
                     )
                 }

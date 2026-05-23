@@ -1,29 +1,49 @@
 package com.renobile.carrinho.features.list
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.renobile.carrinho.R
 import com.renobile.carrinho.database.entities.ProductEntity
-import com.renobile.carrinho.features.cart.*
+import com.renobile.carrinho.database.entities.PurchaseListEntity
+import com.renobile.carrinho.features.cart.AddProductDialog
+import com.renobile.carrinho.features.cart.CartActions
+import com.renobile.carrinho.features.cart.DeleteProductDialog
+import com.renobile.carrinho.features.cart.ProductItem
+import com.renobile.carrinho.features.list.components.ClearListDialog
+import com.renobile.carrinho.features.list.components.CreateListDialog
+import com.renobile.carrinho.features.list.components.EmptyListView
+import com.renobile.carrinho.features.list.components.ImportListDialog
+import com.renobile.carrinho.features.list.components.ListTopBar
+import com.renobile.carrinho.features.list.components.ProductListOptionsDialog
+import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
 fun ListScreen(
@@ -31,15 +51,24 @@ fun ListScreen(
     actions: ListActions,
 ) {
     val state by viewModel.uiState.collectAsState()
-    ListContent(state = state, actions = actions, viewModel = viewModel)
+    var activeCartId by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(Unit) {
+        viewModel.getActiveCartId()?.let { activeCartId = it }
+    }
+
+    ListScreen(
+        state = state,
+        actions = actions,
+        activeCartId = activeCartId
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListContent(
+fun ListScreen(
     state: ListState,
     actions: ListActions,
-    viewModel: ListViewModel
+    activeCartId: Long = 0L,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -50,12 +79,7 @@ fun ListContent(
     var productOptionsToShow by remember { mutableStateOf<ProductEntity?>(null) }
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
-    var activeCartId by remember { mutableLongStateOf(0L) }
     var showImportDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        viewModel.getActiveCartId()?.let { activeCartId = it }
-    }
 
     if (isSearchActive) {
         BackHandler {
@@ -172,7 +196,7 @@ fun ListContent(
         ImportListDialog(
             onDismiss = { showImportDialog = false },
             onConfirm = { items ->
-                viewModel.importList(items)
+                actions.onImportList(items)
                 showImportDialog = false
             },
         )
@@ -231,11 +255,12 @@ fun ListContent(
                 }
             } else {
                 LazyColumn {
-                    items(state.products) { product ->
+                    items(state.products, key = { it.id }) { product ->
                         ProductItem(
                             product = product,
                             actions = CartActions(),
                             onClick = { productOptionsToShow = product },
+                            onMoveToCart = { productToMove = product }
                         )
                     }
                 }
@@ -244,305 +269,33 @@ fun ListContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
 @Composable
-fun ListTopBar(
-    state: ListState,
-    isSearchActive: Boolean,
-    onSearchActiveChange: (Boolean) -> Unit,
-    actions: ListActions,
-    onShowCreateList: () -> Unit,
-    onShowClearList: () -> Unit,
-    onShowImportList: () -> Unit,
-    onToggleMenu: (Boolean) -> Unit,
-    showMenu: Boolean,
-) {
-    Column {
-        if (isSearchActive) {
-            SearchAppBar(
-                query = state.searchTerms,
-                onQueryChange = actions.onSearchChanged,
-                onCancelSearch = {
-                    onSearchActiveChange(false)
-                    actions.onSearchChanged("")
-                },
-            )
-        } else {
-            TopAppBar(
-                title = {
-                    Text(
-                        state.list?.let { stringResource(R.string.label_list, it.name) }
-                            ?: stringResource(R.string.purchase_list),
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White,
-                ),
-                actions = {
-                    IconButton(onClick = { onSearchActiveChange(true) }) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_products))
-                    }
-                    IconButton(onClick = onShowCreateList) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_playlist_plus),
-                            contentDescription = stringResource(R.string.new_list),
-                        )
-                    }
-                    Box {
-                        IconButton(onClick = { onToggleMenu(!showMenu) }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { onToggleMenu(false) },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lists_history)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    actions.onOpenHistory()
-                                },
-                                leadingIcon = { Icon(Icons.Default.List, null) },
-                            )
-                            if (state.list != null) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.send_list)) },
-                                    onClick = {
-                                        onToggleMenu(false)
-                                        actions.onSendList()
-                                    },
-                                    leadingIcon = { Icon(Icons.Default.Share, null) },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.import_list)) },
-                                    onClick = {
-                                        onToggleMenu(false)
-                                        onShowImportList()
-                                    },
-                                    leadingIcon = { Icon(Icons.Default.Add, null) },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.clear_list)) },
-                                    onClick = {
-                                        onToggleMenu(false)
-                                        onShowClearList()
-                                    },
-                                    leadingIcon = { Icon(Icons.Default.Delete, null) },
-                                )
-                            }
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.share_app)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    actions.onShareApp()
-                                },
-                                leadingIcon = { Icon(Icons.Default.Share, null) },
-                            )
-                        }
-                    }
-                },
-            )
-        }
-        if (state.list != null) {
-            CartHeader(
-                total = state.total,
-                productCount = state.products.size,
-                volumes = state.volumes,
-            )
-        }
+fun ListScreenPreview() {
+    val dummyState = ListState(
+        list = PurchaseListEntity(
+            id = 1,
+            name = "Lista Mensal",
+            dateOpen = System.currentTimeMillis(),
+            dateClose = 0L,
+            products = 2,
+            units = 5.0,
+            valueTotal = 50.0
+        ),
+        products = listOf(
+            ProductEntity(1, 0, 1, "Arroz", 2.0, 15.0),
+            ProductEntity(2, 0, 1, "Feijão", 3.0, 10.0),
+        ),
+    )
+    MyAppTheme {
+        ListScreen(state = dummyState, actions = ListActions())
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun EmptyListView(
-    onCreateList: () -> Unit,
-) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = stringResource(R.string.lists_empty),
-                modifier = Modifier.padding(16.dp),
-            )
-            Button(onClick = onCreateList) {
-                Text(stringResource(R.string.create_list))
-            }
-        }
+fun ListScreenEmptyPreview() {
+    MyAppTheme {
+        ListScreen(state = ListState(), actions = ListActions())
     }
-}
-
-@Composable
-fun ClearListDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.confirmation)) },
-        text = { Text(stringResource(R.string.confirm_delete_all)) },
-        confirmButton = {
-            TextButton(onClick = onConfirm) { Text(stringResource(R.string.confirm)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-        },
-    )
-}
-
-@Composable
-fun CreateListDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
-    var listName by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.create_list)) },
-        text = {
-            Column {
-                Text(
-                    text = stringResource(R.string.create_list_notice),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 16.dp),
-                )
-                OutlinedTextField(
-                    value = listName,
-                    onValueChange = { listName = it },
-                    label = { Text(stringResource(R.string.list_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done,
-                        capitalization = KeyboardCapitalization.Sentences,
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { onConfirm(listName) }),
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(listName) }) { Text(stringResource(R.string.confirm)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-        },
-    )
-}
-
-@Composable
-fun ProductListOptionsDialog(
-    product: ProductEntity,
-    onDismiss: () -> Unit,
-    onEdit: (ProductEntity) -> Unit,
-    onMoveToCart: (ProductEntity) -> Unit,
-    onChangeQuantity: (ProductEntity, Double) -> Unit,
-    onDelete: (ProductEntity) -> Unit,
-) {
-    val options = stringArrayResource(R.array.product_list_options)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(product.name) },
-        text = {
-            Column {
-                ListItem(
-                    headlineContent = { Text(options.getOrNull(0) ?: stringResource(R.string.edit_product)) },
-                    modifier = Modifier.clickable { onEdit(product) },
-                )
-                ListItem(
-                    headlineContent = { Text(options.getOrNull(1) ?: stringResource(R.string.move_to_cart)) },
-                    modifier = Modifier.clickable { onMoveToCart(product) },
-                )
-                ListItem(
-                    headlineContent = { Text(options.getOrNull(2) ?: "+ 1.0") },
-                    modifier = Modifier.clickable { onChangeQuantity(product, 1.0) },
-                )
-                ListItem(
-                    headlineContent = { Text(options.getOrNull(3) ?: "- 1.0") },
-                    modifier = Modifier.clickable { onChangeQuantity(product, -1.0) },
-                )
-                ListItem(
-                    headlineContent = { Text(options.getOrNull(4) ?: "Excluir") },
-                    modifier = Modifier.clickable { onDelete(product) },
-                )
-            }
-        },
-        confirmButton = {},
-    )
-}
-
-@Composable
-fun ImportListDialog(onDismiss: () -> Unit, onConfirm: (List<String>) -> Unit) {
-    var text by remember { mutableStateOf("") }
-    val clipboardManager = LocalClipboardManager.current
-
-    val processedItems = remember(text) {
-        text.split(Regex("\\r?\\n"))
-            .map { it.trim() }
-            .map { it.replace(Regex("^\\[\\s*\\]"), "").trim() }
-            .filter { it.isNotEmpty() }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.import_list)) },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 400.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.import_list_description),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    placeholder = { Text(stringResource(R.string.import_list_placeholder)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false),
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                    )
-                )
-
-                if (processedItems.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.import_list_preview, processedItems.size),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-                    )
-                    Text(
-                        text = processedItems.take(5).joinToString(", ") + if (processedItems.size > 5) "..." else "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = {
-                        clipboardManager.getText()?.let { text = it.text }
-                    }) {
-                        Icon(Icons.Default.ContentPaste, null)
-                        Spacer(Modifier.width(4.dp))
-                        Text(stringResource(R.string.paste))
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { onConfirm(processedItems) },
-                enabled = processedItems.isNotEmpty()
-            ) {
-                Text(stringResource(R.string.save))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        },
-    )
 }
