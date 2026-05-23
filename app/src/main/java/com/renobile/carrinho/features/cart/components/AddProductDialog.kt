@@ -115,7 +115,7 @@ fun AddProductDialog(
                     value = priceTextFieldValue,
                     onValueChange = { newValue ->
                         val digits = newValue.text.replace(Regex("\\D"), "")
-                        val newText = if (digits.isEmpty()) {
+                        val newText = if (digits.isEmpty() || digits.toLongOrNull() == 0L) {
                             ""
                         } else {
                             try {

@@ -324,8 +324,14 @@ fun Activity.restartApp() {
 }
 
 fun String.parseToDouble(): Double {
-    val clean = this.replace(Regex("[^0-9,.]"), "").replace(",", ".")
-    return clean.toDoubleOrNull() ?: 0.0
+    val clean = this.replace(Regex("[^0-9,.]"), "")
+    return if (clean.contains(",") && clean.contains(".")) {
+        clean.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+    } else if (clean.contains(",")) {
+        clean.replace(",", ".").toDoubleOrNull() ?: 0.0
+    } else {
+        clean.toDoubleOrNull() ?: 0.0
+    }
 }
 
 fun String.parseCurrencyToDouble(): Double {

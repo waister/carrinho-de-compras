@@ -8,7 +8,8 @@ val BluePrimaryLight = Color(0xFFBBDEFB)
 val BlueAccent = Color(0xFF1976D2)
 
 val TextPrimary = Color(0xFF212121)
-val TextSecondary = Color(0xFF757575)
+val TextSecondary = Color(0xFF3F3F3F)
+val TextTertiary = Color(0xFF757575)
 val ScreenBackground = Color(0xFF1A1A1A)
 val ColorDivider = Color(0x34000000)
 

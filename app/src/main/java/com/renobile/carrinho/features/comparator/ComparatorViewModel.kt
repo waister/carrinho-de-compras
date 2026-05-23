@@ -10,6 +10,7 @@ import com.renobile.carrinho.util.PREF_SIZE_SECOND
 import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.formatPercent
 import com.renobile.carrinho.util.formatPrice
+import com.renobile.carrinho.util.parseCurrencyToDouble
 import com.renobile.carrinho.util.parseToDouble
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,9 +65,9 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
 
     fun calculate(showToast: Boolean = true) {
         val state = _uiState.value
-        val priceFirst = state.priceFirst.parseToDouble()
+        val priceFirst = state.priceFirst.parseCurrencyToDouble()
         val sizeFirst = state.sizeFirst.parseToDouble()
-        val priceSecond = state.priceSecond.parseToDouble()
+        val priceSecond = state.priceSecond.parseCurrencyToDouble()
         val sizeSecond = state.sizeSecond.parseToDouble()
 
         if (priceFirst > 0 && sizeFirst > 0) {
@@ -103,9 +104,6 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
                 )
             }
             savePrefs()
-        } else if (showToast) {
-            // Toast logic handled in Fragment/Screen via Events if needed, 
-            // but for simplicity here I'll just not update result
         }
     }
 
