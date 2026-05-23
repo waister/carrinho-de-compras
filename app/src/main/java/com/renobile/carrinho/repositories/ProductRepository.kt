@@ -7,6 +7,7 @@ interface ProductRepository {
     suspend fun getProductsByCartId(cartId: Long): List<ProductEntity>
     suspend fun getProductsByListId(listId: Long): List<ProductEntity>
     suspend fun insertProduct(product: ProductEntity)
+    suspend fun insertProducts(products: List<ProductEntity>)
     suspend fun deleteProduct(product: ProductEntity)
     suspend fun deleteProductsByCartId(cartId: Long)
     suspend fun getAllProductNames(): List<String>
@@ -25,6 +26,10 @@ class ProductRepositoryImpl(
 
     override suspend fun insertProduct(product: ProductEntity) {
         productDao.insert(product)
+    }
+
+    override suspend fun insertProducts(products: List<ProductEntity>) {
+        productDao.insertAll(products)
     }
 
     override suspend fun deleteProduct(product: ProductEntity) {

@@ -29,5 +29,6 @@ data class ListActions(
     val onOpenHistory: () -> Unit = {},
     val onSendList: () -> Unit = {},
     val onShareApp: () -> Unit = {},
-    val onMoveToCart: (ProductEntity, Double, Double) -> Unit = { _, _, _ -> }
+    val onMoveToCart: (ProductEntity, Double, Double) -> Unit = { _, _, _ -> },
+    val onImportList: (List<String>) -> Unit = {},
 )

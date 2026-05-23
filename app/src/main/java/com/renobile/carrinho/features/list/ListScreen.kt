@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -50,6 +51,7 @@ fun ListContent(
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
     var activeCartId by remember { mutableLongStateOf(0L) }
+    var showImportDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getActiveCartId()?.let { activeCartId = it }
@@ -166,6 +168,16 @@ fun ListContent(
         }
     }
 
+    if (showImportDialog) {
+        ImportListDialog(
+            onDismiss = { showImportDialog = false },
+            onConfirm = { items ->
+                viewModel.importList(items)
+                showImportDialog = false
+            },
+        )
+    }
+
     Scaffold(
         topBar = {
             ListTopBar(
@@ -175,6 +187,7 @@ fun ListContent(
                 actions = actions,
                 onShowCreateList = { showCreateListDialog = true },
                 onShowClearList = { showClearConfirmation = true },
+                onShowImportList = { showImportDialog = true },
                 onToggleMenu = { showMenu = it },
                 showMenu = showMenu,
             )
@@ -199,6 +212,14 @@ fun ListContent(
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
+                }
+            } else if (state.error != null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = state.error,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp),
+                    )
                 }
             } else if (state.list == null) {
                 EmptyListView(
@@ -232,6 +253,7 @@ fun ListTopBar(
     actions: ListActions,
     onShowCreateList: () -> Unit,
     onShowClearList: () -> Unit,
+    onShowImportList: () -> Unit,
     onToggleMenu: (Boolean) -> Unit,
     showMenu: Boolean,
 ) {
@@ -292,6 +314,14 @@ fun ListTopBar(
                                         actions.onSendList()
                                     },
                                     leadingIcon = { Icon(Icons.Default.Share, null) },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.import_list)) },
+                                    onClick = {
+                                        onToggleMenu(false)
+                                        onShowImportList()
+                                    },
+                                    leadingIcon = { Icon(Icons.Default.Add, null) },
                                 )
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.clear_list)) },
@@ -432,5 +462,87 @@ fun ProductListOptionsDialog(
             }
         },
         confirmButton = {},
+    )
+}
+
+@Composable
+fun ImportListDialog(onDismiss: () -> Unit, onConfirm: (List<String>) -> Unit) {
+    var text by remember { mutableStateOf("") }
+    val clipboardManager = LocalClipboardManager.current
+
+    val processedItems = remember(text) {
+        text.split(Regex("\\r?\\n"))
+            .map { it.trim() }
+            .map { it.replace(Regex("^\\[\\s*\\]"), "").trim() }
+            .filter { it.isNotEmpty() }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.import_list)) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.import_list_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    placeholder = { Text(stringResource(R.string.import_list_placeholder)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = false),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                    )
+                )
+
+                if (processedItems.isNotEmpty()) {
+                    Text(
+                        text = stringResource(R.string.import_list_preview, processedItems.size),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    )
+                    Text(
+                        text = processedItems.take(5).joinToString(", ") + if (processedItems.size > 5) "..." else "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = {
+                        clipboardManager.getText()?.let { text = it.text }
+                    }) {
+                        Icon(Icons.Default.ContentPaste, null)
+                        Spacer(Modifier.width(4.dp))
+                        Text(stringResource(R.string.paste))
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(processedItems) },
+                enabled = processedItems.isNotEmpty()
+            ) {
+                Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        },
     )
 }

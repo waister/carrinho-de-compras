@@ -45,6 +45,7 @@ class ListFragment : Fragment() {
                 onSendList = ::onSendList,
                 onShareApp = ::onShareApp,
                 onMoveToCart = ::onMoveToCart,
+                onImportList = ::onImportList,
             ),
         )
     }
@@ -92,5 +93,9 @@ class ListFragment : Fragment() {
 
     private fun onMoveToCart(product: ProductEntity, quantity: Double, price: Double) {
         viewModel.moveToCart(product, quantity, price)
+    }
+
+    private fun onImportList(items: List<String>) {
+        viewModel.importList(items)
     }
 }

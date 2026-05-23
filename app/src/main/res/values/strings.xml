@@ -199,4 +199,10 @@
     <string name="move_to_cart">Mover para o carrinho</string>
     <string name="move_to_cart_notice">Adicione o preço do item para mover para o carrinho.</string>
     <string name="confirm_move_to_cart">Confirmar movimento</string>
+    <string name="import_list">Importar lista</string>
+    <string name="import_list_description">Cole aqui os itens da sua lista, um por linha. Você pode copiar da Alexa ou de outros apps.</string>
+    <string name="import_list_placeholder">Exemplo:\nBanana\nMaçã\nArroz</string>
+    <string name="import_list_preview">Prévia da importação (%d itens):</string>
+    <string name="import_success">Lista importada com sucesso!</string>
+    <string name="paste">Colar</string>
 </resources>
