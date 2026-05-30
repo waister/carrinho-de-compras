@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -81,6 +83,7 @@ fun MainScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = if (uiState.isBottomBarVisible) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primary,
         bottomBar = {
             if (uiState.isBottomBarVisible) {
                 Column {
@@ -91,9 +94,9 @@ fun MainScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.padding(
-                bottom = paddingValues.calculateBottomPadding()
-            )
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = if (uiState.isBottomBarVisible) paddingValues.calculateBottomPadding() else 0.dp)
         ) {
             MainNavHost(navController, mainViewModel, onShowInterstitialAd)
         }
