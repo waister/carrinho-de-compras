@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.renobile.carrinho.network.ConfigApiService
 import com.renobile.carrinho.util.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -15,45 +16,51 @@ class StartViewModel(
     private val configApiService: ConfigApiService
 ) : ViewModel() {
 
+    companion object {
+        const val TAG = "StartViewModel"
+        const val IDENTIFIER_VERSION = "-v3"
+    }
+
     private val _events = Channel<StartEvents>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
     fun start() {
         createDeviceID()
-        if (Prefs.getValue(PREF_ADMOB_ID, "").isEmpty()) {
-            identifyApp()
-        } else {
-            _events.trySend(StartEvents.NavigateToMain)
-        }
-    }
-
-    private fun identifyApp() {
         viewModelScope.launch {
-            try {
-                val token = Prefs.getValue(PREF_FCM_TOKEN, "")
-                val response = configApiService.identify(token)
-                if (response.success && response.configs != null) {
-                    val configs = response.configs
-                    Prefs.putValue(PREF_SHARE_LINK, configs.storeLink ?: "")
-                    Prefs.putValue(PREF_APP_NAME, configs.appName ?: "")
-                    Prefs.putValue(PREF_ADMOB_ID, configs.admobId ?: "")
-                    Prefs.putValue(PREF_ADMOB_AD_MAIN_ID, configs.admobAdMainId ?: "")
-                    Prefs.putValue(PREF_ADMOB_INTERSTITIAL_ID, configs.admobInterstitialId ?: "")
-                    Prefs.putValue(PREF_ADMOB_REMOVE_ADS_ID, configs.admobRemoveAdsId ?: "")
-                    Prefs.putValue(PREF_ADMOB_OPEN_APP_ID, configs.admobOpenAppId ?: "")
-                    Prefs.putValue(PREF_PLAN_VIDEO_DURATION, configs.planVideoDuration ?: FIVE_DAYS)
-                }
-            } catch (e: Exception) {
-                appLog("StartViewModel", "identifyApp error: ${e.message}")
-            } finally {
+            if (Prefs.getValue(PREF_ADMOB_ID, "").isEmpty()) {
+                identifyApp()
+            } else {
+                delay(800) // Pequeno delay para garantir que a StartScreen seja vista e pareça o Splash
                 _events.send(StartEvents.NavigateToMain)
             }
         }
     }
 
+    private suspend fun identifyApp() {
+        try {
+            val token = Prefs.getValue(PREF_FCM_TOKEN, "")
+            val response = configApiService.identify(token)
+            if (response.success && response.configs != null) {
+                val configs = response.configs
+                Prefs.putValue(PREF_SHARE_LINK, configs.storeLink ?: "")
+                Prefs.putValue(PREF_APP_NAME, configs.appName ?: "")
+                Prefs.putValue(PREF_ADMOB_ID, configs.admobId ?: "")
+                Prefs.putValue(PREF_ADMOB_AD_MAIN_ID, configs.admobAdMainId ?: "")
+                Prefs.putValue(PREF_ADMOB_INTERSTITIAL_ID, configs.admobInterstitialId ?: "")
+                Prefs.putValue(PREF_ADMOB_REMOVE_ADS_ID, configs.admobRemoveAdsId ?: "")
+                Prefs.putValue(PREF_ADMOB_OPEN_APP_ID, configs.admobOpenAppId ?: "")
+                Prefs.putValue(PREF_PLAN_VIDEO_DURATION, configs.planVideoDuration ?: FIVE_DAYS)
+            }
+        } catch (e: Exception) {
+            appLog("StartViewModel", "identifyApp error: ${e.message}")
+        } finally {
+            _events.send(StartEvents.NavigateToMain)
+        }
+    }
+
     private fun createDeviceID() {
         val currentDeviceID = Prefs.getValue(PREF_DEVICE_ID, "")
-        val isIdentifierV3 = currentDeviceID.contains(StartFragment.IDENTIFIER_VERSION)
+        val isIdentifierV3 = currentDeviceID.contains(IDENTIFIER_VERSION)
 
         if (currentDeviceID.isEmpty() || !isIdentifierV3) {
             val newDeviceId = generateDeviceIdentifier()
@@ -74,7 +81,7 @@ class StartViewModel(
         } catch (e: Exception) {
             UUID(System.currentTimeMillis(), Random.Default.nextLong()).toString()
         }
-        return "$deviceID${StartFragment.IDENTIFIER_VERSION}"
+        return "$deviceID$IDENTIFIER_VERSION"
     }
 }
 

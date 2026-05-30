@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,7 +28,16 @@ fun StartScreen() {
         Image(
             painter = painterResource(R.drawable.logo_splash_96dp),
             contentDescription = null,
-            modifier = Modifier.size(128.dp)
+            modifier = Modifier.size(96.dp)
+        )
+
+        CircularProgressIndicator(
+            strokeWidth = 2.dp,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+                .size(24.dp),
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
