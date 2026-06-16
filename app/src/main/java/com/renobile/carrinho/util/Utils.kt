@@ -19,9 +19,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.graphics.createBitmap
-import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.renobile.carrinho.BuildConfig
@@ -33,14 +30,6 @@ import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
-
-fun Fragment.findNavControllerSafely(): NavController? {
-    return if (isAdded) {
-        findNavController()
-    } else {
-        null
-    }
-}
 
 fun storeAppLink(): String =
     "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"

@@ -1,13 +1,6 @@
 package com.renobile.carrinho.util
 
-const val FRAGMENT_MAIN = "FragmentMain"
-const val FRAGMENT_LIST = "FragmentList"
-const val FRAGMENT_REMOVE_ADS = "FragmentRemoveAds"
-const val FRAGMENT_MORE = "FragmentMore"
-const val FRAGMENT_COMPARATOR = "FragmentComparator"
-
 const val PARAM_ITEM_ID = "ParamItemId"
-const val PARAM_FRAGMENT = "ParamFragment"
 const val PARAM_SHOW_BACK = "ParamShowBack"
 const val PARAM_TYPE = "ParamType"
 
