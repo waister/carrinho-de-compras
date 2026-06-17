@@ -9,6 +9,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.renobile.carrinho.MainViewModel
+import com.renobile.carrinho.util.restartApp
+import com.renobile.carrinho.util.toast
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.removeAdsScreen(
@@ -25,13 +27,25 @@ fun NavGraphBuilder.removeAdsScreen(
             viewModel.loadAd()
         }
 
+        LaunchedEffect(viewModel.events) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is RemoveAdsEvents.ShowError -> {
+                        activity?.toast(event.messageResId)
+                    }
+                    else -> {}
+                }
+            }
+        }
+
         RemoveAdsScreen(
-            isLoading = state.isLoading,
-            isAdReady = state.isAdReady,
-            haveVideoPlan = state.haveVideoPlan,
-            description = state.description,
-            onWatchClick = { activity?.let { viewModel.showAd(it) } },
-            onBack = { navController.popBackStack() }
+            state = state,
+            actions = RemoveAdsActions(
+                onWatchClick = { activity?.let { viewModel.showAd(it) } },
+                onBack = { navController.popBackStack() },
+                onRestart = { activity?.restartApp() },
+                onDismissRestart = { viewModel.dismissRestartDialog() }
+            )
         )
     }
 }

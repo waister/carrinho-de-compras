@@ -18,19 +18,33 @@ import com.renobile.carrinho.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RemoveAdsScreen(
-    isLoading: Boolean,
-    isAdReady: Boolean,
-    haveVideoPlan: Boolean,
-    description: String,
-    onWatchClick: () -> Unit,
-    onBack: () -> Unit
+    state: RemoveAdsState,
+    actions: RemoveAdsActions
 ) {
+    if (state.showRestartDialog) {
+        AlertDialog(
+            onDismissRequest = actions.onDismissRestart,
+            title = { Text(stringResource(R.string.plan_success_title)) },
+            text = { Text(stringResource(R.string.plan_success_body)) },
+            confirmButton = {
+                TextButton(onClick = actions.onRestart) {
+                    Text(stringResource(R.string.restart_app))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = actions.onDismissRestart) {
+                    Text(stringResource(R.string.later))
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.remove_ads)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = actions.onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
@@ -50,7 +64,7 @@ fun RemoveAdsScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (haveVideoPlan) {
+            if (state.haveVideoPlan) {
                 Text(
                     text = stringResource(R.string.thanks),
                     fontSize = 20.sp,
@@ -69,19 +83,19 @@ fun RemoveAdsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = description,
+                    text = state.description,
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center
                 )
                 
                 Spacer(modifier = Modifier.height(32.dp))
                 
-                if (isLoading) {
+                if (state.isLoading) {
                     CircularProgressIndicator()
                 } else {
                     Button(
-                        onClick = onWatchClick,
-                        enabled = isAdReady,
+                        onClick = actions.onWatchClick,
+                        enabled = state.isAdReady,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(stringResource(R.string.watch_to_by_button))

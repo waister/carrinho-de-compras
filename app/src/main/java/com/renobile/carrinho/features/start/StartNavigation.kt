@@ -24,6 +24,7 @@ fun NavGraphBuilder.startScreen(
     composable("start") {
         val activity = LocalActivity.current as? AppCompatActivity
         val viewModel: StartViewModel = koinViewModel()
+
         LaunchedEffect(Unit) {
             mainViewModel.setBottomBarVisible(false)
             launch {

@@ -205,7 +205,6 @@ class ListViewModel(
 
                 _uiState.update { it.copy(isLoading = true, searchTerms = "") }
                 
-                // Usar IDs baseados em tempo atual + index para garantir unicidade imediata
                 val baseTimestamp = System.currentTimeMillis()
                 val products = items.mapIndexed { index, itemText ->
                     val trimmed = itemText.trim()
@@ -235,8 +234,7 @@ class ListViewModel(
                     productRepository.insertProducts(products)
                 }
                 
-                // Refresh manual do estado para garantir atualização imediata
-                val updatedProducts = withContext(Dispatchers.IO) { 
+                val updatedProducts = withContext(Dispatchers.IO) {
                     productRepository.getProductsByListId(currentList.id) 
                 }
                 

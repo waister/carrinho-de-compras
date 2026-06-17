@@ -14,13 +14,9 @@ interface CartRepository {
 class CartRepositoryImpl(
     private val cartDao: CartDao,
 ) : CartRepository {
-    override suspend fun getActiveCart(): CartEntity? {
-        return cartDao.getAll().firstOrNull { it.dateClose == 0L }
-    }
+    override suspend fun getActiveCart(): CartEntity? = cartDao.getAll().firstOrNull { it.dateClose == 0L }
 
-    override suspend fun getAllCarts(): List<CartEntity> {
-        return cartDao.getAll()
-    }
+    override suspend fun getAllCarts(): List<CartEntity> = cartDao.getAll()
 
     override suspend fun insertCart(cart: CartEntity) {
         cartDao.insert(cart)

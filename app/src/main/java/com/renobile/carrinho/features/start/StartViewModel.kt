@@ -4,20 +4,31 @@ import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.renobile.carrinho.network.ConfigApiService
-import com.renobile.carrinho.util.*
-import kotlinx.coroutines.delay
+import com.renobile.carrinho.util.FIVE_DAYS
+import com.renobile.carrinho.util.PREF_ADMOB_AD_MAIN_ID
+import com.renobile.carrinho.util.PREF_ADMOB_ID
+import com.renobile.carrinho.util.PREF_ADMOB_INTERSTITIAL_ID
+import com.renobile.carrinho.util.PREF_ADMOB_OPEN_APP_ID
+import com.renobile.carrinho.util.PREF_ADMOB_REMOVE_ADS_ID
+import com.renobile.carrinho.util.PREF_APP_NAME
+import com.renobile.carrinho.util.PREF_DEVICE_ID
+import com.renobile.carrinho.util.PREF_FCM_TOKEN
+import com.renobile.carrinho.util.PREF_PLAN_VIDEO_DURATION
+import com.renobile.carrinho.util.PREF_SHARE_LINK
+import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.appLog
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.random.Random
 
 class StartViewModel(
-    private val configApiService: ConfigApiService
+    private val configApiService: ConfigApiService,
 ) : ViewModel() {
 
     companion object {
-        const val TAG = "StartViewModel"
         const val IDENTIFIER_VERSION = "-v3"
     }
 
@@ -30,7 +41,7 @@ class StartViewModel(
             if (Prefs.getValue(PREF_ADMOB_ID, "").isEmpty()) {
                 identifyApp()
             } else {
-                delay(800) // Pequeno delay para garantir que a StartScreen seja vista e pareça o Splash
+                delay(300)
                 _events.send(StartEvents.NavigateToMain)
             }
         }
@@ -79,7 +90,7 @@ class StartViewModel(
             val serial = Build.getRadioVersion() ?: "serial"
             UUID(uniqueDevicePseudoID.hashCode().toLong(), serial.hashCode().toLong()).toString()
         } catch (e: Exception) {
-            UUID(System.currentTimeMillis(), Random.Default.nextLong()).toString()
+            UUID(System.currentTimeMillis(), Random.nextLong()).toString()
         }
         return "$deviceID$IDENTIFIER_VERSION"
     }

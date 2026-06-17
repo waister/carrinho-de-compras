@@ -85,7 +85,7 @@ class RemoveAdsViewModel(application: Application) : AndroidViewModel(applicatio
                         rewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
                             override fun onAdDismissedFullScreenContent() {
                                 if (haveVideoPlan()) {
-                                    viewModelScope.launch { _events.send(RemoveAdsEvents.ShowRestartAlert) }
+                                    _uiState.update { it.copy(showRestartDialog = true) }
                                 }
                             }
 
@@ -109,5 +109,9 @@ class RemoveAdsViewModel(application: Application) : AndroidViewModel(applicatio
             Prefs.putValue(PREF_PLAN_VIDEO_MILLIS, System.currentTimeMillis())
             _uiState.update { it.copy(haveVideoPlan = true) }
         }
+    }
+
+    fun dismissRestartDialog() {
+        _uiState.update { it.copy(showRestartDialog = false) }
     }
 }
