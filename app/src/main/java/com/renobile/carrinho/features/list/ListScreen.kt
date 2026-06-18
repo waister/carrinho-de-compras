@@ -137,8 +137,10 @@ fun ListScreen(
                     price = price,
                 )
                 actions.onAddOrEditProduct(newProduct)
-                showAddProductDialog = false
-                productToEdit = null
+
+                if (productToEdit != null) {
+                    productToEdit = null
+                }
             },
         )
     }

@@ -16,12 +16,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -50,11 +53,19 @@ fun AddProductDialog(
     var name by remember { mutableStateOf(product?.name ?: "") }
     var quantityText by remember { mutableStateOf(product?.quantity?.formatQuantity() ?: "1") }
 
+    val focusRequester = remember { FocusRequester() }
+
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
 
     var priceTextFieldValue by remember {
         val initialText = product?.price?.let { if (it == 0.0) "" else it.formatPrice() } ?: ""
         mutableStateOf(TextFieldValue(text = initialText, selection = TextRange(initialText.length)))
+    }
+
+    LaunchedEffect(Unit) {
+        if (product == null) {
+            focusRequester.requestFocus()
+        }
     }
 
     AlertDialog(
@@ -69,7 +80,9 @@ fun AddProductDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text(stringResource(R.string.name)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
@@ -144,6 +157,12 @@ fun AddProductDialog(
                                     quantityText.parseToDouble(),
                                     priceTextFieldValue.text.parseCurrencyToDouble(),
                                 )
+                                if (product == null) {
+                                    name = ""
+                                    quantityText = "1"
+                                    priceTextFieldValue = TextFieldValue("")
+                                    focusRequester.requestFocus()
+                                }
                             }
                         },
                     ),
@@ -159,6 +178,12 @@ fun AddProductDialog(
                             quantityText.parseToDouble(),
                             priceTextFieldValue.text.parseCurrencyToDouble(),
                         )
+                        if (product == null) {
+                            name = ""
+                            quantityText = "1"
+                            priceTextFieldValue = TextFieldValue("")
+                            focusRequester.requestFocus()
+                        }
                     }
                 },
             ) {
