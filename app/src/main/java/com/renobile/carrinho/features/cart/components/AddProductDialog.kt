@@ -1,6 +1,7 @@
 package com.renobile.carrinho.features.cart.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,10 +37,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import com.renobile.carrinho.R
 import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.database.entities.ProductSuggestion
 import com.renobile.carrinho.features.cart.productPreview
 import com.renobile.carrinho.ui.theme.MyAppTheme
+import com.renobile.carrinho.util.formatDate
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
 import com.renobile.carrinho.util.parseCurrencyToDouble
@@ -47,11 +53,18 @@ import java.text.NumberFormat
 @Composable
 fun AddProductDialog(
     product: ProductEntity?,
+    suggestions: List<ProductSuggestion> = emptyList(),
     onDismiss: () -> Unit = {},
     onConfirm: (String, Double, Double) -> Unit = { _, _, _ -> },
 ) {
     var name by remember { mutableStateOf(product?.name ?: "") }
     var quantityText by remember { mutableStateOf(product?.quantity?.formatQuantity() ?: "1") }
+
+    var expanded by remember { mutableStateOf(false) }
+    val filteredSuggestions = remember(name, suggestions) {
+        if (name.length < 2) emptyList()
+        else suggestions.filter { it.name.contains(name, ignoreCase = true) && it.name != name }.take(5)
+    }
 
     val focusRequester = remember { FocusRequester() }
 
@@ -76,19 +89,56 @@ fun AddProductDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.name)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Next,
-                    ),
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = {
+                            name = it
+                            expanded = true
+                        },
+                        label = { Text(stringResource(R.string.name)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Next,
+                        ),
+                    )
+
+                    if (filteredSuggestions.isNotEmpty()) {
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            properties = PopupProperties(focusable = false),
+                            modifier = Modifier.fillMaxWidth(0.9f)
+                        ) {
+                            filteredSuggestions.forEach { suggestion ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(suggestion.name, modifier = Modifier.weight(1f))
+                                            Text(
+                                                text = suggestion.lastDate.formatDate(),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        name = suggestion.name
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

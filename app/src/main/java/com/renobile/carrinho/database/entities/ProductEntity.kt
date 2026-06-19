@@ -13,3 +13,8 @@ data class ProductEntity(
     val quantity: Double,
     val price: Double
 )
+
+data class ProductSuggestion(
+    val name: String,
+    val lastDate: Long
+)

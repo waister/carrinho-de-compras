@@ -89,6 +89,7 @@ fun CartScreen(
     if (showAddProductDialog || productToEdit != null) {
         AddProductDialog(
             product = productToEdit,
+            suggestions = state.suggestions,
             onDismiss = {
                 showAddProductDialog = false
                 productToEdit = null

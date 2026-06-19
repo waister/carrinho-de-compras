@@ -112,6 +112,7 @@ fun ListDetailsContent(
         } else {
             AddProductDialog(
                 product = productToMove?.copy(price = 0.0),
+                suggestions = state.suggestions,
                 onDismiss = { productToMove = null },
                 onConfirm = { _, quantity, price ->
                     productToMove?.let {

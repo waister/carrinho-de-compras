@@ -119,6 +119,7 @@ fun ListScreen(
     if (showAddProductDialog || productToEdit != null) {
         AddProductDialog(
             product = productToEdit,
+            suggestions = state.suggestions,
             onDismiss = {
                 showAddProductDialog = false
                 productToEdit = null
@@ -181,6 +182,7 @@ fun ListScreen(
         } else {
             AddProductDialog(
                 product = productToMove?.copy(price = 0.0),
+                suggestions = state.suggestions,
                 onDismiss = { productToMove = null },
                 onConfirm = { _, quantity, price ->
                     productToMove?.let {

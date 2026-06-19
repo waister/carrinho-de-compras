@@ -37,7 +37,7 @@ class CartViewModel(
             try {
                 val activeCart = cartRepository.getActiveCart()
                 val products = activeCart?.let { productRepository.getProductsByCartId(it.id) } ?: emptyList()
-                val names = productRepository.getAllProductNames()
+                val suggestions = productRepository.getProductSuggestions()
 
                 _uiState.update {
                     it.copy(
@@ -45,7 +45,7 @@ class CartViewModel(
                         cart = activeCart,
                         products = if (it.searchTerms.isEmpty()) products
                         else products.filter { p -> p.name.contains(it.searchTerms, ignoreCase = true) },
-                        productNames = names
+                        suggestions = suggestions
                     )
                 }
             } catch (e: Exception) {

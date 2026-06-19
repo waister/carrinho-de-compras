@@ -43,11 +43,13 @@ class ListDetailsViewModel(
                 }
 
                 val products = productRepository.getProductsByListId(listId)
+                val suggestions = productRepository.getProductSuggestions()
                 _uiState.update { 
                     it.copy(
                         isLoading = false,
                         list = list,
-                        products = products.sortedByDescending { p -> p.id }
+                        products = products.sortedByDescending { p -> p.id },
+                        suggestions = suggestions
                     )
                 }
             } catch (e: Exception) {

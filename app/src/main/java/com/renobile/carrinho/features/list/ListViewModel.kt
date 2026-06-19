@@ -50,7 +50,7 @@ class ListViewModel(
             val products = activeList?.let { 
                 withContext(Dispatchers.IO) { productRepository.getProductsByListId(it.id) } 
             } ?: emptyList()
-            val names = withContext(Dispatchers.IO) { productRepository.getAllProductNames() }
+            val suggestions = withContext(Dispatchers.IO) { productRepository.getProductSuggestions() }
 
             _uiState.update { 
                 it.copy(
@@ -58,7 +58,7 @@ class ListViewModel(
                     list = activeList,
                     products = if (it.searchTerms.isEmpty()) products 
                                else products.filter { p -> p.name.contains(it.searchTerms, ignoreCase = true) },
-                    productNames = names,
+                    suggestions = suggestions,
                     error = null
                 )
             }

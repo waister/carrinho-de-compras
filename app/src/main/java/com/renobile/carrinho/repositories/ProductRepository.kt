@@ -11,6 +11,7 @@ interface ProductRepository {
     suspend fun deleteProduct(product: ProductEntity)
     suspend fun deleteProductsByCartId(cartId: Long)
     suspend fun getAllProductNames(): List<String>
+    suspend fun getProductSuggestions(): List<com.renobile.carrinho.database.entities.ProductSuggestion>
 }
 
 class ProductRepositoryImpl(
@@ -42,5 +43,9 @@ class ProductRepositoryImpl(
 
     override suspend fun getAllProductNames(): List<String> {
         return productDao.getAllNames()
+    }
+
+    override suspend fun getProductSuggestions(): List<com.renobile.carrinho.database.entities.ProductSuggestion> {
+        return productDao.getProductSuggestions()
     }
 }

@@ -8,6 +8,7 @@ data class ListState(
     val list: PurchaseListEntity? = null,
     val products: List<ProductEntity> = emptyList(),
     val productNames: List<String> = emptyList(),
+    val suggestions: List<com.renobile.carrinho.database.entities.ProductSuggestion> = emptyList(),
     val error: String? = null,
     val searchTerms: String = ""
 ) {
