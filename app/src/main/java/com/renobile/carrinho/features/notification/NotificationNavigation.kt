@@ -16,7 +16,9 @@ fun NavGraphBuilder.notificationGraph(
     mainViewModel: MainViewModel
 ) {
     composable("notifications") {
-        mainViewModel.setBottomBarVisible(false)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
         val viewModel: NotificationsViewModel = koinViewModel()
         NotificationsScreen(
             viewModel = viewModel,
@@ -31,7 +33,9 @@ fun NavGraphBuilder.notificationGraph(
         route = "notificationDetails/{itemId}",
         arguments = listOf(navArgument("itemId") { type = NavType.StringType })
     ) { backStackEntry ->
-        mainViewModel.setBottomBarVisible(false)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
         val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
         val viewModel: NotificationDetailsViewModel = koinViewModel()
 

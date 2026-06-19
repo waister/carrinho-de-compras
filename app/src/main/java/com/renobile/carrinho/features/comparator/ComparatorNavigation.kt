@@ -6,12 +6,15 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.renobile.carrinho.MainViewModel
 import com.renobile.carrinho.util.shareApp
+import androidx.compose.runtime.LaunchedEffect
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.comparatorScreen(mainViewModel: MainViewModel) {
     composable("comparator") {
         val activity = LocalActivity.current as? AppCompatActivity
-        mainViewModel.setBottomBarVisible(true)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(true)
+        }
         val viewModel: ComparatorViewModel = koinViewModel()
         ComparatorScreen(
             viewModel = viewModel,

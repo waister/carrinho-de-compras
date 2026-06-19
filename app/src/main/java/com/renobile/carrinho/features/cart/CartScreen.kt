@@ -1,8 +1,13 @@
 package com.renobile.carrinho.features.cart
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,8 +25,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.renobile.carrinho.R
 import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
@@ -36,10 +46,12 @@ import com.renobile.carrinho.features.cart.components.ProductOptionsDialog
 import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 import com.renobile.carrinho.ui.theme.MyAppTheme
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CartScreen(
     state: CartState,
     actions: CartActions,
+    areBarsVisible: Boolean = true,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -50,6 +62,21 @@ fun CartScreen(
     var showAddProductDialog by remember { mutableStateOf(false) }
     var productOptionsToShow by remember { mutableStateOf<ProductEntity?>(null) }
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    if (available.y < -10) {
+                        actions.onScroll(false)
+                    } else if (available.y > 10) {
+                        actions.onScroll(true)
+                    }
+                }
+                return Offset.Zero
+            }
+        }
+    }
 
     if (isSearchActive) {
         BackHandler {
@@ -149,55 +176,70 @@ fun CartScreen(
     }
 
     Scaffold(
-        topBar = {
-            CartTopBar(
-                state = state,
-                isSearchActive = isSearchActive,
-                onSearchActiveChange = { isSearchActive = it },
-                actions = actions,
-                onShowCreateCart = { showCreateCartDialog = true },
-                onShowClearCart = { showClearConfirmation = true },
-                onShowSortOptions = { showSortOptions = true },
-                onToggleMenu = { showMenu = it },
-                showMenu = showMenu,
-            )
-        },
+        Modifier.nestedScroll(nestedScrollConnection),
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                if (state.cart == null) {
-                    showCreateCartDialog = true
-                } else {
-                    actions.onShowInterstitialAd()
-                    showAddProductDialog = true
+            FloatingActionButton(
+                modifier = Modifier.padding(bottom = if (areBarsVisible) 140.dp else 0.dp),
+                onClick = {
+                    if (state.cart == null) {
+                        showCreateCartDialog = true
+                    } else {
+                        actions.onShowInterstitialAd()
+                        showAddProductDialog = true
+                    }
                 }
-            }) {
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
             }
         },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            if (state.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (state.products.isEmpty()) {
-                EmptyCartView(
-                    isCartCreated = state.cart != null,
-                    onCreateCart = { showCreateCartDialog = true },
-                )
-            } else {
-                LazyColumn {
-                    items(state.products) { product ->
-                        ProductItem(
-                            product = product,
-                            onClick = { productOptionsToShow = product },
+    ) { _ ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (state.isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else if (state.products.isEmpty()) {
+                    EmptyCartView(
+                        isCartCreated = state.cart != null,
+                        onCreateCart = { showCreateCartDialog = true },
+                    )
+                } else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(
+                            top = if (state.cart != null) 160.dp else 70.dp,
+                            bottom = 140.dp
                         )
+                    ) {
+                        items(state.products) { product ->
+                            ProductItem(
+                                product = product,
+                                onClick = { productOptionsToShow = product },
+                            )
+                        }
                     }
                 }
+            }
+
+            AnimatedVisibility(
+                visible = areBarsVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                CartTopBar(
+                    state = state,
+                    isSearchActive = isSearchActive,
+                    onSearchActiveChange = { isSearchActive = it },
+                    actions = actions,
+                    onShowCreateCart = { showCreateCartDialog = true },
+                    onShowClearCart = { showClearConfirmation = true },
+                    onShowSortOptions = { showSortOptions = true },
+                    onToggleMenu = { showMenu = it },
+                    showMenu = showMenu,
+                )
             }
         }
     }

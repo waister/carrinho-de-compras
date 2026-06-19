@@ -3,6 +3,8 @@ package com.renobile.carrinho.features.list
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -26,8 +28,11 @@ fun NavGraphBuilder.listGraph(
 ) {
     composable("list") {
         val activity = LocalActivity.current as? AppCompatActivity
-        mainViewModel.setBottomBarVisible(true)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(true)
+        }
         val viewModel: ListViewModel = koinViewModel()
+        val mainState by mainViewModel.uiState.collectAsState()
         val actions = ListActions(
             onSearchChanged = { viewModel.onSearchTermsChanged(it) },
             onCreateList = { viewModel.createList(it) },
@@ -42,13 +47,20 @@ fun NavGraphBuilder.listGraph(
             },
             onShareApp = { activity?.shareApp() },
             onMoveToCart = { product, quantity, price -> viewModel.moveToCart(product, quantity, price) },
-            onSortOrderChanged = { viewModel.onSortOrderChanged(it) }
+            onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
+            onScroll = { mainViewModel.setBarsVisible(it) }
         )
-        ListScreen(viewModel = viewModel, actions = actions)
+        ListScreen(
+            viewModel = viewModel,
+            actions = actions,
+            areBarsVisible = mainState.areBarsVisible
+        )
     }
 
     composable("listsHistory") {
-        mainViewModel.setBottomBarVisible(false)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
         val viewModel: ListsHistoryViewModel = koinViewModel()
         ListsHistoryScreen(
             viewModel = viewModel,
@@ -62,7 +74,9 @@ fun NavGraphBuilder.listGraph(
         arguments = listOf(navArgument("listId") { type = NavType.LongType })
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
-        mainViewModel.setBottomBarVisible(false)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
         val listId = backStackEntry.arguments?.getLong("listId") ?: 0L
         val viewModel: ListDetailsViewModel = koinViewModel()
 

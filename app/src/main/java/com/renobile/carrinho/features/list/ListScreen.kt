@@ -1,8 +1,13 @@
 package com.renobile.carrinho.features.list
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,10 +53,12 @@ import com.renobile.carrinho.features.list.components.ListOptionsDialog
 import com.renobile.carrinho.features.list.components.ListTopBar
 import com.renobile.carrinho.ui.theme.MyAppTheme
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ListScreen(
     viewModel: ListViewModel,
     actions: ListActions,
+    areBarsVisible: Boolean = true,
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -59,15 +70,18 @@ fun ListScreen(
     ListScreen(
         state = state,
         actions = actions,
-        activeCartId = activeCartId
+        activeCartId = activeCartId,
+        areBarsVisible = areBarsVisible,
     )
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ListScreen(
     state: ListState,
     actions: ListActions,
     activeCartId: Long = 0L,
+    areBarsVisible: Boolean = true,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -80,6 +94,21 @@ fun ListScreen(
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    if (available.y < -10) {
+                        actions.onScroll(false)
+                    } else if (available.y > 10) {
+                        actions.onScroll(true)
+                    }
+                }
+                return Offset.Zero
+            }
+        }
+    }
 
     if (isSearchActive) {
         BackHandler {
@@ -218,67 +247,82 @@ fun ListScreen(
     }
 
     Scaffold(
-        topBar = {
-            ListTopBar(
-                state = state,
-                isSearchActive = isSearchActive,
-                onSearchActiveChange = { isSearchActive = it },
-                actions = actions,
-                onShowCreateList = { showCreateListDialog = true },
-                onShowClearList = { showClearConfirmation = true },
-                onShowImportList = { showImportDialog = true },
-                onShowSortOptions = { showSortOptions = true },
-                onToggleMenu = { showMenu = it },
-                showMenu = showMenu,
-            )
-        },
+        modifier = Modifier.nestedScroll(nestedScrollConnection),
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                if (state.list == null) {
-                    showCreateListDialog = true
-                } else {
-                    showAddProductDialog = true
+            FloatingActionButton(
+                modifier = Modifier.padding(bottom = if (areBarsVisible) 140.dp else 0.dp),
+                onClick = {
+                    if (state.list == null) {
+                        showCreateListDialog = true
+                    } else {
+                        showAddProductDialog = true
+                    }
                 }
-            }) {
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
             }
         },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            if (state.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (state.error != null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = state.error,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(16.dp),
-                    )
-                }
-            } else if (state.list == null) {
-                EmptyListView(
-                    onCreateList = { showCreateListDialog = true },
-                )
-            } else if (state.products.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.products_empty))
-                }
-            } else {
-                LazyColumn {
-                    items(state.products, key = { it.id }) { product ->
-                        ProductItem(
-                            product = product,
-                            onClick = { productOptionsToShow = product },
-                            onMoveToCart = { productToMove = product }
+    ) { _ ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (state.isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else if (state.error != null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = state.error,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(16.dp),
                         )
                     }
+                } else if (state.list == null) {
+                    EmptyListView(
+                        onCreateList = { showCreateListDialog = true },
+                    )
+                } else if (state.products.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.products_empty))
+                    }
+                } else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(
+                            top = 160.dp,
+                            bottom = 140.dp
+                        )
+                    ) {
+                        items(state.products, key = { it.id }) { product ->
+                            ProductItem(
+                                product = product,
+                                onClick = { productOptionsToShow = product },
+                                onMoveToCart = { productToMove = product }
+                            )
+                        }
+                    }
                 }
+            }
+
+            AnimatedVisibility(
+                visible = areBarsVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                ListTopBar(
+                    state = state,
+                    isSearchActive = isSearchActive,
+                    onSearchActiveChange = { isSearchActive = it },
+                    actions = actions,
+                    onShowCreateList = { showCreateListDialog = true },
+                    onShowClearList = { showClearConfirmation = true },
+                    onShowImportList = { showImportDialog = true },
+                    onShowSortOptions = { showSortOptions = true },
+                    onToggleMenu = { showMenu = it },
+                    showMenu = showMenu,
+                )
             }
         }
     }

@@ -34,5 +34,6 @@ data class ListActions(
     val onShareApp: () -> Unit = {},
     val onMoveToCart: (ProductEntity, Double, Double) -> Unit = { _, _, _ -> },
     val onImportList: (List<String>) -> Unit = {},
-    val onSortOrderChanged: (ProductSortOrder) -> Unit = {}
+    val onSortOrderChanged: (ProductSortOrder) -> Unit = {},
+    val onScroll: (Boolean) -> Unit = {},
 )

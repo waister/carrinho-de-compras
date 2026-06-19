@@ -34,5 +34,6 @@ data class CartActions(
     val onOpenHistory: () -> Unit = {},
     val onShareApp: () -> Unit = {},
     val onShowInterstitialAd: () -> Unit = {},
-    val onSortOrderChanged: (ProductSortOrder) -> Unit = {}
+    val onSortOrderChanged: (ProductSortOrder) -> Unit = {},
+    val onScroll: (Boolean) -> Unit = {},
 )

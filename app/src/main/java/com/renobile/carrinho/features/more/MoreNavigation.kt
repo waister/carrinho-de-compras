@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.compose.runtime.LaunchedEffect
 import com.renobile.carrinho.MainViewModel
 import com.renobile.carrinho.util.shareApp
 
@@ -14,7 +15,9 @@ fun NavGraphBuilder.moreScreen(
 ) {
     composable("more") {
         val activity = LocalActivity.current as? AppCompatActivity
-        mainViewModel.setBottomBarVisible(true)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(true)
+        }
         MoreScreen(
             onNotifications = { navController.navigate("notifications") },
             onAbout = { navController.navigate("about") },

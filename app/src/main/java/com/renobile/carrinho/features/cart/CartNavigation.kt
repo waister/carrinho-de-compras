@@ -29,9 +29,12 @@ fun NavGraphBuilder.cartGraph(
 ) {
     composable("cart") {
         val activity = LocalActivity.current as? AppCompatActivity
-        mainViewModel.setBottomBarVisible(true)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(true)
+        }
         val viewModel: CartViewModel = koinViewModel()
         val state by viewModel.uiState.collectAsState()
+        val mainState by mainViewModel.uiState.collectAsState()
         val actions = CartActions(
             onSearchChanged = { viewModel.onSearchTermsChanged(it) },
             onCreateCart = { viewModel.createCart(it) },
@@ -46,7 +49,8 @@ fun NavGraphBuilder.cartGraph(
             onOpenHistory = { navController.navigate("cartsHistory") },
             onShareApp = { activity?.shareApp() },
             onShowInterstitialAd = onShowInterstitialAd,
-            onSortOrderChanged = { viewModel.onSortOrderChanged(it) }
+            onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
+            onScroll = { mainViewModel.setBarsVisible(it) }
         )
 
         LaunchedEffect(Unit) {
@@ -58,11 +62,17 @@ fun NavGraphBuilder.cartGraph(
             }
         }
 
-        CartScreen(state = state, actions = actions)
+        CartScreen(
+            state = state,
+            actions = actions,
+            areBarsVisible = mainState.areBarsVisible
+        )
     }
 
     composable("cartsHistory") {
-        mainViewModel.setBottomBarVisible(false)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
         val viewModel: CartsHistoryViewModel = koinViewModel()
         CartsHistoryScreen(
             viewModel = viewModel,
@@ -85,7 +95,9 @@ fun NavGraphBuilder.cartGraph(
         )
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
-        mainViewModel.setBottomBarVisible(false)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
         val cartId = backStackEntry.arguments?.getLong("cartId") ?: 0L
         val searchTerms = backStackEntry.arguments?.getString("searchTerms") ?: ""
         val viewModel: CartDetailsViewModel = koinViewModel()

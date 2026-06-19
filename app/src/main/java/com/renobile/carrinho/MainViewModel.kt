@@ -58,7 +58,13 @@ class MainViewModel(private val configRepository: ConfigRepository) : ViewModel(
     }
 
     fun setBottomBarVisible(visible: Boolean) {
-        _uiState.update { it.copy(isBottomBarVisible = visible) }
+        _uiState.update { it.copy(isBottomBarVisible = visible, areBarsVisible = true) }
+    }
+
+    fun setBarsVisible(visible: Boolean) {
+        if (_uiState.value.areBarsVisible != visible) {
+            _uiState.update { it.copy(areBarsVisible = visible) }
+        }
     }
 
     fun onVersionUpdateHandled() {

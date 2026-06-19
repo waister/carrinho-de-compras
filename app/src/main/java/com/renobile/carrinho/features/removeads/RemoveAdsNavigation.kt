@@ -19,7 +19,9 @@ fun NavGraphBuilder.removeAdsScreen(
 ) {
     composable("removeAds") {
         val activity = LocalActivity.current as? AppCompatActivity
-        mainViewModel.setBottomBarVisible(true)
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(true)
+        }
         val viewModel: RemoveAdsViewModel = koinViewModel()
         val state by viewModel.uiState.collectAsState()
 
