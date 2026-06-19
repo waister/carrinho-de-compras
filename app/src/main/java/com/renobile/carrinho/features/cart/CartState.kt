@@ -2,6 +2,7 @@ package com.renobile.carrinho.features.cart
 
 import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.util.ProductSortOrder
 
 data class CartState(
     val isLoading: Boolean = false,
@@ -10,7 +11,8 @@ data class CartState(
     val productNames: List<String> = emptyList(),
     val suggestions: List<com.renobile.carrinho.database.entities.ProductSuggestion> = emptyList(),
     val error: String? = null,
-    val searchTerms: String = ""
+    val searchTerms: String = "",
+    val sortOrder: ProductSortOrder = ProductSortOrder.NEWEST
 ) {
     val volumes: Double get() = products.sumOf { it.quantity }
     val total: Double get() = products.sumOf { it.price * it.quantity }
@@ -31,5 +33,6 @@ data class CartActions(
     val onClearCart: () -> Unit = {},
     val onOpenHistory: () -> Unit = {},
     val onShareApp: () -> Unit = {},
-    val onShowInterstitialAd: () -> Unit = {}
+    val onShowInterstitialAd: () -> Unit = {},
+    val onSortOrderChanged: (ProductSortOrder) -> Unit = {}
 )

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
@@ -41,6 +42,7 @@ import com.renobile.carrinho.R
 import com.renobile.carrinho.features.cart.components.CartHeader
 import com.renobile.carrinho.features.cart.components.ProductItem
 import com.renobile.carrinho.features.cart.components.SearchAppBar
+import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 
 @Composable
 fun CartDetailsScreen(
@@ -48,7 +50,14 @@ fun CartDetailsScreen(
     actions: CartDetailsActions,
 ) {
     val state by viewModel.uiState.collectAsState()
-    CartDetailsContent(state = state, actions = actions)
+    CartDetailsContent(
+        state = state,
+        actions = actions.copy(
+            onSortOrderChanged = { order ->
+                state.cart?.id?.let { viewModel.onSortOrderChanged(it, order) }
+            }
+        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +68,7 @@ fun CartDetailsContent(
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var showSortOptions by remember { mutableStateOf(false) }
     var isSearchActive by remember { mutableStateOf(false) }
 
     if (isSearchActive) {
@@ -82,6 +92,17 @@ fun CartDetailsContent(
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmation = false }) { Text(stringResource(R.string.cancel)) }
             },
+        )
+    }
+
+    if (showSortOptions) {
+        SortOptionsDialog(
+            currentOrder = state.sortOrder,
+            onDismiss = { showSortOptions = false },
+            onSortOrderSelected = { order ->
+                actions.onSortOrderChanged(order)
+                showSortOptions = false
+            }
         )
     }
 
@@ -126,6 +147,14 @@ fun CartDetailsContent(
                                     expanded = showMenu,
                                     onDismissRequest = { showMenu = false },
                                 ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_order)) },
+                                        onClick = {
+                                            showMenu = false
+                                            showSortOptions = true
+                                        },
+                                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
+                                    )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.delete_cart)) },
                                         onClick = {

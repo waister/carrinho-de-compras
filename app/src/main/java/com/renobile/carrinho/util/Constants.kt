@@ -15,3 +15,14 @@ const val ONE_MINUTE: Long = ONE_SECOND * 60
 const val ONE_HOUR: Long = ONE_MINUTE * 60
 const val ONE_DAY: Long = ONE_HOUR * 24
 const val FIVE_DAYS: Long = ONE_DAY * 5
+
+const val PREF_SORT_ORDER = "PrefSortOrder"
+
+enum class ProductSortOrder {
+    NEWEST,
+    OLDEST,
+    NAME_ASC,
+    NAME_DESC,
+    PRICE_ASC,
+    PRICE_DESC
+}

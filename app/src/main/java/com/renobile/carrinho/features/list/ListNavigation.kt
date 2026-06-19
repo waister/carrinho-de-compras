@@ -41,7 +41,8 @@ fun NavGraphBuilder.listGraph(
                 activity?.sendList(state.products, state.list?.name ?: "")
             },
             onShareApp = { activity?.shareApp() },
-            onMoveToCart = { product, quantity, price -> viewModel.moveToCart(product, quantity, price) }
+            onMoveToCart = { product, quantity, price -> viewModel.moveToCart(product, quantity, price) },
+            onSortOrderChanged = { viewModel.onSortOrderChanged(it) }
         )
         ListScreen(viewModel = viewModel, actions = actions)
     }
@@ -76,6 +77,7 @@ fun NavGraphBuilder.listGraph(
                 val state = viewModel.uiState.value
                 activity?.sendList(state.products, state.list?.name ?: "")
             },
+            onSortOrderChanged = { viewModel.onSortOrderChanged(listId, it) }
         )
 
         LaunchedEffect(Unit) {

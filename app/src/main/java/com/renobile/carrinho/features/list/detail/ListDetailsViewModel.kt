@@ -3,10 +3,13 @@ package com.renobile.carrinho.features.list.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.renobile.carrinho.R
+import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.repositories.CartRepository
 import com.renobile.carrinho.repositories.ProductRepository
 import com.renobile.carrinho.repositories.PurchaseListRepository
-import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.util.PREF_SORT_ORDER
+import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.ProductSortOrder
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,18 +47,39 @@ class ListDetailsViewModel(
 
                 val products = productRepository.getProductsByListId(listId)
                 val suggestions = productRepository.getProductSuggestions()
+                val sortOrder = ProductSortOrder.valueOf(
+                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
+                )
+
                 _uiState.update { 
                     it.copy(
                         isLoading = false,
                         list = list,
-                        products = products.sortedByDescending { p -> p.id },
-                        suggestions = suggestions
+                        products = products.sort(sortOrder),
+                        suggestions = suggestions,
+                        sortOrder = sortOrder
                     )
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = e.message) }
             }
         }
+    }
+
+    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> {
+        return when (order) {
+            ProductSortOrder.NEWEST -> sortedByDescending { it.id }
+            ProductSortOrder.OLDEST -> sortedBy { it.id }
+            ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
+            ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
+            ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
+            ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
+        }
+    }
+
+    fun onSortOrderChanged(listId: Long, order: ProductSortOrder) {
+        Prefs.putValue(PREF_SORT_ORDER, order.name)
+        loadData(listId)
     }
 
     fun deleteList(listId: Long) {

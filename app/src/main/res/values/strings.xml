@@ -205,4 +205,11 @@
     <string name="import_list_preview">Prévia da importação (%d itens):</string>
     <string name="import_success">Lista importada com sucesso!</string>
     <string name="paste">Colar</string>
+    <string name="sort_order">Ordem de exibição</string>
+    <string name="sort_newest">Mais recentes primeiro</string>
+    <string name="sort_oldest">Mais antigos primeiro</string>
+    <string name="sort_name_asc">Nome (A-Z)</string>
+    <string name="sort_name_desc">Nome (Z-A)</string>
+    <string name="sort_price_asc">Menor preço</string>
+    <string name="sort_price_desc">Maior preço</string>
 </resources>

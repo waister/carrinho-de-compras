@@ -2,12 +2,14 @@ package com.renobile.carrinho.features.cart.detail
 
 import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.util.ProductSortOrder
 
 data class CartDetailsState(
     val isLoading: Boolean = false,
     val cart: CartEntity? = null,
     val products: List<ProductEntity> = emptyList(),
     val searchTerms: String = "",
+    val sortOrder: ProductSortOrder = ProductSortOrder.NEWEST,
     val error: String? = null
 ) {
     val volumes: Double get() = products.sumOf { it.quantity }

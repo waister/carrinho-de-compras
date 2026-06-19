@@ -35,6 +35,7 @@ import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.features.cart.components.AddProductDialog
 import com.renobile.carrinho.features.cart.components.DeleteProductDialog
 import com.renobile.carrinho.features.cart.components.ProductItem
+import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 import com.renobile.carrinho.features.list.components.ClearListDialog
 import com.renobile.carrinho.features.list.components.CreateListDialog
 import com.renobile.carrinho.features.list.components.EmptyListView
@@ -71,6 +72,7 @@ fun ListScreen(
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
     var showCreateListDialog by remember { mutableStateOf(false) }
+    var showSortOptions by remember { mutableStateOf(false) }
     var isSearchActive by remember { mutableStateOf(false) }
     var productToEdit by remember { mutableStateOf<ProductEntity?>(null) }
     var showAddProductDialog by remember { mutableStateOf(false) }
@@ -113,6 +115,17 @@ fun ListScreen(
                 actions.onCreateList(name)
                 showCreateListDialog = false
             },
+        )
+    }
+
+    if (showSortOptions) {
+        SortOptionsDialog(
+            currentOrder = state.sortOrder,
+            onDismiss = { showSortOptions = false },
+            onSortOrderSelected = { order ->
+                actions.onSortOrderChanged(order)
+                showSortOptions = false
+            }
         )
     }
 
@@ -214,6 +227,7 @@ fun ListScreen(
                 onShowCreateList = { showCreateListDialog = true },
                 onShowClearList = { showClearConfirmation = true },
                 onShowImportList = { showImportDialog = true },
+                onShowSortOptions = { showSortOptions = true },
                 onToggleMenu = { showMenu = it },
                 showMenu = showMenu,
             )

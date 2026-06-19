@@ -45,7 +45,8 @@ fun NavGraphBuilder.cartGraph(
             onClearCart = { viewModel.clearCart() },
             onOpenHistory = { navController.navigate("cartsHistory") },
             onShareApp = { activity?.shareApp() },
-            onShowInterstitialAd = onShowInterstitialAd
+            onShowInterstitialAd = onShowInterstitialAd,
+            onSortOrderChanged = { viewModel.onSortOrderChanged(it) }
         )
 
         LaunchedEffect(Unit) {
@@ -100,7 +101,8 @@ fun NavGraphBuilder.cartGraph(
                 val state = viewModel.uiState.value
                 activity?.sendCart(state.products, state.cart?.name ?: "")
             },
-            onBack = { navController.popBackStack() }
+            onBack = { navController.popBackStack() },
+            onSortOrderChanged = { viewModel.onSortOrderChanged(cartId, it) }
         )
 
         LaunchedEffect(Unit) {

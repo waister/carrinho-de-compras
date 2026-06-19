@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -38,6 +39,7 @@ fun CartTopBar(
     actions: CartActions = CartActions(),
     onShowCreateCart: () -> Unit = {},
     onShowClearCart: () -> Unit = {},
+    onShowSortOptions: () -> Unit = {},
     onToggleMenu: (Boolean) -> Unit = {},
     showMenu: Boolean = false,
 ) {
@@ -115,6 +117,14 @@ fun CartTopBar(
                                     actions.onShareApp()
                                 },
                                 leadingIcon = { Icon(Icons.Default.Share, null) },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.sort_order)) },
+                                onClick = {
+                                    onToggleMenu(false)
+                                    onShowSortOptions()
+                                },
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
                             )
                         }
                     }

@@ -3,6 +3,7 @@ package com.renobile.carrinho.features.list.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
@@ -39,6 +40,7 @@ fun ListTopBar(
     onShowCreateList: () -> Unit = {},
     onShowClearList: () -> Unit = {},
     onShowImportList: () -> Unit = {},
+    onShowSortOptions: () -> Unit = {},
     onToggleMenu: (Boolean) -> Unit = {},
     showMenu: Boolean = false,
 ) {
@@ -124,6 +126,14 @@ fun ListTopBar(
                                     actions.onShareApp()
                                 },
                                 leadingIcon = { Icon(Icons.Default.Share, null) },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.sort_order)) },
+                                onClick = {
+                                    onToggleMenu(false)
+                                    onShowSortOptions()
+                                },
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
                             )
                         }
                     }

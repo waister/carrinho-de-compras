@@ -7,6 +7,9 @@ import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.repositories.CartRepository
 import com.renobile.carrinho.repositories.ProductRepository
+import com.renobile.carrinho.util.PREF_SORT_ORDER
+import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.ProductSortOrder
 import com.renobile.carrinho.util.createCartListNameGeneric
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,20 +41,41 @@ class CartViewModel(
                 val activeCart = cartRepository.getActiveCart()
                 val products = activeCart?.let { productRepository.getProductsByCartId(it.id) } ?: emptyList()
                 val suggestions = productRepository.getProductSuggestions()
+                val sortOrder = ProductSortOrder.valueOf(
+                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
+                )
 
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         cart = activeCart,
-                        products = if (it.searchTerms.isEmpty()) products
-                        else products.filter { p -> p.name.contains(it.searchTerms, ignoreCase = true) },
-                        suggestions = suggestions
+                        products = products
+                            .filter { p -> it.searchTerms.isEmpty() || p.name.contains(it.searchTerms, ignoreCase = true) }
+                            .sort(sortOrder),
+                        suggestions = suggestions,
+                        sortOrder = sortOrder
                     )
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = e.message) }
             }
         }
+    }
+
+    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> {
+        return when (order) {
+            ProductSortOrder.NEWEST -> sortedByDescending { it.id }
+            ProductSortOrder.OLDEST -> sortedBy { it.id }
+            ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
+            ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
+            ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
+            ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
+        }
+    }
+
+    fun onSortOrderChanged(order: ProductSortOrder) {
+        Prefs.putValue(PREF_SORT_ORDER, order.name)
+        loadData()
     }
 
     fun onSearchTermsChanged(terms: String) {

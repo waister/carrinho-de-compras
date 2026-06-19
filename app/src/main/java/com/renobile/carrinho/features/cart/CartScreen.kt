@@ -33,6 +33,7 @@ import com.renobile.carrinho.features.cart.components.DeleteProductDialog
 import com.renobile.carrinho.features.cart.components.EmptyCartView
 import com.renobile.carrinho.features.cart.components.ProductItem
 import com.renobile.carrinho.features.cart.components.ProductOptionsDialog
+import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
@@ -43,6 +44,7 @@ fun CartScreen(
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
     var showCreateCartDialog by remember { mutableStateOf(false) }
+    var showSortOptions by remember { mutableStateOf(false) }
     var isSearchActive by remember { mutableStateOf(false) }
     var productToEdit by remember { mutableStateOf<ProductEntity?>(null) }
     var showAddProductDialog by remember { mutableStateOf(false) }
@@ -83,6 +85,17 @@ fun CartScreen(
                 actions.onCreateCart(name)
                 showCreateCartDialog = false
             },
+        )
+    }
+
+    if (showSortOptions) {
+        SortOptionsDialog(
+            currentOrder = state.sortOrder,
+            onDismiss = { showSortOptions = false },
+            onSortOrderSelected = { order ->
+                actions.onSortOrderChanged(order)
+                showSortOptions = false
+            }
         )
     }
 
@@ -144,6 +157,7 @@ fun CartScreen(
                 actions = actions,
                 onShowCreateCart = { showCreateCartDialog = true },
                 onShowClearCart = { showClearConfirmation = true },
+                onShowSortOptions = { showSortOptions = true },
                 onToggleMenu = { showMenu = it },
                 showMenu = showMenu,
             )
