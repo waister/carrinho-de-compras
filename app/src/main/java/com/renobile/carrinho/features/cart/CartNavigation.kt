@@ -65,7 +65,8 @@ fun NavGraphBuilder.cartGraph(
         CartScreen(
             state = state,
             actions = actions,
-            areBarsVisible = mainState.areBarsVisible
+            areBarsVisible = mainState.areBarsVisible,
+            isAdVisible = mainState.isAdVisible
         )
     }
 

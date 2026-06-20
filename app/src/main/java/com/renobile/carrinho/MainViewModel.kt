@@ -67,6 +67,10 @@ class MainViewModel(private val configRepository: ConfigRepository) : ViewModel(
         }
     }
 
+    fun setAdVisible(visible: Boolean) {
+        _uiState.update { it.copy(isAdVisible = visible) }
+    }
+
     fun onVersionUpdateHandled() {
         _uiState.update { it.copy(versionUpdate = null) }
     }

@@ -54,6 +54,8 @@ import java.text.NumberFormat
 fun AddProductDialog(
     product: ProductEntity?,
     suggestions: List<ProductSuggestion> = emptyList(),
+    title: String? = null,
+    message: String? = null,
     onDismiss: () -> Unit = {},
     onConfirm: (String, Double, Double) -> Unit = { _, _, _ -> },
 ) {
@@ -67,6 +69,7 @@ fun AddProductDialog(
     }
 
     val focusRequester = remember { FocusRequester() }
+    val priceFocusRequester = remember { FocusRequester() }
 
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
 
@@ -78,6 +81,8 @@ fun AddProductDialog(
     LaunchedEffect(Unit) {
         if (product == null) {
             focusRequester.requestFocus()
+        } else if (product.price == 0.0) {
+            priceFocusRequester.requestFocus()
         }
     }
 
@@ -85,10 +90,18 @@ fun AddProductDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
-            Text(stringResource(if (product == null) R.string.add_product else R.string.edit_product))
+            Text(title ?: stringResource(if (product == null) R.string.add_product else R.string.edit_product))
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (message != null) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = name,
@@ -194,7 +207,9 @@ fun AddProductDialog(
                         )
                     },
                     label = { Text(stringResource(R.string.price)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(priceFocusRequester),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done,

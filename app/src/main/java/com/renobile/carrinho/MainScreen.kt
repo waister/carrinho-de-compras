@@ -86,14 +86,18 @@ fun MainScreen(
     }
 
     val bottomBarTranslationY by animateFloatAsState(
-        targetValue = if (uiState.areBarsVisible) 0f else 500f,
+        targetValue = if (uiState.areBarsVisible) 0f else 208f,
         animationSpec = tween(durationMillis = 300),
         label = "bottomBarTranslation"
     )
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = if (uiState.isBottomBarVisible) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primary,
+        containerColor = if (uiState.isBottomBarVisible) {
+            MaterialTheme.colorScheme.background
+        } else {
+            MaterialTheme.colorScheme.primary
+        },
     ) { _ ->
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -108,7 +112,10 @@ fun MainScreen(
                         .align(Alignment.BottomCenter)
                         .graphicsLayer { translationY = bottomBarTranslationY }
                 ) {
-                    AdBanner(Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""))
+                    AdBanner(
+                        adUnitId = Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
+                        onAdLoaded = { mainViewModel.setAdVisible(it) }
+                    )
                     MainBottomNavigation(navController)
                 }
             }
@@ -117,8 +124,14 @@ fun MainScreen(
 }
 
 @Composable
-fun AdBanner(adUnitId: String) {
-    if (havePlan() || adUnitId.isEmpty()) return
+fun AdBanner(
+    adUnitId: String,
+    onAdLoaded: (Boolean) -> Unit = {}
+) {
+    if (havePlan() || adUnitId.isEmpty()) {
+        LaunchedEffect(Unit) { onAdLoaded(false) }
+        return
+    }
 
     AndroidView(
         modifier = Modifier.fillMaxWidth(),
@@ -130,7 +143,8 @@ fun AdBanner(adUnitId: String) {
                     adUnitId = adUnitId,
                     adSize = null,
                     collapsible = false,
-                    shimmer = null
+                    shimmer = null,
+                    onAdLoaded = onAdLoaded
                 )
             }
         }

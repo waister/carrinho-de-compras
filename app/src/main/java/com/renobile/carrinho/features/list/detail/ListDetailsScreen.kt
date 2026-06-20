@@ -130,6 +130,8 @@ fun ListDetailsContent(
             AddProductDialog(
                 product = productToMove?.copy(price = 0.0),
                 suggestions = state.suggestions,
+                title = stringResource(R.string.move_to_cart),
+                message = stringResource(R.string.move_to_cart_notice),
                 onDismiss = { productToMove = null },
                 onConfirm = { _, quantity, price ->
                     productToMove?.let {

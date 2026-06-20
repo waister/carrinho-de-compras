@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -52,6 +53,7 @@ fun CartScreen(
     state: CartState,
     actions: CartActions,
     areBarsVisible: Boolean = true,
+    isAdVisible: Boolean = false,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -63,10 +65,17 @@ fun CartScreen(
     var productOptionsToShow by remember { mutableStateOf<ProductEntity?>(null) }
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
 
-    val nestedScrollConnection = remember {
+    val bottomPadding = if (areBarsVisible) {
+        if (isAdVisible) 140.dp else 80.dp
+    } else {
+        40.dp
+    }
+
+    val scrollState = rememberLazyListState()
+    val nestedScrollConnection = remember(scrollState) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (source == NestedScrollSource.UserInput) {
+                if (source == NestedScrollSource.UserInput && (scrollState.canScrollForward || scrollState.canScrollBackward)) {
                     if (available.y < -10) {
                         actions.onScroll(false)
                     } else if (available.y > 10) {
@@ -179,7 +188,7 @@ fun CartScreen(
         Modifier.nestedScroll(nestedScrollConnection),
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.padding(bottom = if (areBarsVisible) 140.dp else 0.dp),
+                modifier = Modifier.padding(bottom = bottomPadding),
                 onClick = {
                     if (state.cart == null) {
                         showCreateCartDialog = true
@@ -208,9 +217,10 @@ fun CartScreen(
                     )
                 } else {
                     LazyColumn(
+                        state = scrollState,
                         contentPadding = PaddingValues(
                             top = if (state.cart != null) 160.dp else 70.dp,
-                            bottom = 140.dp
+                            bottom = bottomPadding + 16.dp
                         )
                     ) {
                         items(state.products) { product ->

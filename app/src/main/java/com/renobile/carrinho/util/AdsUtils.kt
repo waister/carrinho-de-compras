@@ -33,11 +33,14 @@ fun Context?.loadBannerAd(
     adSize: AdSize? = null,
     collapsible: Boolean = false,
     shimmer: ShimmerFrameLayout? = null,
+    onAdLoaded: (Boolean) -> Unit = {},
 ) {
     val logTag = "LOAD_ADMOB_BANNER"
 
     if (this == null || adUnitId.isEmpty() || adViewContainer == null || havePlan()) {
         shimmer?.hide()
+        adViewContainer?.hide()
+        onAdLoaded(false)
         appLog(logTag, "loadAdMobBanner() falied | $this | $adUnitId | ${havePlan()}")
         return
     }
@@ -69,12 +72,16 @@ fun Context?.loadBannerAd(
         override fun onAdLoaded() {
             super.onAdLoaded()
             shimmer?.hide()
+            adViewContainer.show()
+            onAdLoaded(true)
             appLog(logTag, "onAdLoaded()")
         }
 
         override fun onAdFailedToLoad(error: LoadAdError) {
             super.onAdFailedToLoad(error)
             shimmer?.hide()
+            adViewContainer.hide()
+            onAdLoaded(false)
             appLog(logTag, "onAdFailedToLoad(): ${error.message}")
         }
 

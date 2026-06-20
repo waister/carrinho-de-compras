@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -59,6 +60,7 @@ fun ListScreen(
     viewModel: ListViewModel,
     actions: ListActions,
     areBarsVisible: Boolean = true,
+    isAdVisible: Boolean = false,
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -72,6 +74,7 @@ fun ListScreen(
         actions = actions,
         activeCartId = activeCartId,
         areBarsVisible = areBarsVisible,
+        isAdVisible = isAdVisible,
     )
 }
 
@@ -82,6 +85,7 @@ fun ListScreen(
     actions: ListActions,
     activeCartId: Long = 0L,
     areBarsVisible: Boolean = true,
+    isAdVisible: Boolean = false,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -95,10 +99,17 @@ fun ListScreen(
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
 
-    val nestedScrollConnection = remember {
+    val bottomPadding = if (areBarsVisible) {
+        if (isAdVisible) 140.dp else 80.dp
+    } else {
+        40.dp
+    }
+
+    val scrollState = rememberLazyListState()
+    val nestedScrollConnection = remember(scrollState) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (source == NestedScrollSource.UserInput) {
+                if (source == NestedScrollSource.UserInput && (scrollState.canScrollForward || scrollState.canScrollBackward)) {
                     if (available.y < -10) {
                         actions.onScroll(false)
                     } else if (available.y > 10) {
@@ -225,6 +236,8 @@ fun ListScreen(
             AddProductDialog(
                 product = productToMove?.copy(price = 0.0),
                 suggestions = state.suggestions,
+                title = stringResource(R.string.move_to_cart),
+                message = stringResource(R.string.move_to_cart_notice),
                 onDismiss = { productToMove = null },
                 onConfirm = { _, quantity, price ->
                     productToMove?.let {
@@ -250,7 +263,7 @@ fun ListScreen(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.padding(bottom = if (areBarsVisible) 140.dp else 0.dp),
+                modifier = Modifier.padding(bottom = bottomPadding),
                 onClick = {
                     if (state.list == null) {
                         showCreateListDialog = true
@@ -289,9 +302,10 @@ fun ListScreen(
                     }
                 } else {
                     LazyColumn(
+                        state = scrollState,
                         contentPadding = PaddingValues(
                             top = 160.dp,
-                            bottom = 140.dp
+                            bottom = bottomPadding + 16.dp
                         )
                     ) {
                         items(state.products, key = { it.id }) { product ->
