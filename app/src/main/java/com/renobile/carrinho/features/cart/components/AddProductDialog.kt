@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -78,11 +79,14 @@ fun AddProductDialog(
         mutableStateOf(TextFieldValue(text = initialText, selection = TextRange(initialText.length)))
     }
 
+    val isPreview = LocalInspectionMode.current
     LaunchedEffect(Unit) {
-        if (product == null) {
-            focusRequester.requestFocus()
-        } else if (product.price == 0.0) {
-            priceFocusRequester.requestFocus()
+        if (!isPreview) {
+            if (product == null) {
+                focusRequester.requestFocus()
+            } else if (product.price == 0.0) {
+                priceFocusRequester.requestFocus()
+            }
         }
     }
 
