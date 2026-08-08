@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -98,18 +100,10 @@ fun MainScreen(
         } else {
             MaterialTheme.colorScheme.primary
         },
-    ) { _ ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                MainNavHost(navController, mainViewModel, onShowInterstitialAd)
-            }
-
+        bottomBar = {
             if (uiState.isBottomBarVisible) {
                 Column(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
                         .graphicsLayer { translationY = bottomBarTranslationY }
                 ) {
                     AdBanner(
@@ -119,6 +113,14 @@ fun MainScreen(
                     MainBottomNavigation(navController)
                 }
             }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding())
+        ) {
+            MainNavHost(navController, mainViewModel, onShowInterstitialAd)
         }
     }
 }

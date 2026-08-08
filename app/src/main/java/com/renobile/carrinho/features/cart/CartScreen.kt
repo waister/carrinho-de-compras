@@ -65,12 +65,6 @@ fun CartScreen(
     var productOptionsToShow by remember { mutableStateOf<ProductEntity?>(null) }
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
 
-    val bottomPadding = if (areBarsVisible) {
-        if (isAdVisible) 140.dp else 80.dp
-    } else {
-        40.dp
-    }
-
     val scrollState = rememberLazyListState()
     val nestedScrollConnection = remember(scrollState) {
         object : NestedScrollConnection {
@@ -185,10 +179,29 @@ fun CartScreen(
     }
 
     Scaffold(
-        Modifier.nestedScroll(nestedScrollConnection),
+        modifier = Modifier.nestedScroll(nestedScrollConnection),
+        topBar = {
+            AnimatedVisibility(
+                visible = areBarsVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                CartTopBar(
+                    state = state,
+                    isSearchActive = isSearchActive,
+                    onSearchActiveChange = { isSearchActive = it },
+                    actions = actions,
+                    onShowCreateCart = { showCreateCartDialog = true },
+                    onShowClearCart = { showClearConfirmation = true },
+                    onShowSortOptions = { showSortOptions = true },
+                    onToggleMenu = { showMenu = it },
+                    showMenu = showMenu,
+                )
+            }
+        },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.padding(bottom = bottomPadding),
+                modifier = Modifier.padding(bottom = 16.dp),
                 onClick = {
                     if (state.cart == null) {
                         showCreateCartDialog = true
@@ -201,7 +214,7 @@ fun CartScreen(
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
             }
         },
-    ) { _ ->
+    ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -218,10 +231,7 @@ fun CartScreen(
                 } else {
                     LazyColumn(
                         state = scrollState,
-                        contentPadding = PaddingValues(
-                            top = if (state.cart != null) 160.dp else 70.dp,
-                            bottom = bottomPadding + 16.dp
-                        )
+                        contentPadding = paddingValues
                     ) {
                         items(state.products) { product ->
                             ProductItem(
@@ -231,25 +241,6 @@ fun CartScreen(
                         }
                     }
                 }
-            }
-
-            AnimatedVisibility(
-                visible = areBarsVisible,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
-                modifier = Modifier.align(Alignment.TopCenter)
-            ) {
-                CartTopBar(
-                    state = state,
-                    isSearchActive = isSearchActive,
-                    onSearchActiveChange = { isSearchActive = it },
-                    actions = actions,
-                    onShowCreateCart = { showCreateCartDialog = true },
-                    onShowClearCart = { showClearConfirmation = true },
-                    onShowSortOptions = { showSortOptions = true },
-                    onToggleMenu = { showMenu = it },
-                    showMenu = showMenu,
-                )
             }
         }
     }

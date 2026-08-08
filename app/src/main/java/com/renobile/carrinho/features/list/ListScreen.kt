@@ -7,7 +7,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,12 +97,6 @@ fun ListScreen(
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
-
-    val bottomPadding = if (areBarsVisible) {
-        if (isAdVisible) 140.dp else 80.dp
-    } else {
-        40.dp
-    }
 
     val scrollState = rememberLazyListState()
     val nestedScrollConnection = remember(scrollState) {
@@ -261,9 +254,29 @@ fun ListScreen(
 
     Scaffold(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
+        topBar = {
+            AnimatedVisibility(
+                visible = areBarsVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                ListTopBar(
+                    state = state,
+                    isSearchActive = isSearchActive,
+                    onSearchActiveChange = { isSearchActive = it },
+                    actions = actions,
+                    onShowCreateList = { showCreateListDialog = true },
+                    onShowClearList = { showClearConfirmation = true },
+                    onShowImportList = { showImportDialog = true },
+                    onShowSortOptions = { showSortOptions = true },
+                    onToggleMenu = { showMenu = it },
+                    showMenu = showMenu,
+                )
+            }
+        },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.padding(bottom = bottomPadding),
+                modifier = Modifier.padding(bottom = 16.dp),
                 onClick = {
                     if (state.list == null) {
                         showCreateListDialog = true
@@ -275,7 +288,7 @@ fun ListScreen(
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
             }
         },
-    ) { _ ->
+    ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -303,10 +316,7 @@ fun ListScreen(
                 } else {
                     LazyColumn(
                         state = scrollState,
-                        contentPadding = PaddingValues(
-                            top = 160.dp,
-                            bottom = bottomPadding + 16.dp
-                        )
+                        contentPadding = paddingValues
                     ) {
                         items(state.products, key = { it.id }) { product ->
                             ProductItem(
@@ -317,26 +327,6 @@ fun ListScreen(
                         }
                     }
                 }
-            }
-
-            AnimatedVisibility(
-                visible = areBarsVisible,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
-                modifier = Modifier.align(Alignment.TopCenter)
-            ) {
-                ListTopBar(
-                    state = state,
-                    isSearchActive = isSearchActive,
-                    onSearchActiveChange = { isSearchActive = it },
-                    actions = actions,
-                    onShowCreateList = { showCreateListDialog = true },
-                    onShowClearList = { showClearConfirmation = true },
-                    onShowImportList = { showImportDialog = true },
-                    onShowSortOptions = { showSortOptions = true },
-                    onToggleMenu = { showMenu = it },
-                    showMenu = showMenu,
-                )
             }
         }
     }
