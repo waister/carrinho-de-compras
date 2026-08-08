@@ -9,17 +9,14 @@
 
 # Add any project specific keep options here:
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep Retrofit/Gson models (reflection-based serialization)
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.renobile.carrinho.network.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Enum used via ProductSortOrder.valueOf(...) in ViewModels
+-keep enum com.renobile.carrinho.util.ProductSortOrder { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep line numbers for readable Crashlytics stack traces
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

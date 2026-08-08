@@ -18,8 +18,8 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         applicationId = "com.renobile.carrinho"
         minSdk = 23
         targetSdk = 37
-        versionCode = 26
-        versionName = "3.0.0"
+        versionCode = 27
+        versionName = "3.0.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 
@@ -43,7 +43,8 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
