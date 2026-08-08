@@ -22,3 +22,6 @@ service_account_key.json
 network_security_config_proxy_local.xml
 
 *.aab
+
+# AI Artifacts
+.artifacts/
