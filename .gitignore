@@ -20,6 +20,9 @@ keystore.properties
 # Service Account
 service_account_key.json
 
+# Fastlane
+fastlane/report.xml
+
 network_security_config_proxy_local.xml
 
 *.aab
