@@ -1,5 +1,6 @@
 package com.renobile.carrinho.features.list.detail
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,6 +50,7 @@ import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.features.cart.components.AddProductDialog
 import com.renobile.carrinho.features.cart.components.CartHeader
 import com.renobile.carrinho.features.cart.components.ProductItem
+import com.renobile.carrinho.features.cart.components.SearchAppBar
 import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 import com.renobile.carrinho.features.list.listPreview
 import com.renobile.carrinho.features.list.listProductsPreview
@@ -89,6 +92,20 @@ fun ListDetailsContent(
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showSortOptions by remember { mutableStateOf(false) }
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
+    var isSearchActive by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.searchTerms) {
+        if (state.searchTerms.isNotEmpty()) {
+            isSearchActive = true
+        }
+    }
+
+    if (isSearchActive) {
+        BackHandler {
+            isSearchActive = false
+            actions.onSearchChanged("")
+        }
+    }
 
     if (showDeleteConfirmation) {
         AlertDialog(
@@ -154,53 +171,70 @@ fun ListDetailsContent(
                 contentColor = Color.White
             ) {
                 Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
-                    TopAppBar(
-                        title = { Text(state.list?.name ?: "") },
-                        navigationIcon = {
-                            IconButton(onClick = actions.onBack) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                            }
-                        },
-                        windowInsets = WindowInsets(0, 0, 0, 0),
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent,
-                            titleContentColor = Color.White,
-                            actionIconContentColor = Color.White,
-                            navigationIconContentColor = Color.White
-                        ),
-                        actions = {
-                            IconButton(onClick = actions.onShareList) {
-                                Icon(Icons.Default.Share, contentDescription = null)
-                            }
-                            var showMenu by remember { mutableStateOf(false) }
-                            Box {
-                                IconButton(onClick = { showMenu = !showMenu }) {
-                                    Icon(Icons.Default.MoreVert, contentDescription = null)
+                    if (isSearchActive) {
+                        SearchAppBar(
+                            query = state.searchTerms,
+                            onQueryChange = actions.onSearchChanged,
+                            onCancelSearch = {
+                                actions.onSearchChanged("")
+                                isSearchActive = false
+                            },
+                        )
+                    } else {
+                        TopAppBar(
+                            title = { Text(state.list?.name ?: "") },
+                            navigationIcon = {
+                                IconButton(onClick = actions.onBack) {
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                                 }
-                                DropdownMenu(
-                                    expanded = showMenu,
-                                    onDismissRequest = { showMenu = false },
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.sort_order)) },
-                                        onClick = {
-                                            showMenu = false
-                                            showSortOptions = true
-                                        },
-                                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.delete_list)) },
-                                        onClick = {
-                                            showMenu = false
-                                            showDeleteConfirmation = true
-                                        },
-                                        leadingIcon = { Icon(Icons.Default.Delete, null) },
+                            },
+                            windowInsets = WindowInsets(0, 0, 0, 0),
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = Color.Transparent,
+                                titleContentColor = Color.White,
+                                actionIconContentColor = Color.White,
+                                navigationIconContentColor = Color.White
+                            ),
+                            actions = {
+                                IconButton(onClick = actions.onShareList) {
+                                    Icon(Icons.Default.Share, contentDescription = null)
+                                }
+                                IconButton(onClick = { isSearchActive = true }) {
+                                    Icon(
+                                        Icons.Default.Search,
+                                        contentDescription = stringResource(R.string.search_products)
                                     )
                                 }
+                                var showMenu by remember { mutableStateOf(false) }
+                                Box {
+                                    IconButton(onClick = { showMenu = !showMenu }) {
+                                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                                    }
+                                    DropdownMenu(
+                                        expanded = showMenu,
+                                        onDismissRequest = { showMenu = false },
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.sort_order)) },
+                                            onClick = {
+                                                showMenu = false
+                                                showSortOptions = true
+                                            },
+                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.delete_list)) },
+                                            onClick = {
+                                                showMenu = false
+                                                showDeleteConfirmation = true
+                                            },
+                                            leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                        )
+                                    }
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                     if (state.list != null) {
                         CartHeader(
                             total = state.total,
@@ -228,7 +262,13 @@ fun ListDetailsContent(
                 }
             } else if (state.products.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.products_empty))
+                    Text(
+                        text = if (state.searchTerms.isNotEmpty()) {
+                            stringResource(R.string.search_no_results, state.searchTerms)
+                        } else {
+                            stringResource(R.string.products_empty)
+                        }
+                    )
                 }
             } else {
                 LazyColumn {

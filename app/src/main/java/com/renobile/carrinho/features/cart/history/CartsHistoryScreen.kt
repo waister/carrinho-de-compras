@@ -113,7 +113,11 @@ fun CartsHistoryScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.carts.isEmpty()) {
                 Text(
-                    text = stringResource(R.string.carts_archive_empty),
+                    text = if (state.searchTerms.isNotEmpty()) {
+                        stringResource(R.string.search_no_results, state.searchTerms)
+                    } else {
+                        stringResource(R.string.carts_archive_empty)
+                    },
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {

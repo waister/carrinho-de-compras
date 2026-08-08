@@ -43,6 +43,7 @@
     <string name="search_products">Procurar produtos</string>
     <string name="search_carts">Procurar carrinhos</string>
     <string name="search_lists">Procurar listas</string>
+    <string name="search_no_results">Nenhum resultado para \"%1$s\"</string>
     <string name="product_details">%s unidade%s a %s cada</string>
     <string name="product_details_no_price">%s unidade%s</string>
     <string name="products_empty">Nenhum produto adicionado</string>

@@ -305,7 +305,13 @@ fun ListScreen(
                     )
                 } else if (state.products.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(stringResource(R.string.products_empty))
+                        Text(
+                            text = if (state.searchTerms.isNotEmpty()) {
+                                stringResource(R.string.search_no_results, state.searchTerms)
+                            } else {
+                                stringResource(R.string.products_empty)
+                            }
+                        )
                     }
                 } else {
                     LazyColumn(

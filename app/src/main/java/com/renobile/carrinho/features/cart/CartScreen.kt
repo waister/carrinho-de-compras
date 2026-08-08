@@ -19,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -222,10 +223,16 @@ fun CartScreen(
                         CircularProgressIndicator()
                     }
                 } else if (state.products.isEmpty()) {
-                    EmptyCartView(
-                        isCartCreated = state.cart != null,
-                        onCreateCart = { showCreateCartDialog = true },
-                    )
+                    if (state.searchTerms.isNotEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(stringResource(R.string.search_no_results, state.searchTerms))
+                        }
+                    } else {
+                        EmptyCartView(
+                            isCartCreated = state.cart != null,
+                            onCreateCart = { showCreateCartDialog = true },
+                        )
+                    }
                 } else {
                     LazyColumn(
                         state = scrollState,

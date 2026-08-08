@@ -65,23 +65,33 @@ fun NavGraphBuilder.listGraph(
         ListsHistoryScreen(
             viewModel = viewModel,
             onBackClick = { navController.popBackStack() },
-            onListClick = { list -> navController.navigate("listDetails/${list.id}") }
+            onListClick = { list ->
+                navController.navigate("listDetails/${list.id}?searchTerms=${viewModel.uiState.value.searchTerms}")
+            }
         )
     }
 
     composable(
-        route = "listDetails/{listId}",
-        arguments = listOf(navArgument("listId") { type = NavType.LongType })
+        route = "listDetails/{listId}?searchTerms={searchTerms}",
+        arguments = listOf(
+            navArgument("listId") { type = NavType.LongType },
+            navArgument("searchTerms") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
             mainViewModel.setBottomBarVisible(false)
         }
         val listId = backStackEntry.arguments?.getLong("listId") ?: 0L
+        val searchTerms = backStackEntry.arguments?.getString("searchTerms") ?: ""
         val viewModel: ListDetailsViewModel = koinViewModel()
 
-        LaunchedEffect(listId) {
-            viewModel.init(listId)
+        LaunchedEffect(listId, searchTerms) {
+            viewModel.init(listId, searchTerms)
         }
 
         val actions = ListDetailsActions(
@@ -91,6 +101,7 @@ fun NavGraphBuilder.listGraph(
                 val state = viewModel.uiState.value
                 activity?.sendList(state.products, state.list?.name ?: "")
             },
+            onSearchChanged = { viewModel.onSearchTermsChanged(listId, it) },
             onSortOrderChanged = { viewModel.onSortOrderChanged(listId, it) }
         )
 

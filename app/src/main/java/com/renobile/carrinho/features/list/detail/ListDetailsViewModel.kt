@@ -30,7 +30,8 @@ class ListDetailsViewModel(
     private val _events = Channel<ListDetailsEvents>()
     val events = _events.receiveAsFlow()
 
-    fun init(listId: Long) {
+    fun init(listId: Long, initialSearchTerms: String = "") {
+        _uiState.update { it.copy(searchTerms = initialSearchTerms) }
         loadData(listId)
     }
 
@@ -55,7 +56,9 @@ class ListDetailsViewModel(
                     it.copy(
                         isLoading = false,
                         list = list,
-                        products = products.sort(sortOrder),
+                        products = products
+                            .filter { p -> it.searchTerms.isEmpty() || p.name.contains(it.searchTerms, ignoreCase = true) }
+                            .sort(sortOrder),
                         suggestions = suggestions,
                         sortOrder = sortOrder
                     )
@@ -79,6 +82,11 @@ class ListDetailsViewModel(
 
     fun onSortOrderChanged(listId: Long, order: ProductSortOrder) {
         Prefs.putValue(PREF_SORT_ORDER, order.name)
+        loadData(listId)
+    }
+
+    fun onSearchTermsChanged(listId: Long, terms: String) {
+        _uiState.update { it.copy(searchTerms = terms) }
         loadData(listId)
     }
 

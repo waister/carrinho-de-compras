@@ -34,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +76,12 @@ fun CartDetailsContent(
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showSortOptions by remember { mutableStateOf(false) }
     var isSearchActive by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.searchTerms) {
+        if (state.searchTerms.isNotEmpty()) {
+            isSearchActive = true
+        }
+    }
 
     if (isSearchActive) {
         BackHandler {
@@ -205,7 +212,13 @@ fun CartDetailsContent(
                 }
             } else if (state.products.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.products_empty))
+                    Text(
+                        text = if (state.searchTerms.isNotEmpty()) {
+                            stringResource(R.string.search_no_results, state.searchTerms)
+                        } else {
+                            stringResource(R.string.products_empty)
+                        }
+                    )
                 }
             } else {
                 LazyColumn {

@@ -8,6 +8,7 @@ data class ListDetailsState(
     val isLoading: Boolean = false,
     val list: PurchaseListEntity? = null,
     val products: List<ProductEntity> = emptyList(),
+    val searchTerms: String = "",
     val productNames: List<String> = emptyList(),
     val suggestions: List<com.renobile.carrinho.database.entities.ProductSuggestion> = emptyList(),
     val sortOrder: ProductSortOrder = ProductSortOrder.NEWEST,
