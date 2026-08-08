@@ -45,7 +45,7 @@ class ListViewModelTest {
         )
         coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
         
-        val viewModel = ListViewModel(purchaseListRepository, productRepository, cartRepository)
+        val viewModel = ListViewModel(purchaseListRepository, productRepository, cartRepository, testDispatcher)
         val itemsToImport = listOf("Arroz", "Feijão", "Café")
 
         // When
@@ -72,7 +72,7 @@ class ListViewModelTest {
         )
         coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
 
-        val viewModel = ListViewModel(purchaseListRepository, productRepository, cartRepository)
+        val viewModel = ListViewModel(purchaseListRepository, productRepository, cartRepository, testDispatcher)
         val itemsToImport = listOf("3 Laranjas", "2.5 Abacates", "Feijão")
 
         // When

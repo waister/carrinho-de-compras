@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -40,6 +41,9 @@ import com.renobile.carrinho.util.addPluralCharacter
 import com.renobile.carrinho.util.formatDate
 import com.renobile.carrinho.util.formatPrice
 import com.renobile.carrinho.util.formatQuantity
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,35 +64,43 @@ fun CartsHistoryScreen(
 
     Scaffold(
         topBar = {
-            if (isSearchActive) {
-                SearchAppBar(
-                    query = state.searchTerms,
-                    onQueryChange = { viewModel.onSearchTermsChanged(it) },
-                    onCancelSearch = {
-                        isSearchActive = false
-                        viewModel.onSearchTermsChanged("")
+            Surface(
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
+            ) {
+                Box(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
+                    if (isSearchActive) {
+                        SearchAppBar(
+                            query = state.searchTerms,
+                            onQueryChange = { viewModel.onSearchTermsChanged(it) },
+                            onCancelSearch = {
+                                isSearchActive = false
+                                viewModel.onSearchTermsChanged("")
+                            }
+                        )
+                    } else {
+                        TopAppBar(
+                            title = { Text(stringResource(R.string.carts_history)) },
+                            navigationIcon = {
+                                IconButton(onClick = onBackClick) {
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                }
+                            },
+                            windowInsets = WindowInsets(0, 0, 0, 0),
+                            actions = {
+                                IconButton(onClick = { isSearchActive = true }) {
+                                    Icon(Icons.Default.Search, contentDescription = null)
+                                }
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = Color.Transparent,
+                                titleContentColor = Color.White,
+                                navigationIconContentColor = Color.White,
+                                actionIconContentColor = Color.White
+                            )
+                        )
                     }
-                )
-            } else {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.carts_history)) },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { isSearchActive = true }) {
-                            Icon(Icons.Default.Search, contentDescription = null)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White,
-                        actionIconContentColor = Color.White
-                    )
-                )
+                }
             }
         }
     ) { paddingValues ->

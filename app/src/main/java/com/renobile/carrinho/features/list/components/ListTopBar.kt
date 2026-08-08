@@ -16,10 +16,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,6 +31,9 @@ import com.renobile.carrinho.features.cart.components.CartHeader
 import com.renobile.carrinho.features.cart.components.SearchAppBar
 import com.renobile.carrinho.features.list.ListActions
 import com.renobile.carrinho.features.list.ListState
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.statusBars
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,108 +49,114 @@ fun ListTopBar(
     onToggleMenu: (Boolean) -> Unit = {},
     showMenu: Boolean = false,
 ) {
-    Column {
-        if (isSearchActive) {
-            SearchAppBar(
-                query = state.searchTerms,
-                onQueryChange = actions.onSearchChanged,
-                onCancelSearch = {
-                    onSearchActiveChange(false)
-                    actions.onSearchChanged("")
-                },
-            )
-        } else {
-            TopAppBar(
-                title = {
-                    Text(
-                        state.list?.let { stringResource(R.string.label_list, it.name) }
-                            ?: stringResource(R.string.purchase_list),
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White,
-                ),
-                actions = {
-                    IconButton(onClick = { onSearchActiveChange(true) }) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_products))
-                    }
-                    IconButton(onClick = onShowCreateList) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_playlist_plus),
-                            contentDescription = stringResource(R.string.new_list),
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = Color.White
+    ) {
+        Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
+            if (isSearchActive) {
+                SearchAppBar(
+                    query = state.searchTerms,
+                    onQueryChange = actions.onSearchChanged,
+                    onCancelSearch = {
+                        onSearchActiveChange(false)
+                        actions.onSearchChanged("")
+                    },
+                )
+            } else {
+                TopAppBar(
+                    title = {
+                        Text(
+                            state.list?.let { stringResource(R.string.label_list, it.name) }
+                                ?: stringResource(R.string.purchase_list),
                         )
-                    }
-                    Box {
-                        IconButton(onClick = { onToggleMenu(!showMenu) }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
+                    },
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = Color.White,
+                        actionIconContentColor = Color.White,
+                    ),
+                    actions = {
+                        IconButton(onClick = { onSearchActiveChange(true) }) {
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_products))
                         }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { onToggleMenu(false) },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lists_history)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    actions.onOpenHistory()
-                                },
-                                leadingIcon = { Icon(Icons.Default.List, null) },
+                        IconButton(onClick = onShowCreateList) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_playlist_plus),
+                                contentDescription = stringResource(R.string.new_list),
                             )
-                            if (state.list != null) {
+                        }
+                        Box {
+                            IconButton(onClick = { onToggleMenu(!showMenu) }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { onToggleMenu(false) },
+                            ) {
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.send_list)) },
+                                    text = { Text(stringResource(R.string.lists_history)) },
                                     onClick = {
                                         onToggleMenu(false)
-                                        actions.onSendList()
+                                        actions.onOpenHistory()
+                                    },
+                                    leadingIcon = { Icon(Icons.Default.List, null) },
+                                )
+                                if (state.list != null) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.send_list)) },
+                                        onClick = {
+                                            onToggleMenu(false)
+                                            actions.onSendList()
+                                        },
+                                        leadingIcon = { Icon(Icons.Default.Share, null) },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.import_list)) },
+                                        onClick = {
+                                            onToggleMenu(false)
+                                            onShowImportList()
+                                        },
+                                        leadingIcon = { Icon(Icons.Default.Add, null) },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.clear_list)) },
+                                        onClick = {
+                                            onToggleMenu(false)
+                                            onShowClearList()
+                                        },
+                                        leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                    )
+                                }
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.share_app)) },
+                                    onClick = {
+                                        onToggleMenu(false)
+                                        actions.onShareApp()
                                     },
                                     leadingIcon = { Icon(Icons.Default.Share, null) },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.import_list)) },
+                                    text = { Text(stringResource(R.string.sort_order)) },
                                     onClick = {
                                         onToggleMenu(false)
-                                        onShowImportList()
+                                        onShowSortOptions()
                                     },
-                                    leadingIcon = { Icon(Icons.Default.Add, null) },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.clear_list)) },
-                                    onClick = {
-                                        onToggleMenu(false)
-                                        onShowClearList()
-                                    },
-                                    leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
                                 )
                             }
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.share_app)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    actions.onShareApp()
-                                },
-                                leadingIcon = { Icon(Icons.Default.Share, null) },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.sort_order)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    onShowSortOptions()
-                                },
-                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
-                            )
                         }
-                    }
-                },
-            )
-        }
-        if (state.list != null) {
-            CartHeader(
-                total = state.total,
-                productCount = state.products.size,
-                volumes = state.volumes,
-            )
+                    },
+                )
+            }
+            if (state.list != null) {
+                CartHeader(
+                    total = state.total,
+                    productCount = state.products.size,
+                    volumes = state.volumes,
+                )
+            }
         }
     }
 }

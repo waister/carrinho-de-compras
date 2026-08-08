@@ -12,6 +12,7 @@ import com.renobile.carrinho.util.PREF_SORT_ORDER
 import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.ProductSortOrder
 import com.renobile.carrinho.util.createCartListNameGeneric
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,8 @@ import kotlin.random.Random
 class ListViewModel(
     private val purchaseListRepository: PurchaseListRepository,
     private val productRepository: ProductRepository,
-    private val cartRepository: CartRepository
+    private val cartRepository: CartRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ListState())
@@ -48,12 +50,12 @@ class ListViewModel(
     private suspend fun fetchData(showLoading: Boolean = true) {
         if (showLoading) _uiState.update { it.copy(isLoading = true) }
         try {
-            val lists = withContext(Dispatchers.IO) { purchaseListRepository.getAllLists() }
+            val lists = withContext(ioDispatcher) { purchaseListRepository.getAllLists() }
             val activeList = lists.find { it.dateClose == 0L }
             val products = activeList?.let { 
-                withContext(Dispatchers.IO) { productRepository.getProductsByListId(it.id) } 
+                withContext(ioDispatcher) { productRepository.getProductsByListId(it.id) } 
             } ?: emptyList()
-            val suggestions = withContext(Dispatchers.IO) { productRepository.getProductSuggestions() }
+            val suggestions = withContext(ioDispatcher) { productRepository.getProductSuggestions() }
             val sortOrder = ProductSortOrder.valueOf(
                 Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
             )
@@ -109,11 +111,11 @@ class ListViewModel(
                         units = currentProducts.sumOf { it.quantity },
                         valueTotal = currentProducts.sumOf { it.price * it.quantity }
                     )
-                    withContext(Dispatchers.IO) { purchaseListRepository.insertList(updatedList) }
+                    withContext(ioDispatcher) { purchaseListRepository.insertList(updatedList) }
                 }
 
                 val finalName = name.ifEmpty { createCartListNameGeneric() }
-                val lists = withContext(Dispatchers.IO) { purchaseListRepository.getAllLists() }
+                val lists = withContext(ioDispatcher) { purchaseListRepository.getAllLists() }
                 val newId = (lists.maxOfOrNull { it.id } ?: 0L) + 1
                 val newList = PurchaseListEntity(
                     id = newId,
@@ -124,7 +126,7 @@ class ListViewModel(
                     units = 0.0,
                     valueTotal = 0.0
                 )
-                withContext(Dispatchers.IO) { purchaseListRepository.insertList(newList) }
+                withContext(ioDispatcher) { purchaseListRepository.insertList(newList) }
                 fetchData()
                 _events.send(ListEvents.ShowSnackbar(R.string.create_list_success))
             } catch (e: Exception) {
@@ -136,7 +138,7 @@ class ListViewModel(
     fun addOrEditProduct(product: ProductEntity) {
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) { productRepository.insertProduct(product) }
+                withContext(ioDispatcher) { productRepository.insertProduct(product) }
                 fetchData(showLoading = false)
                 _events.send(ListEvents.ShowSnackbar(R.string.product_added))
             } catch (e: Exception) {
@@ -148,7 +150,7 @@ class ListViewModel(
     fun deleteProduct(product: ProductEntity) {
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) { productRepository.deleteProduct(product) }
+                withContext(ioDispatcher) { productRepository.deleteProduct(product) }
                 fetchData(showLoading = false)
                 _events.send(ListEvents.ShowSnackbar(R.string.success_delete))
             } catch (e: Exception) {
@@ -161,9 +163,9 @@ class ListViewModel(
         val listId = _uiState.value.list?.id ?: return
         viewModelScope.launch {
             try {
-                val products = withContext(Dispatchers.IO) { productRepository.getProductsByListId(listId) }
+                val products = withContext(ioDispatcher) { productRepository.getProductsByListId(listId) }
                 products.forEach { 
-                    withContext(Dispatchers.IO) { productRepository.deleteProduct(it) } 
+                    withContext(ioDispatcher) { productRepository.deleteProduct(it) } 
                 }
                 fetchData(showLoading = false)
             } catch (e: Exception) {
@@ -180,7 +182,7 @@ class ListViewModel(
         viewModelScope.launch {
             try {
                 val updatedProduct = product.copy(quantity = product.quantity + delta)
-                withContext(Dispatchers.IO) { productRepository.insertProduct(updatedProduct) }
+                withContext(ioDispatcher) { productRepository.insertProduct(updatedProduct) }
                 fetchData(showLoading = false)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
@@ -191,7 +193,7 @@ class ListViewModel(
     fun moveToCart(product: ProductEntity, quantity: Double, price: Double) {
         viewModelScope.launch {
             try {
-                val activeCart = withContext(Dispatchers.IO) { cartRepository.getActiveCart() }
+                val activeCart = withContext(ioDispatcher) { cartRepository.getActiveCart() }
                 if (activeCart == null) {
                     _events.send(ListEvents.ShowSnackbar(R.string.create_cart_needed))
                     return@launch
@@ -204,7 +206,7 @@ class ListViewModel(
                     quantity = quantity,
                     price = price
                 )
-                withContext(Dispatchers.IO) { 
+                withContext(ioDispatcher) { 
                     productRepository.deleteProduct(product)
                     productRepository.insertProduct(updatedProduct) 
                 }
@@ -254,11 +256,11 @@ class ListViewModel(
                     )
                 }
                 
-                withContext(Dispatchers.IO) {
+                withContext(ioDispatcher) {
                     productRepository.insertProducts(products)
                 }
                 
-                val updatedProducts = withContext(Dispatchers.IO) {
+                val updatedProducts = withContext(ioDispatcher) {
                     productRepository.getProductsByListId(currentList.id) 
                 }
                 
@@ -278,6 +280,6 @@ class ListViewModel(
     }
 
     suspend fun getActiveCartId(): Long? {
-        return withContext(Dispatchers.IO) { cartRepository.getActiveCart()?.id }
+        return withContext(ioDispatcher) { cartRepository.getActiveCart()?.id }
     }
 }

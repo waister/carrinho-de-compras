@@ -4,7 +4,6 @@ data class MainState(
     val versionUpdate: VersionUpdate? = null,
     val isBottomBarVisible: Boolean = false,
     val areBarsVisible: Boolean = true,
-    val isAdVisible: Boolean = false,
 )
 
 sealed class VersionUpdate {

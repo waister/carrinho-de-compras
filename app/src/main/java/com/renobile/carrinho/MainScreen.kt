@@ -1,19 +1,19 @@
 package com.renobile.carrinho
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -22,13 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -51,7 +49,6 @@ import com.renobile.carrinho.util.havePlan
 import com.renobile.carrinho.util.loadBannerAd
 import com.renobile.carrinho.util.storeAppLink
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
@@ -87,29 +84,18 @@ fun MainScreen(
         }
     }
 
-    val bottomBarTranslationY by animateFloatAsState(
-        targetValue = if (uiState.areBarsVisible) 0f else 208f,
-        animationSpec = tween(durationMillis = 300),
-        label = "bottomBarTranslation"
-    )
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = if (uiState.isBottomBarVisible) {
-            MaterialTheme.colorScheme.background
-        } else {
-            MaterialTheme.colorScheme.primary
-        },
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            if (uiState.isBottomBarVisible) {
-                Column(
-                    modifier = Modifier
-                        .graphicsLayer { translationY = bottomBarTranslationY }
-                ) {
-                    AdBanner(
-                        adUnitId = Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
-                        onAdLoaded = { mainViewModel.setAdVisible(it) }
-                    )
+            AnimatedVisibility(
+                visible = uiState.isBottomBarVisible && uiState.areBarsVisible,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column {
+                    AdBanner(adUnitId = Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""))
                     MainBottomNavigation(navController)
                 }
             }
@@ -127,11 +113,9 @@ fun MainScreen(
 
 @Composable
 fun AdBanner(
-    adUnitId: String,
-    onAdLoaded: (Boolean) -> Unit = {}
+    adUnitId: String
 ) {
     if (havePlan() || adUnitId.isEmpty()) {
-        LaunchedEffect(Unit) { onAdLoaded(false) }
         return
     }
 
@@ -145,8 +129,7 @@ fun AdBanner(
                     adUnitId = adUnitId,
                     adSize = null,
                     collapsible = false,
-                    shimmer = null,
-                    onAdLoaded = onAdLoaded
+                    shimmer = null
                 )
             }
         }

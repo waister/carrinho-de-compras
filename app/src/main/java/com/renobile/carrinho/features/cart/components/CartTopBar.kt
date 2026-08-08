@@ -2,6 +2,8 @@ package com.renobile.carrinho.features.cart.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -15,10 +17,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,6 +33,7 @@ import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.features.cart.CartActions
 import com.renobile.carrinho.features.cart.CartState
 import com.renobile.carrinho.ui.theme.MyAppTheme
+import androidx.compose.foundation.layout.statusBars
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,100 +48,106 @@ fun CartTopBar(
     onToggleMenu: (Boolean) -> Unit = {},
     showMenu: Boolean = false,
 ) {
-    Column {
-        if (isSearchActive) {
-            SearchAppBar(
-                query = state.searchTerms,
-                onQueryChange = actions.onSearchChanged,
-                onCancelSearch = {
-                    onSearchActiveChange(false)
-                    actions.onSearchChanged("")
-                },
-            )
-        } else {
-            TopAppBar(
-                title = {
-                    Text(
-                        state.cart?.let { stringResource(R.string.label_cart, it.name) }
-                            ?: stringResource(R.string.app_name),
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White,
-                ),
-                actions = {
-                    IconButton(onClick = { onSearchActiveChange(true) }) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_products))
-                    }
-                    IconButton(onClick = onShowCreateCart) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_cart_plus),
-                            contentDescription = stringResource(R.string.new_cart),
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = Color.White
+    ) {
+        Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
+            if (isSearchActive) {
+                SearchAppBar(
+                    query = state.searchTerms,
+                    onQueryChange = actions.onSearchChanged,
+                    onCancelSearch = {
+                        onSearchActiveChange(false)
+                        actions.onSearchChanged("")
+                    },
+                )
+            } else {
+                TopAppBar(
+                    title = {
+                        Text(
+                            state.cart?.let { stringResource(R.string.label_cart, it.name) }
+                                ?: stringResource(R.string.app_name),
                         )
-                    }
-                    Box {
-                        IconButton(onClick = { onToggleMenu(!showMenu) }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
+                    },
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = Color.White,
+                        actionIconContentColor = Color.White,
+                    ),
+                    actions = {
+                        IconButton(onClick = { onSearchActiveChange(true) }) {
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_products))
                         }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { onToggleMenu(false) },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.carts_history)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    actions.onOpenHistory()
-                                },
-                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.List, null) },
+                        IconButton(onClick = onShowCreateCart) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_cart_plus),
+                                contentDescription = stringResource(R.string.new_cart),
                             )
-                            if (state.cart != null) {
+                        }
+                        Box {
+                            IconButton(onClick = { onToggleMenu(!showMenu) }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { onToggleMenu(false) },
+                            ) {
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.send_cart)) },
+                                    text = { Text(stringResource(R.string.carts_history)) },
                                     onClick = {
                                         onToggleMenu(false)
-                                        actions.onSendCart()
+                                        actions.onOpenHistory()
+                                    },
+                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.List, null) },
+                                )
+                                if (state.cart != null) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.send_cart)) },
+                                        onClick = {
+                                            onToggleMenu(false)
+                                            actions.onSendCart()
+                                        },
+                                        leadingIcon = { Icon(Icons.Default.Share, null) },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.clear_cart)) },
+                                        onClick = {
+                                            onToggleMenu(false)
+                                            onShowClearCart()
+                                        },
+                                        leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                    )
+                                }
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.share_app)) },
+                                    onClick = {
+                                        onToggleMenu(false)
+                                        actions.onShareApp()
                                     },
                                     leadingIcon = { Icon(Icons.Default.Share, null) },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.clear_cart)) },
+                                    text = { Text(stringResource(R.string.sort_order)) },
                                     onClick = {
                                         onToggleMenu(false)
-                                        onShowClearCart()
+                                        onShowSortOptions()
                                     },
-                                    leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
                                 )
                             }
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.share_app)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    actions.onShareApp()
-                                },
-                                leadingIcon = { Icon(Icons.Default.Share, null) },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.sort_order)) },
-                                onClick = {
-                                    onToggleMenu(false)
-                                    onShowSortOptions()
-                                },
-                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
-                            )
                         }
-                    }
-                },
-            )
-        }
-        if (state.cart != null) {
-            CartHeader(
-                total = state.total,
-                productCount = state.products.size,
-                volumes = state.volumes,
-            )
+                    },
+                )
+            }
+            if (state.cart != null) {
+                CartHeader(
+                    total = state.total,
+                    productCount = state.products.size,
+                    volumes = state.volumes,
+                )
+            }
         }
     }
 }

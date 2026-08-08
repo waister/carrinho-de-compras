@@ -1,6 +1,5 @@
 package com.renobile.carrinho.features.list
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -53,13 +52,11 @@ import com.renobile.carrinho.features.list.components.ListOptionsDialog
 import com.renobile.carrinho.features.list.components.ListTopBar
 import com.renobile.carrinho.ui.theme.MyAppTheme
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ListScreen(
     viewModel: ListViewModel,
     actions: ListActions,
     areBarsVisible: Boolean = true,
-    isAdVisible: Boolean = false,
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -73,18 +70,15 @@ fun ListScreen(
         actions = actions,
         activeCartId = activeCartId,
         areBarsVisible = areBarsVisible,
-        isAdVisible = isAdVisible,
     )
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ListScreen(
     state: ListState,
     actions: ListActions,
     activeCartId: Long = 0L,
     areBarsVisible: Boolean = true,
-    isAdVisible: Boolean = false,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }

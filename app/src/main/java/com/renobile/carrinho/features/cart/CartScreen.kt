@@ -47,13 +47,11 @@ import com.renobile.carrinho.features.cart.components.ProductOptionsDialog
 import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 import com.renobile.carrinho.ui.theme.MyAppTheme
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CartScreen(
     state: CartState,
     actions: CartActions,
     areBarsVisible: Boolean = true,
-    isAdVisible: Boolean = false,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }

@@ -3,6 +3,9 @@ package com.renobile.carrinho.features.comparator
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -112,22 +116,29 @@ fun ComparatorScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.comparator)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                ),
-                actions = {
-                    IconButton(onClick = { showClearDialog = true }) {
-                        Icon(Icons.Default.Clear, contentDescription = null)
+            Surface(
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
+            ) {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.comparator)) },
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = Color.White,
+                        actionIconContentColor = Color.White
+                    ),
+                    actions = {
+                        IconButton(onClick = { showClearDialog = true }) {
+                            Icon(Icons.Default.Clear, contentDescription = null)
+                        }
+                        IconButton(onClick = onShare) {
+                            Icon(Icons.Default.Share, contentDescription = null)
+                        }
                     }
-                    IconButton(onClick = onShare) {
-                        Icon(Icons.Default.Share, contentDescription = null)
-                    }
-                }
-            )
+                )
+            }
         }
     ) { paddingValues ->
         Column(

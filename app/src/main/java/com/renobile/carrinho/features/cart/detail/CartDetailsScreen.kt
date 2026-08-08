@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -24,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -108,72 +113,78 @@ fun CartDetailsContent(
 
     Scaffold(
         topBar = {
-            Column {
-                if (isSearchActive) {
-                    SearchAppBar(
-                        query = state.searchTerms,
-                        onQueryChange = actions.onSearchChanged,
-                        onCancelSearch = {
-                            actions.onSearchChanged("")
-                            isSearchActive = false
-                        },
-                    )
-                } else {
-                    TopAppBar(
-                        title = { Text(state.cart?.name ?: "") },
-                        navigationIcon = {
-                            IconButton(onClick = actions.onBack) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = null)
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            titleContentColor = Color.White,
-                            actionIconContentColor = Color.White,
-                            navigationIconContentColor = Color.White,
-                        ),
-                        actions = {
-                            IconButton(onClick = { isSearchActive = true }) {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = stringResource(R.string.search_products)
-                                )
-                            }
-                            Box {
-                                IconButton(onClick = { showMenu = !showMenu }) {
-                                    Icon(Icons.Default.MoreVert, contentDescription = null)
+            Surface(
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
+            ) {
+                Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
+                    if (isSearchActive) {
+                        SearchAppBar(
+                            query = state.searchTerms,
+                            onQueryChange = actions.onSearchChanged,
+                            onCancelSearch = {
+                                actions.onSearchChanged("")
+                                isSearchActive = false
+                            },
+                        )
+                    } else {
+                        TopAppBar(
+                            title = { Text(state.cart?.name ?: "") },
+                            navigationIcon = {
+                                IconButton(onClick = actions.onBack) {
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                                 }
-                                DropdownMenu(
-                                    expanded = showMenu,
-                                    onDismissRequest = { showMenu = false },
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.sort_order)) },
-                                        onClick = {
-                                            showMenu = false
-                                            showSortOptions = true
-                                        },
-                                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.delete_cart)) },
-                                        onClick = {
-                                            showMenu = false
-                                            showDeleteConfirmation = true
-                                        },
-                                        leadingIcon = { Icon(Icons.Default.Delete, null) },
+                            },
+                            windowInsets = WindowInsets(0, 0, 0, 0),
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = Color.Transparent,
+                                titleContentColor = Color.White,
+                                actionIconContentColor = Color.White,
+                                navigationIconContentColor = Color.White,
+                            ),
+                            actions = {
+                                IconButton(onClick = { isSearchActive = true }) {
+                                    Icon(
+                                        Icons.Default.Search,
+                                        contentDescription = stringResource(R.string.search_products)
                                     )
                                 }
-                            }
-                        },
-                    )
-                }
-                if (state.cart != null) {
-                    CartHeader(
-                        total = state.total,
-                        productCount = state.products.size,
-                        volumes = state.volumes,
-                    )
+                                Box {
+                                    IconButton(onClick = { showMenu = !showMenu }) {
+                                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                                    }
+                                    DropdownMenu(
+                                        expanded = showMenu,
+                                        onDismissRequest = { showMenu = false },
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.sort_order)) },
+                                            onClick = {
+                                                showMenu = false
+                                                showSortOptions = true
+                                            },
+                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.delete_cart)) },
+                                            onClick = {
+                                                showMenu = false
+                                                showDeleteConfirmation = true
+                                            },
+                                            leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                        )
+                                    }
+                                }
+                            },
+                        )
+                    }
+                    if (state.cart != null) {
+                        CartHeader(
+                            total = state.total,
+                            productCount = state.products.size,
+                            volumes = state.volumes,
+                        )
+                    }
                 }
             }
         },

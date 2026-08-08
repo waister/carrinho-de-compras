@@ -53,8 +53,7 @@ fun NavGraphBuilder.listGraph(
         ListScreen(
             viewModel = viewModel,
             actions = actions,
-            areBarsVisible = mainState.areBarsVisible,
-            isAdVisible = mainState.isAdVisible
+            areBarsVisible = mainState.areBarsVisible
         )
     }
 
