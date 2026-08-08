@@ -15,6 +15,7 @@
 local.properties
 
 keystore.properties
+*.jks
 
 # Service Account
 service_account_key.json
