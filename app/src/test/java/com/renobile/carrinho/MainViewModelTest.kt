@@ -34,7 +34,7 @@ class MainViewModelTest {
     fun setup() {
         Dispatchers.setMain(dispatcher)
         mockkObject(Prefs)
-        every { Prefs.getValue<String>(any(), any()) } answers { secondArg() }
+        every { Prefs.getValue(any(), any<Any>()) } answers { secondArg() }
         every { Prefs.putValue(any(), any<Any>()) } just Runs
     }
 
