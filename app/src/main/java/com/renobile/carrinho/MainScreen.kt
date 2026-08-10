@@ -9,7 +9,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,12 +19,19 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
@@ -46,7 +52,6 @@ import com.renobile.carrinho.features.removeads.removeAdsScreen
 import com.renobile.carrinho.features.start.startScreen
 import com.renobile.carrinho.util.PREF_ADMOB_AD_MAIN_ID
 import com.renobile.carrinho.util.Prefs
-import com.renobile.carrinho.util.havePlan
 import com.renobile.carrinho.util.loadBannerAd
 import com.renobile.carrinho.util.storeAppLink
 
@@ -58,6 +63,19 @@ fun MainScreen(
     val navController = rememberNavController()
     val uiState by mainViewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                mainViewModel.updatePlanStatus()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(uiState.versionUpdate) {
         uiState.versionUpdate?.let { update ->
@@ -88,7 +106,6 @@ fun MainScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             AnimatedVisibility(
                 visible = uiState.isBottomBarVisible && uiState.areBarsVisible,
@@ -96,7 +113,10 @@ fun MainScreen(
                 exit = shrinkVertically()
             ) {
                 Column {
-                    AdBanner(adUnitId = Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""))
+                    AdBanner(
+                        adUnitId = Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
+                        havePlan = uiState.havePlan
+                    )
                     MainBottomNavigation(navController)
                 }
             }
@@ -114,11 +134,16 @@ fun MainScreen(
 
 @Composable
 fun AdBanner(
-    adUnitId: String
+    adUnitId: String,
+    havePlan: Boolean
 ) {
-    if (havePlan() || adUnitId.isEmpty()) {
+    if (havePlan || adUnitId.isEmpty()) {
         return
     }
+
+    var isAdVisible by remember { mutableStateOf(true) }
+
+    if (!isAdVisible) return
 
     AndroidView(
         modifier = Modifier.fillMaxWidth(),
@@ -130,7 +155,10 @@ fun AdBanner(
                     adUnitId = adUnitId,
                     adSize = null,
                     collapsible = false,
-                    shimmer = null
+                    shimmer = null,
+                    onAdLoaded = { success ->
+                        isAdVisible = success
+                    }
                 )
             }
         }

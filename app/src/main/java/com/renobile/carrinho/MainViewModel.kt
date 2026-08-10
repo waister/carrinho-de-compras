@@ -6,6 +6,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.renobile.carrinho.repositories.ConfigRepository
 import com.renobile.carrinho.util.PREF_FCM_TOKEN
 import com.renobile.carrinho.util.Prefs
+import com.renobile.carrinho.util.havePlan
 import com.renobile.carrinho.util.isDebug
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +16,12 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(private val configRepository: ConfigRepository) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(MainState())
+    private val _uiState = MutableStateFlow(MainState(havePlan = havePlan()))
     val uiState: StateFlow<MainState> = _uiState.asStateFlow()
+
+    fun updatePlanStatus() {
+        _uiState.update { it.copy(havePlan = havePlan()) }
+    }
 
     fun checkVersion() {
         val token = Prefs.getValue(PREF_FCM_TOKEN, "")
