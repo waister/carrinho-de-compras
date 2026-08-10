@@ -77,7 +77,6 @@ fun NotificationsScreen(
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.notifications) { notification ->
                         NotificationItem(notification = notification, onClick = { onNotificationClick(notification.id) })
-                        HorizontalDivider()
                     }
                 }
             }
