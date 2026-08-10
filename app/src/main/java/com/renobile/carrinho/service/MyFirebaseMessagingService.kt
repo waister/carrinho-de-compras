@@ -14,19 +14,17 @@ import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import com.github.kittinunf.fuel.httpGet
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.renobile.carrinho.BuildConfig
+import com.renobile.carrinho.MainActivity
 import com.renobile.carrinho.R
-import com.renobile.carrinho.activity.StartActivity
+import com.renobile.carrinho.repositories.ConfigRepository
 import com.renobile.carrinho.util.API_ABOUT_APP
 import com.renobile.carrinho.util.API_FEEDBACK
 import com.renobile.carrinho.util.API_NOTIFICATIONS
 import com.renobile.carrinho.util.API_PREMIUM
-import com.renobile.carrinho.util.API_ROUTE_IDENTIFY
-import com.renobile.carrinho.util.API_TOKEN
 import com.renobile.carrinho.util.API_WAKEUP
 import com.renobile.carrinho.util.PARAM_ITEM_ID
 import com.renobile.carrinho.util.PARAM_TYPE
@@ -37,25 +35,23 @@ import com.renobile.carrinho.util.getCircleCroppedBitmap
 import com.renobile.carrinho.util.getThumbUrl
 import com.renobile.carrinho.util.isDebug
 import com.renobile.carrinho.util.isValidUrl
-import com.renobile.carrinho.util.printFuelLog
 import com.renobile.carrinho.util.storeAppLink
 import com.renobile.carrinho.util.stringToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.IOException
-import java.net.ConnectException
 import java.net.URL
 
-class MyFirebaseMessagingService : FirebaseMessagingService() {
+class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
+
+    private val configRepository: ConfigRepository by inject()
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
-        const val TYPE = "type"
-        const val TITLE = "title"
-        const val BODY = "body"
-        const val LINK = "link"
-        const val IMAGE = "image"
-        const val VERSION = "version"
-        const val ITEM_ID = "item_id"
-        const val VIBRATE = "vibrate"
-
         const val TAG = "MyFCM"
     }
 
@@ -66,9 +62,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         Prefs.putValue(PREF_FCM_TOKEN, token)
 
-        val params = listOf(API_TOKEN to token)
-        API_ROUTE_IDENTIFY.httpGet(params).responseString { request, response, result ->
-            printFuelLog(request, response, result)
+        serviceScope.launch {
+            configRepository.identify(token).onSuccess {
+                configRepository.saveConfig(it)
+            }
         }
     }
 
@@ -77,152 +74,154 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         appLog(TAG, "Firebase Cloud Messaging new message received!")
 
-        val data = remoteMessage.data
+        val pushData = parsePushData(remoteMessage.data)
+        appLog(TAG, "Push data: $pushData")
 
-        appLog(TAG, "Push message data: $data")
+        if (pushData.title.isEmpty() || pushData.type == API_WAKEUP) return
 
-        var type = ""
-        var title = ""
-        var body = ""
-        var link = ""
-        var image = ""
-        var version = ""
-        var itemId = ""
-        var vibrate = ""
+        val finalLink = handleVersionCheck(pushData.version, pushData.link) ?: return
+        val notifyIntent = createNotifyIntent(pushData, finalLink)
 
-        for (entry in data.entries) {
-            val value = entry.value
+        showNotification(pushData, notifyIntent)
 
-            when (entry.key) {
-                TYPE -> type = value
-                TITLE -> title = value
-                BODY -> body = value
-                LINK -> link = value
-                IMAGE -> image = value
-                VERSION -> version = value
-                ITEM_ID -> itemId = value
-                VIBRATE -> vibrate = value
-            }
+        if (pushData.vibrate.isNotEmpty()) {
+            handleVibration()
         }
+    }
 
-        appLog(TAG, "Push type: $type")
-        appLog(TAG, "Push title: $title")
-        appLog(TAG, "Push body: $body")
-        appLog(TAG, "Push link: $link")
-        appLog(TAG, "Push image: $image")
-        appLog(TAG, "Push version: $version")
-        appLog(TAG, "Push itemId: $itemId")
+    private fun parsePushData(data: Map<String, String>) = PushData(
+        type = data["type"] ?: "",
+        title = data["title"] ?: "",
+        body = data["body"] ?: "",
+        link = data["link"] ?: "",
+        image = data["image"] ?: "",
+        version = data["version"] ?: "",
+        itemId = data["item_id"] ?: "",
+        vibrate = data["vibrate"] ?: ""
+    )
 
-        if (title.isEmpty() || type == API_WAKEUP)
-            return
+    private fun handleVersionCheck(version: String, currentLink: String): String? {
+        if (version.isEmpty()) return currentLink
 
-        val channelId = "${type}_channel"
+        val versionCode = version.stringToInt()
+        if (versionCode <= 0) return currentLink
 
-        var notifyIntent = Intent(applicationContext, StartActivity::class.java)
-
-        if (version.isNotEmpty()) {
-            val versionCode = version.stringToInt()
-
-            if (versionCode > 0) {
-                if (BuildConfig.VERSION_CODE < versionCode) {
-                    link = storeAppLink()
-                } else {
-                    return
-                }
-            }
-        }
-
-        if (link.isValidUrl()) {
-
-            notifyIntent = Intent(Intent.ACTION_VIEW, link.toUri())
-
+        return if (BuildConfig.VERSION_CODE < versionCode) {
+            storeAppLink()
         } else {
-
-            notifyIntent.putExtra(PARAM_TYPE, type)
-            notifyIntent.putExtra(PARAM_ITEM_ID, itemId)
-
+            null
         }
+    }
 
-        val builder = NotificationCompat.Builder(applicationContext, channelId)
-
-        val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
-            addNextIntentWithParentStack(notifyIntent)
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+    private fun createNotifyIntent(pushData: PushData, link: String): Intent {
+        return if (link.isValidUrl()) {
+            Intent(Intent.ACTION_VIEW, link.toUri())
+        } else {
+            Intent(applicationContext, MainActivity::class.java).apply {
+                putExtra(PARAM_TYPE, pushData.type)
+                putExtra(PARAM_ITEM_ID, pushData.itemId)
+            }
         }
+    }
 
-        builder.setAutoCancel(true)
-        builder.setContentIntent(pendingIntent)
-        builder.setDefaults(NotificationCompat.DEFAULT_ALL)
-        builder.setSmallIcon(R.drawable.ic_notification)
-        builder.setContentTitle(title)
-        builder.setContentText(body)
-        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-        builder.color = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+    private fun showNotification(pushData: PushData, notifyIntent: Intent) {
+        val channelId = "${pushData.type}_channel"
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-        if (body.length > 40) {
-            builder.setStyle(NotificationCompat.BigTextStyle().bigText(body))
-        }
+        setupNotificationChannel(manager, pushData.type, channelId)
 
-        if (image.isNotEmpty()) {
-            val thumbUrl = getThumbUrl(image, 100, 100)
+        val builder = NotificationCompat.Builder(applicationContext, channelId).apply {
+            setAutoCancel(true)
+            setContentIntent(createPendingIntent(notifyIntent))
+            setDefaults(NotificationCompat.DEFAULT_ALL)
+            setSmallIcon(R.drawable.ic_notification)
+            setContentTitle(pushData.title)
+            setContentText(pushData.body)
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            color = ContextCompat.getColor(this@MyFirebaseMessagingService, R.color.colorPrimaryDark)
 
-            appLog(TAG, "Push thumb url: $thumbUrl")
-
-            try {
-                val url = URL(thumbUrl)
-                val icon = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-                if (icon != null) {
-                    builder.setLargeIcon(icon.getCircleCroppedBitmap())
-                }
-            } catch (e: IOException) {
-                if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
-            } catch (e: ConnectException) {
-                if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
+            if (pushData.body.length > 40) {
+                setStyle(NotificationCompat.BigTextStyle().bigText(pushData.body))
             }
         }
 
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (pushData.image.isNotEmpty()) {
+            loadNotificationIcon(builder, pushData.image)
+        }
 
+        manager.notify(1, builder.build())
+        appLog(TAG, "Push notification displayed - vibrate: ${pushData.vibrate}")
+    }
+
+    private fun createPendingIntent(notifyIntent: Intent): PendingIntent? {
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+
+        return TaskStackBuilder.create(this).run {
+            addNextIntentWithParentStack(notifyIntent)
+            getPendingIntent(0, flags)
+        }
+    }
+
+    private fun loadNotificationIcon(builder: NotificationCompat.Builder, image: String) {
+        val thumbUrl = getThumbUrl(image, 100, 100)
+        appLog(TAG, "Push thumb url: $thumbUrl")
+
+        try {
+            val url = URL(thumbUrl)
+            val icon = BitmapFactory.decodeStream(url.openConnection().getInputStream())
+            icon?.let {
+                builder.setLargeIcon(it.getCircleCroppedBitmap())
+            }
+        } catch (e: IOException) {
+            if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
+        }
+    }
+
+    private fun setupNotificationChannel(manager: NotificationManager, type: String, channelId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = when (type) {
+            val nameRes = when (type) {
                 API_PREMIUM -> R.string.remove_ads
                 API_FEEDBACK -> R.string.feedback
                 API_NOTIFICATIONS -> R.string.notifications
                 API_ABOUT_APP -> R.string.about_app
                 else -> R.string.channel_updates
             }
-            val channel =
-                NotificationChannel(channelId, getString(name), NotificationManager.IMPORTANCE_HIGH)
+            val channel = NotificationChannel(channelId, getString(nameRes), NotificationManager.IMPORTANCE_HIGH)
             manager.createNotificationChannel(channel)
-            builder.setChannelId(channelId)
-        }
-
-        manager.notify(1, builder.build())
-
-        appLog(TAG, "Push notification displayed - vibrate: $vibrate")
-
-        if (vibrate.isNotEmpty()) {
-            val pattern = longArrayOf(0, 100, 0, 100)
-            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vm = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                vm.defaultVibrator
-            } else {
-                @Suppress("DEPRECATION")
-                getSystemService(VIBRATOR_SERVICE) as Vibrator
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(
-                    VibrationEffect.createWaveform(
-                        pattern,
-                        VibrationEffect.DEFAULT_AMPLITUDE
-                    )
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                vibrator.vibrate(pattern, -1)
-            }
         }
     }
 
+    private fun handleVibration() {
+        val pattern = longArrayOf(0, 100, 0, 100)
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vm = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vm.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(
+                VibrationEffect.createWaveform(
+                    pattern,
+                    VibrationEffect.DEFAULT_AMPLITUDE
+                )
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(pattern, -1)
+        }
+    }
+
+    private data class PushData(
+        val type: String,
+        val title: String,
+        val body: String,
+        val link: String,
+        val image: String,
+        val version: String,
+        val itemId: String,
+        val vibrate: String,
+    )
 }

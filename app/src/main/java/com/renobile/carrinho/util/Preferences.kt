@@ -3,7 +3,7 @@ package com.renobile.carrinho.util
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.renobile.carrinho.application.CustomApplication
+import com.renobile.carrinho.CustomApplication
 import org.json.JSONObject
 
 const val PREF_DEVICE_ID = "PrefDeviceId"

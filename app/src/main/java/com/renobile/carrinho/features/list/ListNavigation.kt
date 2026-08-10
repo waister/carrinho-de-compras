@@ -1,0 +1,119 @@
+package com.renobile.carrinho.features.list
+
+import androidx.activity.compose.LocalActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.renobile.carrinho.MainViewModel
+import com.renobile.carrinho.features.list.detail.ListDetailsActions
+import com.renobile.carrinho.features.list.detail.ListDetailsEvents
+import com.renobile.carrinho.features.list.detail.ListDetailsScreen
+import com.renobile.carrinho.features.list.detail.ListDetailsViewModel
+import com.renobile.carrinho.features.list.history.ListsHistoryScreen
+import com.renobile.carrinho.features.list.history.ListsHistoryViewModel
+import com.renobile.carrinho.util.sendList
+import com.renobile.carrinho.util.shareApp
+import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.koinViewModel
+
+fun NavGraphBuilder.listGraph(
+    navController: NavHostController,
+    mainViewModel: MainViewModel
+) {
+    composable("list") {
+        val activity = LocalActivity.current as? AppCompatActivity
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(true)
+        }
+        val viewModel: ListViewModel = koinViewModel()
+        val mainState by mainViewModel.uiState.collectAsState()
+        val actions = ListActions(
+            onSearchChanged = { viewModel.onSearchTermsChanged(it) },
+            onCreateList = { viewModel.createList(it) },
+            onAddOrEditProduct = { viewModel.addOrEditProduct(it) },
+            onDeleteProduct = { viewModel.deleteProduct(it) },
+            onChangeQuantity = { product, delta -> viewModel.changeQuantity(product, delta) },
+            onClearList = { viewModel.clearList() },
+            onOpenHistory = { navController.navigate("listsHistory") },
+            onSendList = {
+                val state = viewModel.uiState.value
+                activity?.sendList(state.products, state.list?.name ?: "")
+            },
+            onShareApp = { activity?.shareApp() },
+            onMoveToCart = { product, quantity, price -> viewModel.moveToCart(product, quantity, price) },
+            onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
+            onScroll = { mainViewModel.setBarsVisible(it) }
+        )
+        ListScreen(
+            viewModel = viewModel,
+            actions = actions,
+            areBarsVisible = mainState.areBarsVisible
+        )
+    }
+
+    composable("listsHistory") {
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
+        val viewModel: ListsHistoryViewModel = koinViewModel()
+        ListsHistoryScreen(
+            viewModel = viewModel,
+            onBackClick = { navController.popBackStack() },
+            onListClick = { list ->
+                navController.navigate("listDetails/${list.id}?searchTerms=${viewModel.uiState.value.searchTerms}")
+            }
+        )
+    }
+
+    composable(
+        route = "listDetails/{listId}?searchTerms={searchTerms}",
+        arguments = listOf(
+            navArgument("listId") { type = NavType.LongType },
+            navArgument("searchTerms") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
+    ) { backStackEntry ->
+        val activity = LocalActivity.current as? AppCompatActivity
+        LaunchedEffect(Unit) {
+            mainViewModel.setBottomBarVisible(false)
+        }
+        val listId = backStackEntry.arguments?.getLong("listId") ?: 0L
+        val searchTerms = backStackEntry.arguments?.getString("searchTerms") ?: ""
+        val viewModel: ListDetailsViewModel = koinViewModel()
+
+        LaunchedEffect(listId, searchTerms) {
+            viewModel.init(listId, searchTerms)
+        }
+
+        val actions = ListDetailsActions(
+            onBack = { navController.popBackStack() },
+            onDeleteList = { viewModel.deleteList(listId) },
+            onShareList = {
+                val state = viewModel.uiState.value
+                activity?.sendList(state.products, state.list?.name ?: "")
+            },
+            onSearchChanged = { viewModel.onSearchTermsChanged(listId, it) },
+            onSortOrderChanged = { viewModel.onSortOrderChanged(listId, it) }
+        )
+
+        LaunchedEffect(Unit) {
+            viewModel.events.collectLatest { event ->
+                when (event) {
+                    is ListDetailsEvents.ListDeleted -> navController.popBackStack()
+                    else -> {}
+                }
+            }
+        }
+
+        ListDetailsScreen(viewModel = viewModel, actions = actions)
+    }
+}
