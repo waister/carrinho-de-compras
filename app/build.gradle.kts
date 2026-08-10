@@ -1,5 +1,7 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
+import kotlinx.kover.gradle.plugin.dsl.AggregationType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -8,6 +10,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.kover)
 }
 
 extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
@@ -60,6 +63,12 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         viewBinding = true
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 ksp {
@@ -69,6 +78,26 @@ ksp {
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
+    }
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                androidGeneratedClasses()
+                annotatedBy("androidx.compose.runtime.Composable")
+                packages("com.renobile.carrinho.ui.theme")
+            }
+        }
+        verify {
+            rule("Line coverage") {
+                minBound(45, CoverageUnit.LINE, AggregationType.COVERED_PERCENTAGE)
+            }
+            rule("Branch coverage") {
+                minBound(20, CoverageUnit.BRANCH, AggregationType.COVERED_PERCENTAGE)
+            }
+        }
     }
 }
 
@@ -82,6 +111,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.multidex)
+    implementation(libs.androidx.concurrent.futures)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.shimmer)
 
@@ -140,7 +170,12 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.mockwebserver3)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

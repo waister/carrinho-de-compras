@@ -5,9 +5,13 @@ import com.renobile.carrinho.database.entities.PurchaseListEntity
 import com.renobile.carrinho.repositories.CartRepository
 import com.renobile.carrinho.repositories.ProductRepository
 import com.renobile.carrinho.repositories.PurchaseListRepository
+import com.renobile.carrinho.util.Prefs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -29,10 +33,13 @@ class ListViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        mockkObject(Prefs)
+        every { Prefs.getValue<String>(any(), any()) } answers { secondArg() }
     }
 
     @After
     fun tearDown() {
+        unmockkObject(Prefs)
         Dispatchers.resetMain()
     }
 

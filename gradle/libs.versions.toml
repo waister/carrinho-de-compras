@@ -5,6 +5,7 @@ appUpdateKtx = "2.1.0"
 appcompat = "1.7.1"
 cardview = "1.0.0"
 constraintlayout = "2.2.2"
+concurrentFutures = "1.2.0"
 core-splashscreen = "1.2.0"
 firebaseBom = "34.17.0"
 google-firebase-crashlytics = "3.0.7"
@@ -32,6 +33,10 @@ coil = "2.7.0"
 mockk = "1.14.11"
 turbine = "1.2.1"
 kotlinxCoroutinesTest = "1.11.0"
+robolectric = "4.16.1"
+androidxTestCore = "1.7.0"
+mockwebserver = "5.4.0"
+kover = "0.9.9"
 
 [libraries]
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
@@ -39,6 +44,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-concurrent-futures = { group = "androidx.concurrent", name = "concurrent-futures", version.ref = "concurrentFutures" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
 androidx-lifecycle-common-java8 = { group = "androidx.lifecycle", name = "lifecycle-common-java8", version.ref = "lifecycle" }
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
@@ -77,6 +83,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationCompose" }
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationCompose" }
@@ -93,6 +100,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTestCore" }
+mockwebserver3 = { group = "com.squareup.okhttp3", name = "mockwebserver3", version.ref = "mockwebserver" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -103,3 +113,4 @@ jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = 
 jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "jetbrains-kotlin-kapt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
