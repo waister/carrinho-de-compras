@@ -11,12 +11,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,6 +42,16 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.tooling.preview.Preview
+import com.renobile.carrinho.ui.theme.MyAppTheme
+import androidx.compose.ui.platform.LocalInspectionMode
+import com.renobile.carrinho.database.entities.CartEntity
+import com.renobile.carrinho.database.entities.ProductEntity
+import com.renobile.carrinho.features.cart.CartActions
+import com.renobile.carrinho.features.cart.CartScreen
+import com.renobile.carrinho.features.cart.CartState
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -62,13 +80,32 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     val uiState by mainViewModel.uiState.collectAsState()
+
+    MainScreen(
+        uiState = uiState,
+        navController = navController,
+        onUpdatePlanStatus = { mainViewModel.updatePlanStatus() },
+        onVersionUpdateHandled = { mainViewModel.onVersionUpdateHandled() }
+    ) {
+        MainNavHost(navController, mainViewModel, onShowInterstitialAd)
+    }
+}
+
+@Composable
+internal fun MainScreen(
+    uiState: MainState,
+    navController: NavHostController,
+    onUpdatePlanStatus: () -> Unit,
+    onVersionUpdateHandled: () -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                mainViewModel.updatePlanStatus()
+                onUpdatePlanStatus()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -98,7 +135,7 @@ fun MainScreen(
                         .setNegativeButton(R.string.updated_negative, null)
                 }
             }
-            builder.setOnDismissListener { mainViewModel.onVersionUpdateHandled() }
+            builder.setOnDismissListener { onVersionUpdateHandled() }
             builder.show()
         }
     }
@@ -112,12 +149,26 @@ fun MainScreen(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column {
-                    AdBanner(
-                        adUnitId = Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
-                        havePlan = uiState.havePlan
-                    )
-                    MainBottomNavigation(navController)
+                Surface(
+                    shadowElevation = 8.dp,
+                    color = MaterialTheme.colorScheme.primary
+                ) {
+                    Column(
+                        modifier = Modifier.windowInsetsPadding(
+                            WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                        )
+                    ) {
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = Color.White.copy(alpha = 0.2f)
+                        )
+                        val isPreview = LocalInspectionMode.current
+                        AdBanner(
+                            adUnitId = if (isPreview) "" else Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
+                            havePlan = uiState.havePlan
+                        )
+                        MainBottomNavigation(navController)
+                    }
                 }
             }
         }
@@ -127,7 +178,7 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            MainNavHost(navController, mainViewModel, onShowInterstitialAd)
+            content(paddingValues)
         }
     }
 }
@@ -175,7 +226,12 @@ fun MainBottomNavigation(navController: NavHostController) {
         BottomNavItem("more", R.drawable.ic_dots_horizontal, R.string.more)
     )
 
-    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+    NavigationBar(
+        containerColor = Color.Transparent,
+        contentColor = Color.White,
+        tonalElevation = 0.dp,
+        windowInsets = WindowInsets(0, 0, 0, 0)
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
         items.forEach { item ->
@@ -183,6 +239,13 @@ fun MainBottomNavigation(navController: NavHostController) {
                 icon = { Icon(painterResource(item.iconRes), contentDescription = null) },
                 label = { Text(stringResource(item.labelRes)) },
                 selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    unselectedIconColor = Color.White.copy(alpha = 0.7f),
+                    unselectedTextColor = Color.White.copy(alpha = 0.7f),
+                    indicatorColor = Color.Transparent
+                ),
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
@@ -212,5 +275,45 @@ fun MainNavHost(
         moreScreen(navController, mainViewModel)
         notificationGraph(navController, mainViewModel)
         aboutScreen(navController, mainViewModel)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    val dummyState = CartState(
+        cart = CartEntity(
+            id = 1,
+            name = "Compras Semanal",
+            dateOpen = System.currentTimeMillis(),
+            dateClose = 0L,
+            products = 2,
+            units = 5.0,
+            valueTotal = 50.0,
+            keywords = "",
+        ),
+        products = listOf(
+            ProductEntity(1, 1, 0, "Arroz", 2.0, 15.0),
+            ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0),
+        ),
+    )
+
+    MyAppTheme {
+        MainScreen(
+            uiState = MainState(
+                isBottomBarVisible = true,
+                areBarsVisible = true,
+                havePlan = false
+            ),
+            navController = rememberNavController(),
+            onUpdatePlanStatus = {},
+            onVersionUpdateHandled = {},
+            content = {
+                CartScreen(
+                    state = dummyState,
+                    actions = CartActions()
+                )
+            }
+        )
     }
 }
