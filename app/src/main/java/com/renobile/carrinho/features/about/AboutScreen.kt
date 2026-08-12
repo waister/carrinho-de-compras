@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.renobile.carrinho.BuildConfig
 import com.renobile.carrinho.R
+import com.renobile.carrinho.util.PREF_DEVICE_ID
+import com.renobile.carrinho.util.Prefs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +31,7 @@ fun AboutScreen(
     onSecretAction: () -> Unit
 ) {
     var cartClicks by remember { mutableIntStateOf(0) }
+    val deviceId = remember { Prefs.getValue(PREF_DEVICE_ID, "") }
 
     Scaffold(
         topBar = {
@@ -91,6 +95,18 @@ fun AboutScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 16.dp)
             )
+
+            if (deviceId.isNotEmpty()) {
+                SelectionContainer {
+                    Text(
+                        text = deviceId,
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 10.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
 
             TextButton(
                 onClick = onRemoveAds,
