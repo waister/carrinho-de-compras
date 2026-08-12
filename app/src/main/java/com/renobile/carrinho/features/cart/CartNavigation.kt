@@ -71,7 +71,7 @@ fun NavGraphBuilder.cartGraph(
 
     composable("cartsHistory") {
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val viewModel: CartsHistoryViewModel = koinViewModel()
         CartsHistoryScreen(
@@ -96,7 +96,7 @@ fun NavGraphBuilder.cartGraph(
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val cartId = backStackEntry.arguments?.getLong("cartId") ?: 0L
         val searchTerms = backStackEntry.arguments?.getString("searchTerms") ?: ""

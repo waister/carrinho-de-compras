@@ -238,10 +238,15 @@ fun MainBottomNavigation(navController: NavHostController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
         items.forEach { item ->
+            val isSelected = currentDestination?.hierarchy?.any { it.route == item.route } == true ||
+                    (item.route == "cart" && (currentDestination?.route?.contains("cart") == true && currentDestination.route != "cart")) ||
+                    (item.route == "list" && (currentDestination?.route?.contains("list") == true && currentDestination.route != "list")) ||
+                    (item.route == "more" && (currentDestination?.route == "about" || currentDestination?.route?.contains("notification") == true))
+
             NavigationBarItem(
                 icon = { Icon(painterResource(item.iconRes), contentDescription = null) },
                 label = { Text(stringResource(item.labelRes)) },
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                selected = isSelected,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,
                     selectedTextColor = Color.White,

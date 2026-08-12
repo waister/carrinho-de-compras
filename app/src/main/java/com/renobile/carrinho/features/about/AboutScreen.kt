@@ -1,7 +1,7 @@
 package com.renobile.carrinho.features.about
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -56,23 +56,27 @@ fun AboutScreen(
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.primary
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(25.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 25.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            Image(
-                painter = painterResource(R.drawable.logo_splash_96dp),
+            Icon(
+                painter = painterResource(R.drawable.ic_cart_outline),
                 contentDescription = stringResource(R.string.app_logo),
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .size(96.dp)
-                    .clickable {
+                    .size(72.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
                         cartClicks++
                         if (cartClicks >= 50) {
                             onSecretAction()
@@ -82,25 +86,25 @@ fun AboutScreen(
 
             Text(
                 text = stringResource(R.string.about_app_details),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 25.dp)
+                modifier = Modifier.padding(top = 10.dp)
             )
 
             Text(
                 text = stringResource(R.string.version, BuildConfig.VERSION_NAME),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 12.dp)
             )
 
             if (deviceId.isNotEmpty()) {
                 SelectionContainer {
                     Text(
                         text = deviceId,
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
                         fontSize = 10.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 4.dp)
@@ -110,11 +114,11 @@ fun AboutScreen(
 
             TextButton(
                 onClick = onRemoveAds,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 10.dp)
             ) {
                 Text(
                     text = stringResource(R.string.remove_ads),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

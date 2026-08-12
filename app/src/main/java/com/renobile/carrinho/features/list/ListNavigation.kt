@@ -59,7 +59,7 @@ fun NavGraphBuilder.listGraph(
 
     composable("listsHistory") {
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val viewModel: ListsHistoryViewModel = koinViewModel()
         ListsHistoryScreen(
@@ -84,7 +84,7 @@ fun NavGraphBuilder.listGraph(
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val listId = backStackEntry.arguments?.getLong("listId") ?: 0L
         val searchTerms = backStackEntry.arguments?.getString("searchTerms") ?: ""
