@@ -1,5 +1,7 @@
 package com.renobile.carrinho.features.comparator
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -56,6 +59,9 @@ import com.renobile.carrinho.ui.theme.TextPrimary
 import com.renobile.carrinho.ui.theme.TextSecondary
 import com.renobile.carrinho.util.fromHtml
 import java.text.NumberFormat
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun ComparatorScreen(
@@ -93,6 +99,7 @@ fun ComparatorScreen(
 
     LaunchedEffect(state.showResult) {
         if (state.showResult) {
+            delay(100) // Small delay to wait for layout update
             scrollState.animateScrollTo(scrollState.maxValue)
         }
     }
@@ -115,6 +122,7 @@ fun ComparatorScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
@@ -179,6 +187,8 @@ fun ComparatorScreen(
             if (state.showResult) {
                 ResultSection(state)
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
