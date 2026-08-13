@@ -18,7 +18,7 @@ fun NavGraphBuilder.aboutScreen(
     composable("about") {
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         AboutScreen(
             onBack = { navController.popBackStack() },

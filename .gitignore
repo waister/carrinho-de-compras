@@ -1,26 +1,39 @@
-*.iml
-.gradle
-/local.properties
-.idea/
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Android / Gradle
+.gradle/
+build/
+captures/
+.cxx/
 local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
 
-keystore.properties
+# Secrets & Keys
 *.jks
-
-# Service Account
+*.keystore
+keystore.properties
 service_account_key.json
-
-# Fastlane
-fastlane/report.xml
-
+google-services.json
 network_security_config_proxy_local.xml
 
-*.aab
-
-# AI Artifacts
+# IDE / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
 .artifacts/
+
+# OS / Logs
+.DS_Store
+*.log
+*.hprof
+hs_err_pid*
+replay_pid*
+
+# Gradle Wrapper (necessário devido ao *.jar)
+*.jar
+!/gradle/wrapper/gradle-wrapper.jar
+
+fastlane/

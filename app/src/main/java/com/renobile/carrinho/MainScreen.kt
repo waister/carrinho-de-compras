@@ -143,31 +143,34 @@ internal fun MainScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            AnimatedVisibility(
-                visible = uiState.isBottomBarVisible && uiState.areBarsVisible,
-                enter = expandVertically(),
-                exit = shrinkVertically()
+            Surface(
+                color = MaterialTheme.colorScheme.primary,
+                shadowElevation = if (uiState.isBottomBarVisible && uiState.areBarsVisible) 8.dp else 0.dp
             ) {
-                Surface(
-                    shadowElevation = 8.dp,
-                    color = MaterialTheme.colorScheme.primary
+                Column(
+                    modifier = Modifier.windowInsetsPadding(
+                        WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                    )
                 ) {
-                    Column(
-                        modifier = Modifier.windowInsetsPadding(
-                            WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-                        )
+                    AnimatedVisibility(
+                        visible = uiState.isBottomBarVisible && uiState.areBarsVisible,
+                        enter = expandVertically(),
+                        exit = shrinkVertically()
                     ) {
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = Color.White.copy(alpha = 0.2f)
-                        )
-                        val isPreview = LocalInspectionMode.current
-                        AdBanner(
-                            adUnitId = if (isPreview) "" else Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
-                            havePlan = uiState.havePlan
-                        )
-                        MainBottomNavigation(navController)
+                        Column {
+                            HorizontalDivider(
+                                thickness = 0.5.dp,
+                                color = Color.White.copy(alpha = 0.2f)
+                            )
+                            val isPreview = LocalInspectionMode.current
+                            AdBanner(
+                                adUnitId = if (isPreview) "" else Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
+                                havePlan = uiState.havePlan
+                            )
+                            MainBottomNavigation(navController)
+                        }
                     }
                 }
             }
@@ -235,10 +238,15 @@ fun MainBottomNavigation(navController: NavHostController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
         items.forEach { item ->
+            val isSelected = currentDestination?.hierarchy?.any { it.route == item.route } == true ||
+                    (item.route == "cart" && (currentDestination?.route?.contains("cart") == true && currentDestination.route != "cart")) ||
+                    (item.route == "list" && (currentDestination?.route?.contains("list") == true && currentDestination.route != "list")) ||
+                    (item.route == "more" && (currentDestination?.route == "about" || currentDestination?.route?.contains("notification") == true))
+
             NavigationBarItem(
                 icon = { Icon(painterResource(item.iconRes), contentDescription = null) },
                 label = { Text(stringResource(item.labelRes)) },
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                selected = isSelected,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,
                     selectedTextColor = Color.White,

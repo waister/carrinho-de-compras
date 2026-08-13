@@ -55,11 +55,27 @@ fun NavGraphBuilder.listGraph(
             actions = actions,
             areBarsVisible = mainState.areBarsVisible
         )
+
+        LaunchedEffect(Unit) {
+            viewModel.events.collectLatest { event ->
+                when (event) {
+                    is ListEvents.ShowSnackbar -> {
+                        activity?.let {
+                            android.widget.Toast.makeText(
+                                it,
+                                event.messageResId,
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     composable("listsHistory") {
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val viewModel: ListsHistoryViewModel = koinViewModel()
         ListsHistoryScreen(
@@ -84,7 +100,7 @@ fun NavGraphBuilder.listGraph(
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val listId = backStackEntry.arguments?.getLong("listId") ?: 0L
         val searchTerms = backStackEntry.arguments?.getString("searchTerms") ?: ""

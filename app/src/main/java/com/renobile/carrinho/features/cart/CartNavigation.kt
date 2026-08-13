@@ -57,7 +57,15 @@ fun NavGraphBuilder.cartGraph(
             viewModel.events.collectLatest { event ->
                 when (event) {
                     is CartEvents.ShowInterstitialAd -> onShowInterstitialAd()
-                    else -> {}
+                    is CartEvents.ShowSnackbar -> {
+                        activity?.let {
+                            android.widget.Toast.makeText(
+                                it,
+                                event.messageResId,
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             }
         }
@@ -71,7 +79,7 @@ fun NavGraphBuilder.cartGraph(
 
     composable("cartsHistory") {
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val viewModel: CartsHistoryViewModel = koinViewModel()
         CartsHistoryScreen(
@@ -96,7 +104,7 @@ fun NavGraphBuilder.cartGraph(
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
-            mainViewModel.setBottomBarVisible(false)
+            mainViewModel.setBottomBarVisible(true)
         }
         val cartId = backStackEntry.arguments?.getLong("cartId") ?: 0L
         val searchTerms = backStackEntry.arguments?.getString("searchTerms") ?: ""
