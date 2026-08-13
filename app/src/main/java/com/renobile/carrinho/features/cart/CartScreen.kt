@@ -66,11 +66,11 @@ fun CartScreen(
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
 
     val scrollState = rememberLazyListState()
-    val nestedScrollConnection = remember(scrollState) {
+    val nestedScrollConnection = remember(scrollState, state.products.size, actions) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (source == NestedScrollSource.UserInput && (scrollState.canScrollForward || scrollState.canScrollBackward)) {
-                    if (available.y < -10) {
+                if (source == NestedScrollSource.UserInput) {
+                    if (available.y < -10 && scrollState.canScrollForward && state.products.size > 10) {
                         actions.onScroll(false)
                     } else if (available.y > 10) {
                         actions.onScroll(true)
