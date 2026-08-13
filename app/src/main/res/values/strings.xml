@@ -115,6 +115,8 @@
     <string name="update_alert_button">Instalar</string>
     <string name="move_to_cart">Mover para o carrinho</string>
     <string name="move_to_cart_notice">Adicione o preço do produto para mover para o carrinho.</string>
+    <string name="error_price_mandatory">O preço do produto é obrigatório no carrinho!</string>
+    <string name="error_name_mandatory">O nome do produto é obrigatório!</string>
     <string name="import_list">Importar lista</string>
     <string name="import_list_description">Cole aqui os itens da sua lista, um por linha. Você pode copiar da Alexa ou de outros apps.</string>
     <string name="import_list_placeholder">Exemplo:\n3 Bananas\n2 Maçãs\n1 Arroz</string>

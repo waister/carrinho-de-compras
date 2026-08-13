@@ -57,11 +57,13 @@ fun AddProductDialog(
     suggestions: List<ProductSuggestion> = emptyList(),
     title: String? = null,
     message: String? = null,
+    isPriceMandatory: Boolean = false,
     onDismiss: () -> Unit = {},
     onConfirm: (String, Double, Double) -> Unit = { _, _, _ -> },
 ) {
     var name by remember { mutableStateOf(product?.name ?: "") }
     var quantityText by remember { mutableStateOf(product?.quantity?.formatQuantity() ?: "1") }
+    var validationError by remember { mutableStateOf<Int?>(null) }
 
     var expanded by remember { mutableStateOf(false) }
     val filteredSuggestions = remember(name, suggestions) {
@@ -98,9 +100,9 @@ fun AddProductDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (message != null) {
+                if (message != null || validationError != null) {
                     Text(
-                        text = message,
+                        text = validationError?.let { stringResource(it) } ?: message ?: "",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -209,8 +211,10 @@ fun AddProductDialog(
                             text = newText,
                             selection = TextRange(newText.length)
                         )
+                        validationError = null
                     },
                     label = { Text(stringResource(R.string.price)) },
+                    isError = validationError == R.string.error_price_mandatory,
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(priceFocusRequester),
@@ -220,16 +224,24 @@ fun AddProductDialog(
                     ),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            if (name.isNotBlank()) {
+                            val priceValue = priceTextFieldValue.text.parseCurrencyToDouble()
+                            if (name.isBlank()) {
+                                validationError = R.string.error_name_mandatory
+                                focusRequester.requestFocus()
+                            } else if (isPriceMandatory && priceValue <= 0.0) {
+                                validationError = R.string.error_price_mandatory
+                                priceFocusRequester.requestFocus()
+                            } else {
                                 onConfirm(
                                     name,
                                     quantityText.parseToDouble(),
-                                    priceTextFieldValue.text.parseCurrencyToDouble(),
+                                    priceValue,
                                 )
                                 if (product == null) {
                                     name = ""
                                     quantityText = "1"
                                     priceTextFieldValue = TextFieldValue("")
+                                    validationError = null
                                     focusRequester.requestFocus()
                                 }
                             }
@@ -241,16 +253,24 @@ fun AddProductDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (name.isNotBlank()) {
+                    val priceValue = priceTextFieldValue.text.parseCurrencyToDouble()
+                    if (name.isBlank()) {
+                        validationError = R.string.error_name_mandatory
+                        focusRequester.requestFocus()
+                    } else if (isPriceMandatory && priceValue <= 0.0) {
+                        validationError = R.string.error_price_mandatory
+                        priceFocusRequester.requestFocus()
+                    } else {
                         onConfirm(
                             name,
                             quantityText.parseToDouble(),
-                            priceTextFieldValue.text.parseCurrencyToDouble(),
+                            priceValue,
                         )
                         if (product == null) {
                             name = ""
                             quantityText = "1"
                             priceTextFieldValue = TextFieldValue("")
+                            validationError = null
                             focusRequester.requestFocus()
                         }
                     }

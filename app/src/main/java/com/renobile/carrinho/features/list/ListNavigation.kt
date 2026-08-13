@@ -55,6 +55,22 @@ fun NavGraphBuilder.listGraph(
             actions = actions,
             areBarsVisible = mainState.areBarsVisible
         )
+
+        LaunchedEffect(Unit) {
+            viewModel.events.collectLatest { event ->
+                when (event) {
+                    is ListEvents.ShowSnackbar -> {
+                        activity?.let {
+                            android.widget.Toast.makeText(
+                                it,
+                                event.messageResId,
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     composable("listsHistory") {

@@ -133,6 +133,7 @@ fun CartScreen(
         AddProductDialog(
             product = productToEdit,
             suggestions = state.suggestions,
+            isPriceMandatory = true,
             onDismiss = {
                 showAddProductDialog = false
                 productToEdit = null

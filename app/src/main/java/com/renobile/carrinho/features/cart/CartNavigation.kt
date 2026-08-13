@@ -57,7 +57,15 @@ fun NavGraphBuilder.cartGraph(
             viewModel.events.collectLatest { event ->
                 when (event) {
                     is CartEvents.ShowInterstitialAd -> onShowInterstitialAd()
-                    else -> {}
+                    is CartEvents.ShowSnackbar -> {
+                        activity?.let {
+                            android.widget.Toast.makeText(
+                                it,
+                                event.messageResId,
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             }
         }
