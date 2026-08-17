@@ -1,16 +1,16 @@
 package com.renobile.carrinho.features.comparator
 
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -60,13 +59,11 @@ import com.renobile.carrinho.ui.theme.TextSecondary
 import com.renobile.carrinho.util.fromHtml
 import java.text.NumberFormat
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 
 @Composable
 fun ComparatorScreen(
     viewModel: ComparatorViewModel,
-    onShare: () -> Unit,
+    onShare: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -92,7 +89,7 @@ fun ComparatorScreen(
     onSizeSecondChanged: (String) -> Unit = {},
     onClear: () -> Unit = {},
     onCalculate: () -> Unit = {},
-    onShare: () -> Unit = {},
+    onShare: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     var showClearDialog by remember { mutableStateOf(false) }
@@ -201,7 +198,7 @@ private fun ProductInputSection(
     size: String,
     onSizeChange: (String) -> Unit,
     imeAction: ImeAction = ImeAction.Next,
-    onDone: () -> Unit = {},
+    onDone: () -> Unit = {}
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = title, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
@@ -231,7 +228,7 @@ private fun MoneyField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
     val textFieldValue = remember(value) {
@@ -273,13 +270,13 @@ private fun ResultSection(state: ComparatorState) {
             state.resultFirst?.let {
                 Text(
                     text = it.fromHtml().toString(),
-                    color = TextSecondary,
+                    color = TextSecondary
                 )
             }
             state.resultSecond?.let {
                 Text(
                     text = it.fromHtml().toString(),
-                    color = TextSecondary,
+                    color = TextSecondary
                 )
             }
             state.resultPercentage?.let {
@@ -287,7 +284,7 @@ private fun ResultSection(state: ComparatorState) {
                     text = it.fromHtml().toString(),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                    color = TextPrimary
                 )
             }
         }
@@ -307,7 +304,7 @@ private fun ComparatorScreenPreview() {
                 resultFirst = "O primeiro custa R$ 0,01 por unidade",
                 resultSecond = "O segundo custa R$ 0,16 por unidade",
                 resultPercentage = "O primeiro é 37,5% mais barato",
-                showResult = true,
+                showResult = true
             )
         )
     }

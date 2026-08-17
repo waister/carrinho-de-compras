@@ -4,10 +4,10 @@ import com.google.android.gms.ads.MobileAds
 import com.renobile.carrinho.util.PREF_ADMOB_REMOVE_ADS_ID
 import com.renobile.carrinho.util.PREF_HAVE_PLAN
 import com.renobile.carrinho.util.Prefs
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockkObject
-import io.mockk.Runs
 import io.mockk.mockkStatic
 import io.mockk.unmockkObject
 import io.mockk.verify

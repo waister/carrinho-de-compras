@@ -145,9 +145,10 @@ fun String?.formatDatetime(): String {
             val locale = Locale.getDefault()
             val parsed = SimpleDateFormat(FORMAT_DATETIME_API, locale).parse(this)
 
-            if (parsed != null)
+            if (parsed != null) {
                 return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                     .format(parsed.time)
+            }
         }
     } catch (e: ParseException) {
         if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
@@ -160,8 +161,9 @@ fun String?.isValidUrl(): Boolean = !this.isNullOrEmpty() && URLUtil.isValidUrl(
 fun String?.stringToInt(): Int {
     if (this != null && this != "null") {
         val number = this.replace("\\D".toRegex(), "")
-        if (number.isNotEmpty())
+        if (number.isNotEmpty()) {
             return number.toInt()
+        }
     }
     return 0
 }
@@ -208,13 +210,17 @@ fun Bitmap?.getCircleCroppedBitmap(): Bitmap? {
             paint.color = color
             if (bitmap.width < bitmap.height) {
                 canvas.drawCircle(
-                    (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
-                    (bitmap.width / 2).toFloat(), paint
+                    (bitmap.width / 2).toFloat(),
+                    (bitmap.height / 2).toFloat(),
+                    (bitmap.width / 2).toFloat(),
+                    paint
                 )
             } else {
                 canvas.drawCircle(
-                    (bitmap.width / 2).toFloat(), (bitmap.height / 2).toFloat(),
-                    (bitmap.height / 2).toFloat(), paint
+                    (bitmap.width / 2).toFloat(),
+                    (bitmap.height / 2).toFloat(),
+                    (bitmap.height / 2).toFloat(),
+                    paint
                 )
             }
             paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
@@ -244,13 +250,11 @@ fun View?.customSnackbar(text: String, length: Int) {
     }
 }
 
-fun String.fromHtml(): Spanned {
-    return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-        Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
-    } else {
-        @Suppress("DEPRECATION")
-        Html.fromHtml(this)
-    }
+fun String.fromHtml(): Spanned = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+    Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
+} else {
+    @Suppress("DEPRECATION")
+    Html.fromHtml(this)
 }
 
 fun Double.formatPercent(): String {
@@ -276,17 +280,18 @@ fun EditText?.getDouble(): Double {
         .replace(Regex("[^0-9,.]"), "")
         .replace(",", ".")
 
-    if (value.isEmpty())
+    if (value.isEmpty()) {
         value = "0"
+    }
 
     return value.toDouble()
 }
 
 fun appLog(tag: String, msg: String) {
-    if (BuildConfig.DEBUG)
+    if (BuildConfig.DEBUG) {
         Log.i("MAGGAPPS_LOG", "➡➡➡ $tag: $msg")
+    }
 }
-
 
 fun isDebug() = BuildConfig.DEBUG
 

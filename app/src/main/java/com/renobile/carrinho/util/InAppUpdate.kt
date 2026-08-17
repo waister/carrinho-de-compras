@@ -35,8 +35,9 @@ class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdated
     }
 
     override fun onStateUpdate(state: InstallState) {
-        if (state.installStatus() == InstallStatus.DOWNLOADED)
+        if (state.installStatus() == InstallStatus.DOWNLOADED) {
             flexibleUpdateDownloadCompleted()
+        }
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) = when (event) {
@@ -49,8 +50,9 @@ class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdated
         appUpdateInfo.addOnSuccessListener { info ->
             if (currentType == AppUpdateType.FLEXIBLE) {
                 // If the update is downloaded but not installed, notify the user to complete the update.
-                if (info.installStatus() == InstallStatus.DOWNLOADED)
+                if (info.installStatus() == InstallStatus.DOWNLOADED) {
                     flexibleUpdateDownloadCompleted()
+                }
             } else if (currentType == AppUpdateType.IMMEDIATE) {
                 // for AppUpdateType.IMMEDIATE only, already executing updater
                 if (info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
@@ -82,5 +84,4 @@ class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdated
             .create()
             .show()
     }
-
 }

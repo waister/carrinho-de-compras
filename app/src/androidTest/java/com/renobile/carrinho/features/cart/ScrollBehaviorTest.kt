@@ -21,18 +21,20 @@ class ScrollBehaviorTest {
 
     @Test
     fun testScrollingBehavior() {
-        val products12 = (1..12).map { 
-            ProductEntity(it.toLong(), 1, 0, "Product $it", 1.0, 10.0) 
+        val products12 = (1..12).map {
+            ProductEntity(it.toLong(), 1, 0, "Product $it", 1.0, 10.0)
         }
-        val products8 = (1..8).map { 
-            ProductEntity(it.toLong(), 1, 0, "Product $it", 1.0, 10.0) 
+        val products8 = (1..8).map {
+            ProductEntity(it.toLong(), 1, 0, "Product $it", 1.0, 10.0)
         }
 
-        var cartState by mutableStateOf(CartState(
-            cart = CartEntity(1, "Test Cart 12", System.currentTimeMillis(), 0, 12, 12.0, 120.0, ""),
-            products = products12.reversed() // Reverse to have Product 12 at top
-        ))
-        
+        var cartState by mutableStateOf(
+            CartState(
+                cart = CartEntity(1, "Test Cart 12", System.currentTimeMillis(), 0, 12, 12.0, 120.0, ""),
+                products = products12.reversed() // Reverse to have Product 12 at top
+            )
+        )
+
         var areBarsVisible by mutableStateOf(true)
 
         composeTestRule.setContent {
@@ -54,8 +56,8 @@ class ScrollBehaviorTest {
         composeTestRule.onNodeWithText("Product 12").performTouchInput {
             swipeUp()
         }
-        
-        // 3. Bars should hide. 
+
+        // 3. Bars should hide.
         // We use waitUntil because of AnimatedVisibility
         composeTestRule.waitUntil(5000) {
             composeTestRule.onAllNodesWithText("Carrinho: Test Cart 12").fetchSemanticsNodes().isEmpty()
@@ -76,7 +78,7 @@ class ScrollBehaviorTest {
             cart = CartEntity(1, "Test Cart 8", System.currentTimeMillis(), 0, 8, 8.0, 80.0, ""),
             products = products8.reversed()
         )
-        areBarsVisible = true 
+        areBarsVisible = true
 
         // 6. Verify bars visible
         composeTestRule.onNodeWithText("Carrinho: Test Cart 8").assertIsDisplayed()

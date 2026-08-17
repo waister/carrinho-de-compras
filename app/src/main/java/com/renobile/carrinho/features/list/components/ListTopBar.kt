@@ -2,6 +2,9 @@ package com.renobile.carrinho.features.list.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
@@ -31,9 +34,6 @@ import com.renobile.carrinho.features.cart.components.CartHeader
 import com.renobile.carrinho.features.cart.components.SearchAppBar
 import com.renobile.carrinho.features.list.ListActions
 import com.renobile.carrinho.features.list.ListState
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.statusBars
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +47,7 @@ fun ListTopBar(
     onShowImportList: () -> Unit = {},
     onShowSortOptions: () -> Unit = {},
     onToggleMenu: (Boolean) -> Unit = {},
-    showMenu: Boolean = false,
+    showMenu: Boolean = false
 ) {
     Surface(
         color = MaterialTheme.colorScheme.primary,
@@ -61,21 +61,21 @@ fun ListTopBar(
                     onCancelSearch = {
                         onSearchActiveChange(false)
                         actions.onSearchChanged("")
-                    },
+                    }
                 )
             } else {
                 TopAppBar(
                     title = {
                         Text(
                             state.list?.let { stringResource(R.string.label_list, it.name) }
-                                ?: stringResource(R.string.purchase_list),
+                                ?: stringResource(R.string.purchase_list)
                         )
                     },
                     windowInsets = WindowInsets(0, 0, 0, 0),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = Color.White,
-                        actionIconContentColor = Color.White,
+                        actionIconContentColor = Color.White
                     ),
                     actions = {
                         IconButton(onClick = { onSearchActiveChange(true) }) {
@@ -84,7 +84,7 @@ fun ListTopBar(
                         IconButton(onClick = onShowCreateList) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_playlist_plus),
-                                contentDescription = stringResource(R.string.new_list),
+                                contentDescription = stringResource(R.string.new_list)
                             )
                         }
                         Box {
@@ -93,7 +93,7 @@ fun ListTopBar(
                             }
                             DropdownMenu(
                                 expanded = showMenu,
-                                onDismissRequest = { onToggleMenu(false) },
+                                onDismissRequest = { onToggleMenu(false) }
                             ) {
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.lists_history)) },
@@ -101,7 +101,7 @@ fun ListTopBar(
                                         onToggleMenu(false)
                                         actions.onOpenHistory()
                                     },
-                                    leadingIcon = { Icon(Icons.Default.List, null) },
+                                    leadingIcon = { Icon(Icons.Default.List, null) }
                                 )
                                 if (state.list != null) {
                                     DropdownMenuItem(
@@ -110,7 +110,7 @@ fun ListTopBar(
                                             onToggleMenu(false)
                                             actions.onSendList()
                                         },
-                                        leadingIcon = { Icon(Icons.Default.Share, null) },
+                                        leadingIcon = { Icon(Icons.Default.Share, null) }
                                     )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.import_list)) },
@@ -118,7 +118,7 @@ fun ListTopBar(
                                             onToggleMenu(false)
                                             onShowImportList()
                                         },
-                                        leadingIcon = { Icon(Icons.Default.Add, null) },
+                                        leadingIcon = { Icon(Icons.Default.Add, null) }
                                     )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.clear_list)) },
@@ -126,7 +126,7 @@ fun ListTopBar(
                                             onToggleMenu(false)
                                             onShowClearList()
                                         },
-                                        leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                        leadingIcon = { Icon(Icons.Default.Delete, null) }
                                     )
                                 }
                                 DropdownMenuItem(
@@ -135,7 +135,7 @@ fun ListTopBar(
                                         onToggleMenu(false)
                                         actions.onShareApp()
                                     },
-                                    leadingIcon = { Icon(Icons.Default.Share, null) },
+                                    leadingIcon = { Icon(Icons.Default.Share, null) }
                                 )
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.sort_order)) },
@@ -143,18 +143,18 @@ fun ListTopBar(
                                         onToggleMenu(false)
                                         onShowSortOptions()
                                     },
-                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
+                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) }
                                 )
                             }
                         }
-                    },
+                    }
                 )
             }
             if (state.list != null) {
                 CartHeader(
                     total = state.total,
                     productCount = state.products.size,
-                    volumes = state.volumes,
+                    volumes = state.volumes
                 )
             }
         }

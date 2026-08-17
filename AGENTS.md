@@ -8,16 +8,20 @@ This is the Android application for KaBuM!, a large e-commerce company in Brazil
 
 **Key Technologies:**
 
-*   **Languages:** Kotlin
-*   **UI:** AndroidX, Jetpack Compose, Material Design
-*   **Architecture:** Clean Architecture with MVVM
-*   **Networking:** Retrofit, Ktor
+*   **Language:** Kotlin (Java 21 source/target)
+*   **Build:** AGP, Gradle Kotlin DSL, version catalog; `compileSdk`/`targetSdk` 37, `minSdk` 23
+*   **UI:** Jetpack Compose (BOM), Material 3, Navigation Compose
+*   **Architecture:** MVVM with Unidirectional Data Flow (UDF): `StateFlow` for state + `SharedFlow` for one-shot events
+*   **Networking:** Retrofit + OkHttp + Gson (JSON). `BaseParamsInterceptor` appends the common query params (`identifier`, `lang`, `version`, `platform`, `platform_v`, `debug`, `api_v`) to every request.
+*   **Local Storage:** Room (KSP) + SharedPreferences (`Prefs`, in `utils/Preferences.kt`)
 *   **Dependency Injection:** Koin
-*   **Image Loading:** Glide, Coil
+*   **Image Loading:** Coil (Compose), SubsamplingScaleImageView (fullscreen)
 *   **Async:** Kotlin Coroutines
-*   **Analytics:** Firebase Analytics, AppsFlyer, Insider
-*   **Crash Reporting:** Firebase Crashlytics
-*   **Testing:** JUnit, MockK, Robolectric, Turbine
+*   **Push:** Firebase Cloud Messaging (`MyFirebaseMessagingService`)
+*   **Analytics/Crash:** Firebase Analytics, Firebase Crashlytics
+*   **Ads:** AdMob (with Meta and AppLovin mediation)
+*   **Testing:** JUnit4, MockK, Robolectric, Turbine, OkHttp MockWebServer
+*   **Code Quality:** ktlint (via `org.jlleitschuh.gradle.ktlint`), Kover coverage
 
 ## 2. Project Structure
 

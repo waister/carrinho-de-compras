@@ -27,7 +27,7 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 @Composable
 fun CreateCartDialog(
     onDismiss: () -> Unit = {},
-    onConfirm: (String) -> Unit = {},
+    onConfirm: (String) -> Unit = {}
 ) {
     var cartName by remember { mutableStateOf("") }
     AlertDialog(
@@ -40,7 +40,7 @@ fun CreateCartDialog(
                     text = stringResource(R.string.create_cart_notice),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 16.dp),
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
                 OutlinedTextField(
                     value = cartName,
@@ -50,9 +50,9 @@ fun CreateCartDialog(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
-                        capitalization = KeyboardCapitalization.Sentences,
+                        capitalization = KeyboardCapitalization.Sentences
                     ),
-                    keyboardActions = KeyboardActions(onDone = { onConfirm(cartName) }),
+                    keyboardActions = KeyboardActions(onDone = { onConfirm(cartName) })
                 )
             }
         },
@@ -61,7 +61,7 @@ fun CreateCartDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-        },
+        }
     )
 }
 

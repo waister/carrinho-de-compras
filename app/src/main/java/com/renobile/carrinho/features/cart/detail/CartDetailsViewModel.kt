@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class CartDetailsViewModel(
     private val cartRepository: CartRepository,
-    private val productRepository: ProductRepository,
+    private val productRepository: ProductRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartDetailsState())
@@ -53,7 +53,10 @@ class CartDetailsViewModel(
                         isLoading = false,
                         cart = cart,
                         products = products
-                            .filter { p -> it.searchTerms.isEmpty() || p.name.contains(it.searchTerms, ignoreCase = true) }
+                            .filter { p ->
+                                it.searchTerms.isEmpty() ||
+                                    p.name.contains(it.searchTerms, ignoreCase = true)
+                            }
                             .sort(sortOrder),
                         sortOrder = sortOrder
                     )
@@ -64,15 +67,13 @@ class CartDetailsViewModel(
         }
     }
 
-    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> {
-        return when (order) {
-            ProductSortOrder.NEWEST -> sortedByDescending { it.id }
-            ProductSortOrder.OLDEST -> sortedBy { it.id }
-            ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
-            ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
-            ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
-            ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
-        }
+    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> = when (order) {
+        ProductSortOrder.NEWEST -> sortedByDescending { it.id }
+        ProductSortOrder.OLDEST -> sortedBy { it.id }
+        ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
+        ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
+        ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
+        ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
     }
 
     fun onSortOrderChanged(cartId: Long, order: ProductSortOrder) {

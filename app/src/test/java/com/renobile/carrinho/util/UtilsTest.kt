@@ -1,8 +1,8 @@
 package com.renobile.carrinho.util
 
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.Locale
 
 class UtilsTest {
 
@@ -40,7 +40,7 @@ class UtilsTest {
         assertEquals("s", 0.0.addPluralCharacter())
         assertEquals("", 0.5.addPluralCharacter()) // isSingular returns true for 0.5
     }
-    
+
     @Test
     fun `Int addPluralCharacter should return 's' for values other than 1`() {
         assertEquals("", 1.addPluralCharacter())

@@ -3,9 +3,9 @@ package com.renobile.carrinho.features.cart.detail
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -53,7 +53,7 @@ import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 @Composable
 fun CartDetailsScreen(
     viewModel: CartDetailsViewModel,
-    actions: CartDetailsActions,
+    actions: CartDetailsActions
 ) {
     val state by viewModel.uiState.collectAsState()
     CartDetailsContent(
@@ -70,7 +70,7 @@ fun CartDetailsScreen(
 @Composable
 fun CartDetailsContent(
     state: CartDetailsState,
-    actions: CartDetailsActions,
+    actions: CartDetailsActions
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
@@ -103,7 +103,7 @@ fun CartDetailsContent(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmation = false }) { Text(stringResource(R.string.cancel)) }
-            },
+            }
         )
     }
 
@@ -133,7 +133,7 @@ fun CartDetailsContent(
                             onCancelSearch = {
                                 actions.onSearchChanged("")
                                 isSearchActive = false
-                            },
+                            }
                         )
                     } else {
                         TopAppBar(
@@ -148,7 +148,7 @@ fun CartDetailsContent(
                                 containerColor = Color.Transparent,
                                 titleContentColor = Color.White,
                                 actionIconContentColor = Color.White,
-                                navigationIconContentColor = Color.White,
+                                navigationIconContentColor = Color.White
                             ),
                             actions = {
                                 IconButton(onClick = { isSearchActive = true }) {
@@ -163,7 +163,7 @@ fun CartDetailsContent(
                                     }
                                     DropdownMenu(
                                         expanded = showMenu,
-                                        onDismissRequest = { showMenu = false },
+                                        onDismissRequest = { showMenu = false }
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.sort_order)) },
@@ -171,7 +171,7 @@ fun CartDetailsContent(
                                                 showMenu = false
                                                 showSortOptions = true
                                             },
-                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
+                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) }
                                         )
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.delete_cart)) },
@@ -179,18 +179,18 @@ fun CartDetailsContent(
                                                 showMenu = false
                                                 showDeleteConfirmation = true
                                             },
-                                            leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                            leadingIcon = { Icon(Icons.Default.Delete, null) }
                                         )
                                     }
                                 }
-                            },
+                            }
                         )
                     }
                     if (state.cart != null) {
                         CartHeader(
                             total = state.total,
                             productCount = state.products.size,
-                            volumes = state.volumes,
+                            volumes = state.volumes
                         )
                     }
                 }
@@ -200,12 +200,12 @@ fun CartDetailsContent(
             FloatingActionButton(onClick = actions.onShareCart) {
                 Icon(Icons.Default.Share, contentDescription = stringResource(R.string.send_cart))
             }
-        },
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
         ) {
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -225,7 +225,7 @@ fun CartDetailsContent(
                 LazyColumn {
                     items(state.products) { product ->
                         ProductItem(
-                            product = product,
+                            product = product
                         )
                     }
                 }

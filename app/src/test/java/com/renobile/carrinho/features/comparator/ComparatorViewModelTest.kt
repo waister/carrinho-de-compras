@@ -5,10 +5,10 @@ import com.renobile.carrinho.util.PREF_PRICE_SECOND
 import com.renobile.carrinho.util.PREF_SIZE_FIRST
 import com.renobile.carrinho.util.PREF_SIZE_SECOND
 import com.renobile.carrinho.util.Prefs
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockkObject
-import io.mockk.Runs
 import io.mockk.unmockkObject
 import io.mockk.verify
 import org.junit.After

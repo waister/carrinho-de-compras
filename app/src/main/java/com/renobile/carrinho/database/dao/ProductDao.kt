@@ -11,7 +11,8 @@ interface ProductDao {
     @Query("SELECT DISTINCT name FROM products ORDER BY name ASC")
     suspend fun getAllNames(): List<String>
 
-    @Query("""
+    @Query(
+        """
         SELECT name, MAX(lastDate) as lastDate FROM (
             SELECT p.name, MAX(c.dateOpen) as lastDate 
             FROM products p 
@@ -23,7 +24,8 @@ interface ProductDao {
             JOIN purchase_lists l ON p.listId = l.id
             GROUP BY p.name
         ) GROUP BY name ORDER BY lastDate DESC
-    """)
+    """
+    )
     suspend fun getProductSuggestions(): List<com.renobile.carrinho.database.entities.ProductSuggestion>
 
     @Query("SELECT * FROM products WHERE listId = :listId ORDER BY id DESC")

@@ -87,17 +87,17 @@ fun RemoveAdsScreen(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = state.description,
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
-                
+
                 if (state.isLoading) {
                     CircularProgressIndicator()
                 } else {

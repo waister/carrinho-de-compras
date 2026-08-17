@@ -23,10 +23,10 @@ import com.renobile.carrinho.repositories.ConfigRepository
 import com.renobile.carrinho.repositories.ProductRepository
 import com.renobile.carrinho.repositories.PurchaseListRepository
 import com.renobile.carrinho.util.Prefs
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockkObject
-import io.mockk.Runs
 import io.mockk.unmockkObject
 import org.junit.After
 import org.junit.Assert.assertNotNull

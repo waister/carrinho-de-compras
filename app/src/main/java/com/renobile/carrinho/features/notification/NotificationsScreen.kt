@@ -2,6 +2,9 @@ package com.renobile.carrinho.features.notification
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,9 +21,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.renobile.carrinho.R
 import com.renobile.carrinho.network.models.NotificationModel
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +76,9 @@ fun NotificationsScreen(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.notifications) { notification ->
-                        NotificationItem(notification = notification, onClick = { onNotificationClick(notification.id) })
+                        NotificationItem(notification = notification, onClick = {
+                            onNotificationClick(notification.id)
+                        })
                     }
                 }
             }

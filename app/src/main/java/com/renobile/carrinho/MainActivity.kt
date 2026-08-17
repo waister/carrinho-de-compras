@@ -41,8 +41,9 @@ class MainActivity : AppCompatActivity() {
     private val permissionTag = Manifest.permission.POST_NOTIFICATIONS
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted)
+            if (isGranted) {
                 viewModel.checkTokenFcm()
+            }
         }
 
     companion object {
@@ -58,8 +59,9 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        if (!isDebug())
+        if (!isDebug()) {
             InAppUpdate(this)
+        }
 
         initAdMob()
         viewModel.checkTokenFcm()
@@ -105,27 +107,34 @@ class MainActivity : AppCompatActivity() {
 
         val request = AdRequest.Builder().build()
 
-        InterstitialAd.load(this, adUnitId, request, object : InterstitialAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                interstitialAd = null
-            }
+        InterstitialAd.load(
+            this,
+            adUnitId,
+            request,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    interstitialAd = null
+                }
 
-            override fun onAdLoaded(loadedAd: InterstitialAd) {
-                interstitialAd = loadedAd
+                override fun onAdLoaded(loadedAd: InterstitialAd) {
+                    interstitialAd = loadedAd
+                }
             }
-        })
+        )
     }
 
     private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
                 this,
                 permissionTag
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            if (shouldShowPushNotificationQuestionDialog())
+            if (shouldShowPushNotificationQuestionDialog()) {
                 alertNotificationsIsImportant()
-            else
+            } else {
                 permissionLauncher.launch(permissionTag)
+            }
         }
     }
 
@@ -137,13 +146,14 @@ class MainActivity : AppCompatActivity() {
         } else if (appOpened == TIMES_TO_APPEAR) {
             increaseAppOpened()
             true
-        } else
+        } else {
             false
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun alertNotificationsIsImportant() {
-        if (_alertDialog == null)
+        if (_alertDialog == null) {
             _alertDialog = AlertDialog.Builder(this)
                 .setTitle(R.string.notification_question_title)
                 .setMessage(R.string.notifications_important)
@@ -158,6 +168,7 @@ class MainActivity : AppCompatActivity() {
                     showMessage()
                 }
                 .create()
+        }
 
         _alertDialog?.show()
     }

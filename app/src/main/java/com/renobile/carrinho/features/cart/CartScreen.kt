@@ -1,13 +1,11 @@
 package com.renobile.carrinho.features.cart
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -53,7 +51,7 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 fun CartScreen(
     state: CartState,
     actions: CartActions,
-    areBarsVisible: Boolean = true,
+    areBarsVisible: Boolean = true
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -94,7 +92,7 @@ fun CartScreen(
             onConfirm = {
                 actions.onClearCart()
                 showClearConfirmation = false
-            },
+            }
         )
     }
 
@@ -104,7 +102,7 @@ fun CartScreen(
             onConfirm = {
                 showDeleteConfirmation?.let { actions.onDeleteProduct(it) }
                 showDeleteConfirmation = null
-            },
+            }
         )
     }
 
@@ -114,7 +112,7 @@ fun CartScreen(
             onConfirm = { name ->
                 actions.onCreateCart(name)
                 showCreateCartDialog = false
-            },
+            }
         )
     }
 
@@ -142,21 +140,21 @@ fun CartScreen(
                 val newProduct = productToEdit?.copy(
                     name = name,
                     quantity = quantity,
-                    price = price,
+                    price = price
                 ) ?: ProductEntity(
                     id = System.currentTimeMillis(),
                     cartId = state.cart?.id ?: 0,
                     listId = 0,
                     name = name,
                     quantity = quantity,
-                    price = price,
+                    price = price
                 )
                 actions.onAddOrEditProduct(newProduct)
 
                 if (productToEdit != null) {
                     productToEdit = null
                 }
-            },
+            }
         )
     }
 
@@ -175,7 +173,7 @@ fun CartScreen(
             onDelete = {
                 showDeleteConfirmation = it
                 productOptionsToShow = null
-            },
+            }
         )
     }
 
@@ -186,7 +184,7 @@ fun CartScreen(
             AnimatedVisibility(
                 visible = areBarsVisible,
                 enter = expandVertically(),
-                exit = shrinkVertically(),
+                exit = shrinkVertically()
             ) {
                 CartTopBar(
                     state = state,
@@ -197,7 +195,7 @@ fun CartScreen(
                     onShowClearCart = { showClearConfirmation = true },
                     onShowSortOptions = { showSortOptions = true },
                     onToggleMenu = { showMenu = it },
-                    showMenu = showMenu,
+                    showMenu = showMenu
                 )
             }
         },
@@ -215,7 +213,7 @@ fun CartScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
             }
-        },
+        }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -233,7 +231,7 @@ fun CartScreen(
                     } else {
                         EmptyCartView(
                             isCartCreated = state.cart != null,
-                            onCreateCart = { showCreateCartDialog = true },
+                            onCreateCart = { showCreateCartDialog = true }
                         )
                     }
                 } else {
@@ -244,7 +242,7 @@ fun CartScreen(
                         items(state.products) { product ->
                             ProductItem(
                                 product = product,
-                                onClick = { productOptionsToShow = product },
+                                onClick = { productOptionsToShow = product }
                             )
                         }
                     }
@@ -266,12 +264,12 @@ private fun CartScreenPreview() {
             products = 2,
             units = 5.0,
             valueTotal = 50.0,
-            keywords = "",
+            keywords = ""
         ),
         products = listOf(
             ProductEntity(1, 1, 0, "Arroz", 2.0, 15.0),
-            ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0),
-        ),
+            ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0)
+        )
     )
     MyAppTheme {
         CartScreen(state = dummyState, actions = CartActions())

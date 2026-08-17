@@ -8,5 +8,5 @@ val productPreview = ProductEntity(
     listId = 0,
     name = "Arroz 5kg",
     quantity = 2.0,
-    price = 25.90,
+    price = 25.90
 )

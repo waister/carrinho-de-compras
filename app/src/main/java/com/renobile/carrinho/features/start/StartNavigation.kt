@@ -36,10 +36,11 @@ fun NavGraphBuilder.startScreen(
 
                             val route = when (type) {
                                 API_NOTIFICATIONS -> {
-                                    if (itemId.isNullOrEmpty())
+                                    if (itemId.isNullOrEmpty()) {
                                         "notifications"
-                                    else
+                                    } else {
                                         "notificationDetails/$itemId"
+                                    }
                                 }
 
                                 API_COMPARATOR -> "comparator"

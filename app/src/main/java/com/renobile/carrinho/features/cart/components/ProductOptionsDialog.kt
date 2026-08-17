@@ -31,7 +31,7 @@ fun ProductOptionsDialog(
     onDismiss: () -> Unit = {},
     onEdit: (ProductEntity) -> Unit = {},
     onChangeQuantity: (ProductEntity, Double) -> Unit = { _, _ -> },
-    onDelete: (ProductEntity) -> Unit = {},
+    onDelete: (ProductEntity) -> Unit = {}
 ) {
     val options = stringArrayResource(R.array.product_cart_options)
     Dialog(onDismissRequest = onDismiss) {
@@ -44,7 +44,7 @@ fun ProductOptionsDialog(
             Column(
                 modifier = Modifier
                     .padding(vertical = 16.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
             ) {
                 Text(
                     text = product.name,
@@ -55,22 +55,22 @@ fun ProductOptionsDialog(
                 ListItem(
                     headlineContent = { Text(options.getOrNull(0) ?: stringResource(R.string.edit_product)) },
                     modifier = Modifier.clickable { onEdit(product) },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
                 ListItem(
                     headlineContent = { Text(options.getOrNull(1) ?: "+ 1.0") },
                     modifier = Modifier.clickable { onChangeQuantity(product, 1.0) },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
                 ListItem(
                     headlineContent = { Text(options.getOrNull(2) ?: "- 1.0") },
                     modifier = Modifier.clickable { onChangeQuantity(product, -1.0) },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
                 ListItem(
                     headlineContent = { Text(options.getOrNull(3) ?: "Excluir") },
                     modifier = Modifier.clickable { onDelete(product) },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
             }
         }
@@ -82,7 +82,7 @@ fun ProductOptionsDialog(
 private fun ProductOptionsDialogPreview() {
     MyAppTheme {
         ProductOptionsDialog(
-            product = productPreview,
+            product = productPreview
         )
     }
 }

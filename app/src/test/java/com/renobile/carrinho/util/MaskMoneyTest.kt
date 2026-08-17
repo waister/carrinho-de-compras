@@ -1,14 +1,14 @@
 package com.renobile.carrinho.util
 
 import android.widget.EditText
+import java.text.NumberFormat
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.text.NumberFormat
-import java.util.Locale
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])

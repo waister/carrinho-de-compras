@@ -5,7 +5,7 @@ data class RemoveAdsState(
     val isAdReady: Boolean = false,
     val haveVideoPlan: Boolean = false,
     val description: String = "",
-    val showRestartDialog: Boolean = false,
+    val showRestartDialog: Boolean = false
 )
 
 data class RemoveAdsActions(

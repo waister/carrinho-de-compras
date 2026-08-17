@@ -40,11 +40,22 @@ class CartsHistoryViewModelTest {
     fun `given carts exists, when init, then load and update missing keywords`() = runTest {
         // Given
         val cartWithoutKeywords = CartEntity(
-            id = 1, name = "Cart 1", dateOpen = 100, dateClose = 200,
-            products = 1, units = 1.0, valueTotal = 10.0, keywords = ""
+            id = 1,
+            name = "Cart 1",
+            dateOpen = 100,
+            dateClose = 200,
+            products = 1,
+            units = 1.0,
+            valueTotal = 10.0,
+            keywords = ""
         )
         val product = ProductEntity(
-            id = 1, cartId = 1, listId = 0, name = "Product A", quantity = 1.0, price = 10.0
+            id = 1,
+            cartId = 1,
+            listId = 0,
+            name = "Product A",
+            quantity = 1.0,
+            price = 10.0
         )
 
         coEvery { cartRepository.getAllCarts() } returns listOf(cartWithoutKeywords)
@@ -68,12 +79,24 @@ class CartsHistoryViewModelTest {
     fun `given search terms, when search, then filter carts by name or keywords`() = runTest {
         // Given
         val cart1 = CartEntity(
-            id = 1, name = "Groceries", dateOpen = 100, dateClose = 200,
-            products = 1, units = 1.0, valueTotal = 10.0, keywords = "apple, banana"
+            id = 1,
+            name = "Groceries",
+            dateOpen = 100,
+            dateClose = 200,
+            products = 1,
+            units = 1.0,
+            valueTotal = 10.0,
+            keywords = "apple, banana"
         )
         val cart2 = CartEntity(
-            id = 2, name = "Electronics", dateOpen = 100, dateClose = 200,
-            products = 1, units = 1.0, valueTotal = 10.0, keywords = "phone"
+            id = 2,
+            name = "Electronics",
+            dateOpen = 100,
+            dateClose = 200,
+            products = 1,
+            units = 1.0,
+            valueTotal = 10.0,
+            keywords = "phone"
         )
 
         coEvery { cartRepository.getAllCarts() } returns listOf(cart1, cart2)

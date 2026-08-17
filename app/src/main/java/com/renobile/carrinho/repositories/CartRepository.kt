@@ -12,7 +12,7 @@ interface CartRepository {
 }
 
 class CartRepositoryImpl(
-    private val cartDao: CartDao,
+    private val cartDao: CartDao
 ) : CartRepository {
     override suspend fun getActiveCart(): CartEntity? = cartDao.getAll().firstOrNull { it.dateClose == 0L }
 

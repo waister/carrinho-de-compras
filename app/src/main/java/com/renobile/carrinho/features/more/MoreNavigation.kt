@@ -2,10 +2,10 @@ package com.renobile.carrinho.features.more
 
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import androidx.compose.runtime.LaunchedEffect
 import com.renobile.carrinho.MainViewModel
 import com.renobile.carrinho.util.shareApp
 

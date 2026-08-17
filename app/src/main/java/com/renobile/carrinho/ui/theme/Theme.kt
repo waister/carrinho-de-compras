@@ -27,7 +27,7 @@ private val DarkColorScheme = darkColorScheme(
     onSecondary = White,
     onTertiary = White,
     onBackground = White,
-    onSurface = White,
+    onSurface = White
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -42,14 +42,14 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = White,
     onTertiary = White,
     onBackground = TextPrimary,
-    onSurface = TextPrimary,
+    onSurface = TextPrimary
 )
 
 @Composable
 fun MyAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

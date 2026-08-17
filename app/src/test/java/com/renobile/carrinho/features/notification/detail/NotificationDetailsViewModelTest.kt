@@ -69,7 +69,9 @@ class NotificationDetailsViewModelTest {
     @Test
     fun `given no cache and success response, when init, then loads notification from api`() = runTest {
         coEvery { apiService.getNotificationDetail("10") } returns NotificationResponse(
-            true, null, listOf(NotificationModel("10", "Oferta", "Texto", "2026-08-08", "img.png"))
+            true,
+            null,
+            listOf(NotificationModel("10", "Oferta", "Texto", "2026-08-08", "img.png"))
         )
 
         val vm = newViewModel()

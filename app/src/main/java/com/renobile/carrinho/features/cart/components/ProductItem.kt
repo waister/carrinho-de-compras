@@ -25,7 +25,7 @@ import com.renobile.carrinho.util.formatQuantity
 fun ProductItem(
     product: ProductEntity,
     onClick: () -> Unit = {},
-    onMoveToCart: (() -> Unit)? = null,
+    onMoveToCart: (() -> Unit)? = null
 ) {
     ListItem(
         headlineContent = { Text(product.name) },
@@ -35,8 +35,8 @@ fun ProductItem(
                     R.string.product_details,
                     product.quantity.formatQuantity(),
                     product.quantity.addPluralCharacter(),
-                    product.price.formatPrice(),
-                ),
+                    product.price.formatPrice()
+                )
             )
         },
         leadingContent = if (onMoveToCart != null) {
@@ -51,11 +51,13 @@ fun ProductItem(
                         .padding(4.dp)
                 )
             }
-        } else null,
+        } else {
+            null
+        },
         trailingContent = {
             Text((product.quantity * product.price).formatPrice())
         },
-        modifier = Modifier.clickable { onClick() },
+        modifier = Modifier.clickable { onClick() }
     )
 }
 
@@ -64,7 +66,7 @@ fun ProductItem(
 private fun ProductItemPreview() {
     MyAppTheme {
         ProductItem(
-            product = productPreview,
+            product = productPreview
         )
     }
 }

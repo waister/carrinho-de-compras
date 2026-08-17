@@ -33,7 +33,7 @@ fun Context?.loadBannerAd(
     adSize: AdSize? = null,
     collapsible: Boolean = false,
     shimmer: ShimmerFrameLayout? = null,
-    onAdLoaded: (Boolean) -> Unit = {},
+    onAdLoaded: (Boolean) -> Unit = {}
 ) {
     val logTag = "LOAD_ADMOB_BANNER"
 
@@ -101,8 +101,9 @@ fun Context?.loadBannerAd(
 
 fun Context.getAdSize(adViewContainer: LinearLayout): AdSize {
     var adWidthPixels = adViewContainer.width.toFloat()
-    if (adWidthPixels == 0f)
+    if (adWidthPixels == 0f) {
         adWidthPixels = displayWidth().toFloat()
+    }
 
     val density = resources.displayMetrics.density
     val adWidth = (adWidthPixels / density).toInt()
@@ -110,7 +111,6 @@ fun Context.getAdSize(adViewContainer: LinearLayout): AdSize {
 }
 
 fun Context?.displayWidth() = if (this != null) resources.displayMetrics.widthPixels else 0
-
 
 fun View.hide() {
     visibility = View.GONE

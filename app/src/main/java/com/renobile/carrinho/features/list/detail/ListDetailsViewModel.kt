@@ -52,12 +52,15 @@ class ListDetailsViewModel(
                     Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
                 )
 
-                _uiState.update { 
+                _uiState.update {
                     it.copy(
                         isLoading = false,
                         list = list,
                         products = products
-                            .filter { p -> it.searchTerms.isEmpty() || p.name.contains(it.searchTerms, ignoreCase = true) }
+                            .filter { p ->
+                                it.searchTerms.isEmpty() ||
+                                    p.name.contains(it.searchTerms, ignoreCase = true)
+                            }
                             .sort(sortOrder),
                         suggestions = suggestions,
                         sortOrder = sortOrder
@@ -69,15 +72,13 @@ class ListDetailsViewModel(
         }
     }
 
-    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> {
-        return when (order) {
-            ProductSortOrder.NEWEST -> sortedByDescending { it.id }
-            ProductSortOrder.OLDEST -> sortedBy { it.id }
-            ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
-            ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
-            ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
-            ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
-        }
+    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> = when (order) {
+        ProductSortOrder.NEWEST -> sortedByDescending { it.id }
+        ProductSortOrder.OLDEST -> sortedBy { it.id }
+        ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
+        ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
+        ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
+        ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
     }
 
     fun onSortOrderChanged(listId: Long, order: ProductSortOrder) {
@@ -125,7 +126,5 @@ class ListDetailsViewModel(
         }
     }
 
-    suspend fun getActiveCartId(): Long? {
-        return cartRepository.getActiveCart()?.id
-    }
+    suspend fun getActiveCartId(): Long? = cartRepository.getActiveCart()?.id
 }

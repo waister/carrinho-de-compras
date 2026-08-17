@@ -21,17 +21,17 @@ import com.renobile.carrinho.util.formatQuantity
 fun CartHeader(
     total: Double,
     productCount: Int,
-    volumes: Double,
+    volumes: Double
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = total.formatPrice(),
-            fontSize = 22.sp,
+            fontSize = 22.sp
         )
         Text(
             text = stringResource(
@@ -39,9 +39,9 @@ fun CartHeader(
                 productCount,
                 productCount.addPluralCharacter(),
                 volumes.formatQuantity(),
-                volumes.addPluralCharacter(),
+                volumes.addPluralCharacter()
             ),
-            fontSize = 13.sp,
+            fontSize = 13.sp
         )
     }
 }

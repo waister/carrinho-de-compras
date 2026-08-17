@@ -36,12 +36,22 @@ class ListsHistoryViewModelTest {
     fun `given lists exists, when init, then load only closed lists`() = runTest {
         // Given
         val openList = PurchaseListEntity(
-            id = 1, name = "Open List", dateOpen = 100, dateClose = 0,
-            products = 0, units = 0.0, valueTotal = 0.0
+            id = 1,
+            name = "Open List",
+            dateOpen = 100,
+            dateClose = 0,
+            products = 0,
+            units = 0.0,
+            valueTotal = 0.0
         )
         val closedList = PurchaseListEntity(
-            id = 2, name = "Closed List", dateOpen = 100, dateClose = 200,
-            products = 1, units = 1.0, valueTotal = 10.0
+            id = 2,
+            name = "Closed List",
+            dateOpen = 100,
+            dateClose = 200,
+            products = 1,
+            units = 1.0,
+            valueTotal = 10.0
         )
 
         coEvery { purchaseListRepository.getAllLists() } returns listOf(openList, closedList)
@@ -62,12 +72,22 @@ class ListsHistoryViewModelTest {
     fun `given search terms, when search, then filter lists by name`() = runTest {
         // Given
         val list1 = PurchaseListEntity(
-            id = 1, name = "Groceries", dateOpen = 100, dateClose = 200,
-            products = 1, units = 1.0, valueTotal = 10.0
+            id = 1,
+            name = "Groceries",
+            dateOpen = 100,
+            dateClose = 200,
+            products = 1,
+            units = 1.0,
+            valueTotal = 10.0
         )
         val list2 = PurchaseListEntity(
-            id = 2, name = "Party", dateOpen = 100, dateClose = 200,
-            products = 1, units = 1.0, valueTotal = 10.0
+            id = 2,
+            name = "Party",
+            dateOpen = 100,
+            dateClose = 200,
+            products = 1,
+            units = 1.0,
+            valueTotal = 10.0
         )
 
         coEvery { purchaseListRepository.getAllLists() } returns listOf(list1, list2)

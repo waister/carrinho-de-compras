@@ -27,14 +27,14 @@ class CartsHistoryViewModel(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 updateMissingKeywords()
-                
+
                 val allCarts = cartRepository.getAllCarts().filter { it.dateClose > 0 }
                 val searchTerms = _uiState.value.searchTerms
-                
+
                 val filteredCarts = if (searchTerms.isNotEmpty()) {
                     allCarts.filter {
                         it.name.contains(searchTerms, ignoreCase = true) ||
-                        it.keywords.contains(searchTerms, ignoreCase = true)
+                            it.keywords.contains(searchTerms, ignoreCase = true)
                     }
                 } else {
                     allCarts

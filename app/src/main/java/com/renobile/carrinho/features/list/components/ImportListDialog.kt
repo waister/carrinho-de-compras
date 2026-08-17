@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ImportListDialog(
     onDismiss: () -> Unit = {},
-    onConfirm: (List<String>) -> Unit = {},
+    onConfirm: (List<String>) -> Unit = {}
 ) {
     var text by remember { mutableStateOf("") }
     val clipboard = LocalClipboard.current
@@ -70,7 +70,7 @@ fun ImportListDialog(
                         .fillMaxWidth()
                         .weight(1f, fill = false),
                     keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
+                        capitalization = KeyboardCapitalization.Sentences
                     )
                 )
 
@@ -118,7 +118,7 @@ fun ImportListDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
-        },
+        }
     )
 }
 

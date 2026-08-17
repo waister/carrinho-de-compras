@@ -19,13 +19,13 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 fun EmptyCartView(
     isCartCreated: Boolean,
     modifier: Modifier = Modifier,
-    onCreateCart: () -> Unit = {},
+    onCreateCart: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(if (!isCartCreated) R.string.carts_empty else R.string.products_empty),
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(16.dp)
             )
             if (!isCartCreated) {
                 Button(onClick = onCreateCart) {

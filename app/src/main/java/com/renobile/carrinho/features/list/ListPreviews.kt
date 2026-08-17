@@ -16,5 +16,5 @@ val listPreview = PurchaseListEntity(
 val listProductsPreview = listOf(
     productPreview.copy(name = "Picanha", quantity = 2.0, price = 60.0),
     productPreview.copy(name = "Cerveja", quantity = 12.0, price = 4.50),
-    productPreview.copy(name = "Carvão", quantity = 1.0, price = 15.0),
+    productPreview.copy(name = "Carvão", quantity = 1.0, price = 15.0)
 )

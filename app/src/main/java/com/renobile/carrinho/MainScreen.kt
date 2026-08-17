@@ -9,10 +9,11 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -37,30 +38,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.tooling.preview.Preview
-import com.renobile.carrinho.ui.theme.MyAppTheme
-import androidx.compose.ui.platform.LocalInspectionMode
-import com.renobile.carrinho.database.entities.CartEntity
-import com.renobile.carrinho.database.entities.ProductEntity
-import com.renobile.carrinho.features.cart.CartActions
-import com.renobile.carrinho.features.cart.CartScreen
-import com.renobile.carrinho.features.cart.CartState
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.renobile.carrinho.database.entities.CartEntity
+import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.features.about.aboutScreen
+import com.renobile.carrinho.features.cart.CartActions
+import com.renobile.carrinho.features.cart.CartScreen
+import com.renobile.carrinho.features.cart.CartState
 import com.renobile.carrinho.features.cart.cartGraph
 import com.renobile.carrinho.features.comparator.comparatorScreen
 import com.renobile.carrinho.features.list.listGraph
@@ -68,6 +67,7 @@ import com.renobile.carrinho.features.more.moreScreen
 import com.renobile.carrinho.features.notification.notificationGraph
 import com.renobile.carrinho.features.removeads.removeAdsScreen
 import com.renobile.carrinho.features.start.startScreen
+import com.renobile.carrinho.ui.theme.MyAppTheme
 import com.renobile.carrinho.util.PREF_ADMOB_AD_MAIN_ID
 import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.loadBannerAd
@@ -76,7 +76,7 @@ import com.renobile.carrinho.util.storeAppLink
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
-    onShowInterstitialAd: () -> Unit,
+    onShowInterstitialAd: () -> Unit
 ) {
     val navController = rememberNavController()
     val uiState by mainViewModel.uiState.collectAsState()
@@ -126,7 +126,9 @@ internal fun MainScreen(
             when (update) {
                 VersionUpdate.Needed -> {
                     builder.setMessage(R.string.update_needed)
-                        .setNegativeButton(R.string.updated_logout) { _, _ -> (context as? AppCompatActivity)?.finish() }
+                        .setNegativeButton(R.string.updated_logout) { _, _ ->
+                            (context as? AppCompatActivity)?.finish()
+                        }
                         .setOnCancelListener { (context as? AppCompatActivity)?.finish() }
                 }
 
@@ -239,9 +241,21 @@ fun MainBottomNavigation(navController: NavHostController) {
         val currentDestination = navBackStackEntry?.destination
         items.forEach { item ->
             val isSelected = currentDestination?.hierarchy?.any { it.route == item.route } == true ||
-                    (item.route == "cart" && (currentDestination?.route?.contains("cart") == true && currentDestination.route != "cart")) ||
-                    (item.route == "list" && (currentDestination?.route?.contains("list") == true && currentDestination.route != "list")) ||
-                    (item.route == "more" && (currentDestination?.route == "about" || currentDestination?.route?.contains("notification") == true))
+                (
+                    item.route == "cart" &&
+                        (currentDestination?.route?.contains("cart") == true && currentDestination.route != "cart")
+                    ) ||
+                (
+                    item.route == "list" &&
+                        (currentDestination?.route?.contains("list") == true && currentDestination.route != "list")
+                    ) ||
+                (
+                    item.route == "more" &&
+                        (
+                            currentDestination?.route == "about" ||
+                                currentDestination?.route?.contains("notification") == true
+                            )
+                    )
 
             NavigationBarItem(
                 icon = { Icon(painterResource(item.iconRes), contentDescription = null) },
@@ -272,7 +286,7 @@ fun MainBottomNavigation(navController: NavHostController) {
 fun MainNavHost(
     navController: NavHostController,
     mainViewModel: MainViewModel,
-    onShowInterstitialAd: () -> Unit,
+    onShowInterstitialAd: () -> Unit
 ) {
     NavHost(navController, startDestination = "start") {
         startScreen(navController, mainViewModel)
@@ -298,12 +312,12 @@ fun MainScreenPreview() {
             products = 2,
             units = 5.0,
             valueTotal = 50.0,
-            keywords = "",
+            keywords = ""
         ),
         products = listOf(
             ProductEntity(1, 1, 0, "Arroz", 2.0, 15.0),
-            ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0),
-        ),
+            ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0)
+        )
     )
 
     MyAppTheme {

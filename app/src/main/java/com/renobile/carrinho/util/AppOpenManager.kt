@@ -12,7 +12,8 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.renobile.carrinho.CustomApplication
 import java.util.Date
 
-class AppOpenManager(private var application: CustomApplication) : DefaultLifecycleObserver,
+class AppOpenManager(private var application: CustomApplication) :
+    DefaultLifecycleObserver,
     Application.ActivityLifecycleCallbacks {
 
     private var appOpenAd: AppOpenAd? = null
@@ -122,5 +123,4 @@ class AppOpenManager(private var application: CustomApplication) : DefaultLifecy
     companion object {
         private const val LOG_TAG = "AppOpenManager"
     }
-
 }

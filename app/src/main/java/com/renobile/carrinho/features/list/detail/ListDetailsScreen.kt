@@ -3,9 +3,9 @@ package com.renobile.carrinho.features.list.detail
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,7 +59,7 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 @Composable
 fun ListDetailsScreen(
     viewModel: ListDetailsViewModel,
-    actions: ListDetailsActions,
+    actions: ListDetailsActions
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -87,7 +87,7 @@ fun ListDetailsScreen(
 fun ListDetailsContent(
     state: ListDetailsState,
     actions: ListDetailsActions,
-    activeCartId: Long = 0L,
+    activeCartId: Long = 0L
 ) {
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showSortOptions by remember { mutableStateOf(false) }
@@ -178,7 +178,7 @@ fun ListDetailsContent(
                             onCancelSearch = {
                                 actions.onSearchChanged("")
                                 isSearchActive = false
-                            },
+                            }
                         )
                     } else {
                         TopAppBar(
@@ -212,7 +212,7 @@ fun ListDetailsContent(
                                     }
                                     DropdownMenu(
                                         expanded = showMenu,
-                                        onDismissRequest = { showMenu = false },
+                                        onDismissRequest = { showMenu = false }
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.sort_order)) },
@@ -220,7 +220,7 @@ fun ListDetailsContent(
                                                 showMenu = false
                                                 showSortOptions = true
                                             },
-                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
+                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) }
                                         )
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.delete_list)) },
@@ -228,7 +228,7 @@ fun ListDetailsContent(
                                                 showMenu = false
                                                 showDeleteConfirmation = true
                                             },
-                                            leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                            leadingIcon = { Icon(Icons.Default.Delete, null) }
                                         )
                                     }
                                 }
@@ -239,7 +239,7 @@ fun ListDetailsContent(
                         CartHeader(
                             total = state.total,
                             productCount = state.products.size,
-                            volumes = state.volumes,
+                            volumes = state.volumes
                         )
                     }
                 }
@@ -289,7 +289,7 @@ fun ListDetailsContent(
 private fun ListDetailsPreview() {
     val dummyState = ListDetailsState(
         list = listPreview,
-        products = listProductsPreview,
+        products = listProductsPreview
     )
     MyAppTheme {
         ListDetailsContent(

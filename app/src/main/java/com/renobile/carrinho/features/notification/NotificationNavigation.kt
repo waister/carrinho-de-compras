@@ -23,7 +23,7 @@ fun NavGraphBuilder.notificationGraph(
         NotificationsScreen(
             viewModel = viewModel,
             onNotificationClick = { notificationId ->
-                navController.navigate("notificationDetails/${notificationId}")
+                navController.navigate("notificationDetails/$notificationId")
             },
             onBackClick = { navController.popBackStack() }
         )

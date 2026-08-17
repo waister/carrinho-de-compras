@@ -19,14 +19,12 @@ interface ConfigRepository {
 }
 
 class ConfigRepositoryImpl(private val apiService: ConfigApiService) : ConfigRepository {
-    override suspend fun identify(token: String): Result<ConfigResponse> {
-        return try {
-            val response = apiService.identify(token)
-            Result.success(response)
-        } catch (e: Exception) {
-            appLog("ConfigRepository", "Error identify: ${e.message}")
-            Result.failure(e)
-        }
+    override suspend fun identify(token: String): Result<ConfigResponse> = try {
+        val response = apiService.identify(token)
+        Result.success(response)
+    } catch (e: Exception) {
+        appLog("ConfigRepository", "Error identify: ${e.message}")
+        Result.failure(e)
     }
 
     override fun saveConfig(response: ConfigResponse) {

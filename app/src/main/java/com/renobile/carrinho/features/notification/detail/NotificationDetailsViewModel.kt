@@ -30,7 +30,7 @@ class NotificationDetailsViewModel(
     fun init(notificationId: String) {
         val cachedJson = Prefs.getValue(PREF_NOTIFICATION_JSON + notificationId, "")
         val cachedObj = cachedJson.getValidJSONObject()
-        
+
         if (cachedObj != null) {
             val notification = NotificationModel(
                 id = notificationId,

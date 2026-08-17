@@ -12,6 +12,7 @@ import com.renobile.carrinho.util.PREF_SORT_ORDER
 import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.ProductSortOrder
 import com.renobile.carrinho.util.createCartListNameGeneric
+import kotlin.random.Random
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -22,7 +23,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.random.Random
 
 class ListViewModel(
     private val purchaseListRepository: PurchaseListRepository,
@@ -52,15 +52,15 @@ class ListViewModel(
         try {
             val lists = withContext(ioDispatcher) { purchaseListRepository.getAllLists() }
             val activeList = lists.find { it.dateClose == 0L }
-            val products = activeList?.let { 
-                withContext(ioDispatcher) { productRepository.getProductsByListId(it.id) } 
+            val products = activeList?.let {
+                withContext(ioDispatcher) { productRepository.getProductsByListId(it.id) }
             } ?: emptyList()
             val suggestions = withContext(ioDispatcher) { productRepository.getProductSuggestions() }
             val sortOrder = ProductSortOrder.valueOf(
                 Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
             )
 
-            _uiState.update { 
+            _uiState.update {
                 it.copy(
                     isLoading = false,
                     list = activeList,
@@ -77,15 +77,13 @@ class ListViewModel(
         }
     }
 
-    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> {
-        return when (order) {
-            ProductSortOrder.NEWEST -> sortedByDescending { it.id }
-            ProductSortOrder.OLDEST -> sortedBy { it.id }
-            ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
-            ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
-            ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
-            ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
-        }
+    private fun List<ProductEntity>.sort(order: ProductSortOrder): List<ProductEntity> = when (order) {
+        ProductSortOrder.NEWEST -> sortedByDescending { it.id }
+        ProductSortOrder.OLDEST -> sortedBy { it.id }
+        ProductSortOrder.NAME_ASC -> sortedBy { it.name.lowercase() }
+        ProductSortOrder.NAME_DESC -> sortedByDescending { it.name.lowercase() }
+        ProductSortOrder.PRICE_ASC -> sortedBy { it.price }
+        ProductSortOrder.PRICE_DESC -> sortedByDescending { it.price }
     }
 
     fun onSortOrderChanged(order: ProductSortOrder) {
@@ -164,8 +162,8 @@ class ListViewModel(
         viewModelScope.launch {
             try {
                 val products = withContext(ioDispatcher) { productRepository.getProductsByListId(listId) }
-                products.forEach { 
-                    withContext(ioDispatcher) { productRepository.deleteProduct(it) } 
+                products.forEach {
+                    withContext(ioDispatcher) { productRepository.deleteProduct(it) }
                 }
                 fetchData(showLoading = false)
             } catch (e: Exception) {
@@ -206,9 +204,9 @@ class ListViewModel(
                     quantity = quantity,
                     price = price
                 )
-                withContext(ioDispatcher) { 
+                withContext(ioDispatcher) {
                     productRepository.deleteProduct(product)
-                    productRepository.insertProduct(updatedProduct) 
+                    productRepository.insertProduct(updatedProduct)
                 }
                 fetchData(showLoading = false)
                 _events.send(ListEvents.ShowSnackbar(R.string.product_added))
@@ -220,7 +218,7 @@ class ListViewModel(
 
     fun importList(items: List<String>) {
         if (items.isEmpty()) return
-        
+
         viewModelScope.launch {
             try {
                 val currentList = _uiState.value.list
@@ -230,7 +228,7 @@ class ListViewModel(
                 }
 
                 _uiState.update { it.copy(isLoading = true, searchTerms = "") }
-                
+
                 val baseTimestamp = System.currentTimeMillis()
                 val products = items.mapIndexed { index, itemText ->
                     val trimmed = itemText.trim()
@@ -255,16 +253,16 @@ class ListViewModel(
                         price = 0.0
                     )
                 }
-                
+
                 withContext(ioDispatcher) {
                     productRepository.insertProducts(products)
                 }
-                
+
                 val updatedProducts = withContext(ioDispatcher) {
-                    productRepository.getProductsByListId(currentList.id) 
+                    productRepository.getProductsByListId(currentList.id)
                 }
-                
-                _uiState.update { 
+
+                _uiState.update {
                     it.copy(
                         isLoading = false,
                         products = updatedProducts,
@@ -279,7 +277,5 @@ class ListViewModel(
         }
     }
 
-    suspend fun getActiveCartId(): Long? {
-        return withContext(ioDispatcher) { cartRepository.getActiveCart()?.id }
-    }
+    suspend fun getActiveCartId(): Long? = withContext(ioDispatcher) { cartRepository.getActiveCart()?.id }
 }

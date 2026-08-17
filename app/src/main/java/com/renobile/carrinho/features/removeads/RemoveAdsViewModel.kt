@@ -71,7 +71,10 @@ class RemoveAdsViewModel(application: Application) : AndroidViewModel(applicatio
 
             val request = AdRequest.Builder().build()
             RewardedAd.load(
-                getApplication(), adUnitId, request, object : RewardedAdLoadCallback() {
+                getApplication(),
+                adUnitId,
+                request,
+                object : RewardedAdLoadCallback() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
                         rewardedAd = null
                         _uiState.update { it.copy(isLoading = false, isAdReady = false) }
@@ -90,7 +93,9 @@ class RemoveAdsViewModel(application: Application) : AndroidViewModel(applicatio
                             }
 
                             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                viewModelScope.launch { _events.send(RemoveAdsEvents.ShowError(R.string.error_load_video)) }
+                                viewModelScope.launch {
+                                    _events.send(RemoveAdsEvents.ShowError(R.string.error_load_video))
+                                }
                             }
 
                             override fun onAdShowedFullScreenContent() {
@@ -99,7 +104,8 @@ class RemoveAdsViewModel(application: Application) : AndroidViewModel(applicatio
                             }
                         }
                     }
-                })
+                }
+            )
         }
     }
 

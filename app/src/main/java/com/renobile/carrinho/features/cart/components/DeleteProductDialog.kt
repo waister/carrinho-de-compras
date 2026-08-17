@@ -13,7 +13,7 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 @Composable
 fun DeleteProductDialog(
     onDismiss: () -> Unit = {},
-    onConfirm: () -> Unit = {},
+    onConfirm: () -> Unit = {}
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -25,7 +25,7 @@ fun DeleteProductDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-        },
+        }
     )
 }
 

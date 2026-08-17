@@ -4,11 +4,11 @@ import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -41,7 +41,7 @@ fun MoreScreen(
     onAbout: () -> Unit = {},
     onShare: () -> Unit = {},
     onRemoveAds: () -> Unit = {},
-    onBack: () -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -64,7 +64,7 @@ fun MoreScreen(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White,
+                        navigationIconContentColor = Color.White
                     )
                 )
             }
@@ -74,22 +74,22 @@ fun MoreScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
         ) {
             MoreMenuItem(
                 title = stringResource(R.string.notifications),
                 icon = R.drawable.ic_bell,
-                onClick = onNotifications,
+                onClick = onNotifications
             )
             MoreMenuItem(
                 title = stringResource(R.string.about_app),
                 icon = R.drawable.ic_information_outline,
-                onClick = onAbout,
+                onClick = onAbout
             )
             MoreMenuItem(
                 title = stringResource(R.string.share_app),
                 icon = R.drawable.ic_share_variant,
-                onClick = onShare,
+                onClick = onShare
             )
             MoreMenuItem(
                 title = stringResource(R.string.rate_app),
@@ -97,12 +97,12 @@ fun MoreScreen(
                 onClick = {
                     val intent = Intent(Intent.ACTION_VIEW, storeAppLink().toUri())
                     context.startActivity(intent)
-                },
+                }
             )
             MoreMenuItem(
                 title = stringResource(R.string.remove_ads),
                 icon = R.drawable.ic_crown,
-                onClick = onRemoveAds,
+                onClick = onRemoveAds
             )
         }
     }
@@ -117,9 +117,9 @@ fun MoreMenuItem(title: String, icon: Int, onClick: () -> Unit) {
                 painter = painterResource(icon),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary
             )
         },
-        modifier = Modifier.clickable { onClick() },
+        modifier = Modifier.clickable { onClick() }
     )
 }

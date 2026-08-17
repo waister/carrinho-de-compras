@@ -17,13 +17,9 @@ interface ProductRepository {
 class ProductRepositoryImpl(
     private val productDao: ProductDao
 ) : ProductRepository {
-    override suspend fun getProductsByCartId(cartId: Long): List<ProductEntity> {
-        return productDao.getByCartId(cartId)
-    }
+    override suspend fun getProductsByCartId(cartId: Long): List<ProductEntity> = productDao.getByCartId(cartId)
 
-    override suspend fun getProductsByListId(listId: Long): List<ProductEntity> {
-        return productDao.getByListId(listId)
-    }
+    override suspend fun getProductsByListId(listId: Long): List<ProductEntity> = productDao.getByListId(listId)
 
     override suspend fun insertProduct(product: ProductEntity) {
         productDao.insert(product)
@@ -41,11 +37,7 @@ class ProductRepositoryImpl(
         productDao.deleteByCartId(cartId)
     }
 
-    override suspend fun getAllProductNames(): List<String> {
-        return productDao.getAllNames()
-    }
+    override suspend fun getAllProductNames(): List<String> = productDao.getAllNames()
 
-    override suspend fun getProductSuggestions(): List<com.renobile.carrinho.database.entities.ProductSuggestion> {
-        return productDao.getProductSuggestions()
-    }
+    override suspend fun getProductSuggestions(): List<com.renobile.carrinho.database.entities.ProductSuggestion> = productDao.getProductSuggestions()
 }

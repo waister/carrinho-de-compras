@@ -114,5 +114,4 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
         Prefs.putValue(PREF_PRICE_SECOND, state.priceSecond)
         Prefs.putValue(PREF_SIZE_SECOND, state.sizeSecond)
     }
-
 }

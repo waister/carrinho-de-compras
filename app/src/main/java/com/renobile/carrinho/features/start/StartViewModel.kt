@@ -17,15 +17,15 @@ import com.renobile.carrinho.util.PREF_PLAN_VIDEO_DURATION
 import com.renobile.carrinho.util.PREF_SHARE_LINK
 import com.renobile.carrinho.util.Prefs
 import com.renobile.carrinho.util.appLog
+import java.util.UUID
+import kotlin.random.Random
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
-import kotlin.random.Random
 
 class StartViewModel(
-    private val configApiService: ConfigApiService,
+    private val configApiService: ConfigApiService
 ) : ViewModel() {
 
     companion object {
@@ -84,9 +84,9 @@ class StartViewModel(
         val deviceID = try {
             val uniqueDevicePseudoID =
                 "35" + Build.BOARD.length % 10 + Build.BRAND.length % 10 + Build.DEVICE.length % 10 +
-                        Build.DISPLAY.length % 10 + Build.HOST.length % 10 + Build.ID.length % 10 +
-                        Build.MANUFACTURER.length % 10 + Build.MODEL.length % 10 + Build.PRODUCT.length % 10 +
-                        Build.TAGS.length % 10 + Build.TYPE.length % 10 + Build.USER.length % 10
+                    Build.DISPLAY.length % 10 + Build.HOST.length % 10 + Build.ID.length % 10 +
+                    Build.MANUFACTURER.length % 10 + Build.MODEL.length % 10 + Build.PRODUCT.length % 10 +
+                    Build.TAGS.length % 10 + Build.TYPE.length % 10 + Build.USER.length % 10
             val serial = Build.getRadioVersion() ?: "serial"
             UUID(uniqueDevicePseudoID.hashCode().toLong(), serial.hashCode().toLong()).toString()
         } catch (e: Exception) {

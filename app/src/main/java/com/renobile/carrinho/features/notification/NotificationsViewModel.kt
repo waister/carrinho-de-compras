@@ -33,7 +33,9 @@ class NotificationsViewModel(
             try {
                 val response = apiService.getNotifications()
                 if (response.success) {
-                    _uiState.update { it.copy(isLoading = false, notifications = response.notifications ?: emptyList()) }
+                    _uiState.update {
+                        it.copy(isLoading = false, notifications = response.notifications ?: emptyList())
+                    }
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = response.message) }
                 }

@@ -49,15 +49,13 @@ object Prefs {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getValue(key: String, defaultValue: T): T {
-        return when (defaultValue) {
-            is String -> preferences.getString(key, defaultValue) as T
-            is Int -> preferences.getInt(key, defaultValue) as T
-            is Boolean -> preferences.getBoolean(key, defaultValue) as T
-            is Long -> preferences.getLong(key, defaultValue) as T
-            is Float -> preferences.getFloat(key, defaultValue) as T
-            else -> throw IllegalArgumentException("Unsupported preference type")
-        }
+    fun <T> getValue(key: String, defaultValue: T): T = when (defaultValue) {
+        is String -> preferences.getString(key, defaultValue) as T
+        is Int -> preferences.getInt(key, defaultValue) as T
+        is Boolean -> preferences.getBoolean(key, defaultValue) as T
+        is Long -> preferences.getLong(key, defaultValue) as T
+        is Float -> preferences.getFloat(key, defaultValue) as T
+        else -> throw IllegalArgumentException("Unsupported preference type")
     }
 
     fun removeKey(key: String) {

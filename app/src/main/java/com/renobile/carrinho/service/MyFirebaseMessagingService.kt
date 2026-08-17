@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
-import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -37,14 +36,14 @@ import com.renobile.carrinho.util.isDebug
 import com.renobile.carrinho.util.isValidUrl
 import com.renobile.carrinho.util.storeAppLink
 import com.renobile.carrinho.util.stringToInt
+import java.io.IOException
+import java.net.URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.IOException
-import java.net.URL
 
 class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
 
@@ -113,14 +112,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         }
     }
 
-    private fun createNotifyIntent(pushData: PushData, link: String): Intent {
-        return if (link.isValidUrl()) {
-            Intent(Intent.ACTION_VIEW, link.toUri())
-        } else {
-            Intent(applicationContext, MainActivity::class.java).apply {
-                putExtra(PARAM_TYPE, pushData.type)
-                putExtra(PARAM_ITEM_ID, pushData.itemId)
-            }
+    private fun createNotifyIntent(pushData: PushData, link: String): Intent = if (link.isValidUrl()) {
+        Intent(Intent.ACTION_VIEW, link.toUri())
+    } else {
+        Intent(applicationContext, MainActivity::class.java).apply {
+            putExtra(PARAM_TYPE, pushData.type)
+            putExtra(PARAM_ITEM_ID, pushData.itemId)
         }
     }
 
@@ -222,6 +219,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         val image: String,
         val version: String,
         val itemId: String,
-        val vibrate: String,
+        val vibrate: String
     )
 }

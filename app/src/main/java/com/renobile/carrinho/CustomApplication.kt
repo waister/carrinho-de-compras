@@ -30,5 +30,4 @@ class CustomApplication : MultiDexApplication() {
         }.start()
         AppOpenManager(this)
     }
-
 }

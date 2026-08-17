@@ -4,7 +4,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-
 import java.text.NumberFormat
 
 class MaskMoney(private val editText: EditText) : TextWatcher {
@@ -32,7 +31,6 @@ class MaskMoney(private val editText: EditText) : TextWatcher {
         } catch (e: NumberFormatException) {
             if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
-
     }
 
     override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) = Unit

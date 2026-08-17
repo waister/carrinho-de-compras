@@ -12,7 +12,7 @@ import com.renobile.carrinho.R
 @Composable
 fun ClearListDialog(
     onDismiss: () -> Unit = {},
-    onConfirm: () -> Unit = {},
+    onConfirm: () -> Unit = {}
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -23,7 +23,7 @@ fun ClearListDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-        },
+        }
     )
 }
 
