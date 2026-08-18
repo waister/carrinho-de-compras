@@ -36,7 +36,7 @@ class NotificationsViewModelTest {
     @Test
     fun `given success response, when init, then notifications are loaded`() = runTest {
         val notifications = listOf(
-            NotificationModel("1", "Oferta", "Texto", "2026-08-08", "img.png")
+            NotificationModel("1", "Oferta", "Texto", "2026-08-08", "img.png"),
         )
         coEvery { apiService.getNotifications() } returns
             NotificationResponse(true, null, notifications)

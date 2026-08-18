@@ -96,7 +96,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         image = data["image"] ?: "",
         version = data["version"] ?: "",
         itemId = data["item_id"] ?: "",
-        vibrate = data["vibrate"] ?: ""
+        vibrate = data["vibrate"] ?: "",
     )
 
     private fun handleVersionCheck(version: String, currentLink: String): String? {
@@ -202,8 +202,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
             vibrator.vibrate(
                 VibrationEffect.createWaveform(
                     pattern,
-                    VibrationEffect.DEFAULT_AMPLITUDE
-                )
+                    VibrationEffect.DEFAULT_AMPLITUDE,
+                ),
             )
         } else {
             @Suppress("DEPRECATION")
@@ -219,6 +219,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(), KoinComponent {
         val image: String,
         val version: String,
         val itemId: String,
-        val vibrate: String
+        val vibrate: String,
     )
 }

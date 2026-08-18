@@ -19,7 +19,7 @@ import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.startScreen(
     navController: NavHostController,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
 ) {
     composable("start") {
         val activity = LocalActivity.current as? AppCompatActivity

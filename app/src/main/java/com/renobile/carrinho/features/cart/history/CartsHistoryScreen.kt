@@ -49,7 +49,7 @@ import com.renobile.carrinho.util.formatQuantity
 fun CartsHistoryScreen(
     viewModel: CartsHistoryViewModel,
     onBackClick: () -> Unit,
-    onCartClick: (CartEntity) -> Unit
+    onCartClick: (CartEntity) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
     var isSearchActive by remember { mutableStateOf(false) }
@@ -66,7 +66,7 @@ fun CartsHistoryScreen(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 Box(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                     if (isSearchActive) {
@@ -76,7 +76,7 @@ fun CartsHistoryScreen(
                             onCancelSearch = {
                                 isSearchActive = false
                                 viewModel.onSearchTermsChanged("")
-                            }
+                            },
                         )
                     } else {
                         TopAppBar(
@@ -96,18 +96,18 @@ fun CartsHistoryScreen(
                                 containerColor = Color.Transparent,
                                 titleContentColor = Color.White,
                                 navigationIconContentColor = Color.White,
-                                actionIconContentColor = Color.White
-                            )
+                                actionIconContentColor = Color.White,
+                            ),
                         )
                     }
                 }
             }
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -118,7 +118,7 @@ fun CartsHistoryScreen(
                     } else {
                         stringResource(R.string.carts_archive_empty)
                     },
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -143,13 +143,13 @@ fun CartHistoryItem(cart: CartEntity, onClick: () -> Unit) {
                         cart.products,
                         cart.products.addPluralCharacter(),
                         cart.units.formatQuantity(),
-                        cart.units.addPluralCharacter()
-                    )
+                        cart.units.addPluralCharacter(),
+                    ),
                 )
                 Text(
                     text = "Data: ${cart.dateOpen.formatDate()}",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = Color.Gray,
                 )
             }
         },
@@ -157,9 +157,9 @@ fun CartHistoryItem(cart: CartEntity, onClick: () -> Unit) {
             Text(
                 text = cart.valueTotal.formatPrice(),
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         },
-        modifier = Modifier.clickable { onClick() }
+        modifier = Modifier.clickable { onClick() },
     )
 }

@@ -53,7 +53,7 @@ import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 @Composable
 fun CartDetailsScreen(
     viewModel: CartDetailsViewModel,
-    actions: CartDetailsActions
+    actions: CartDetailsActions,
 ) {
     val state by viewModel.uiState.collectAsState()
     CartDetailsContent(
@@ -61,8 +61,8 @@ fun CartDetailsScreen(
         actions = actions.copy(
             onSortOrderChanged = { order ->
                 state.cart?.id?.let { viewModel.onSortOrderChanged(it, order) }
-            }
-        )
+            },
+        ),
     )
 }
 
@@ -70,7 +70,7 @@ fun CartDetailsScreen(
 @Composable
 fun CartDetailsContent(
     state: CartDetailsState,
-    actions: CartDetailsActions
+    actions: CartDetailsActions,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
@@ -103,7 +103,7 @@ fun CartDetailsContent(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmation = false }) { Text(stringResource(R.string.cancel)) }
-            }
+            },
         )
     }
 
@@ -114,7 +114,7 @@ fun CartDetailsContent(
             onSortOrderSelected = { order ->
                 actions.onSortOrderChanged(order)
                 showSortOptions = false
-            }
+            },
         )
     }
 
@@ -123,7 +123,7 @@ fun CartDetailsContent(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                     if (isSearchActive) {
@@ -133,7 +133,7 @@ fun CartDetailsContent(
                             onCancelSearch = {
                                 actions.onSearchChanged("")
                                 isSearchActive = false
-                            }
+                            },
                         )
                     } else {
                         TopAppBar(
@@ -148,13 +148,13 @@ fun CartDetailsContent(
                                 containerColor = Color.Transparent,
                                 titleContentColor = Color.White,
                                 actionIconContentColor = Color.White,
-                                navigationIconContentColor = Color.White
+                                navigationIconContentColor = Color.White,
                             ),
                             actions = {
                                 IconButton(onClick = { isSearchActive = true }) {
                                     Icon(
                                         Icons.Default.Search,
-                                        contentDescription = stringResource(R.string.search_products)
+                                        contentDescription = stringResource(R.string.search_products),
                                     )
                                 }
                                 Box {
@@ -163,7 +163,7 @@ fun CartDetailsContent(
                                     }
                                     DropdownMenu(
                                         expanded = showMenu,
-                                        onDismissRequest = { showMenu = false }
+                                        onDismissRequest = { showMenu = false },
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.sort_order)) },
@@ -171,7 +171,7 @@ fun CartDetailsContent(
                                                 showMenu = false
                                                 showSortOptions = true
                                             },
-                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) }
+                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
                                         )
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.delete_cart)) },
@@ -179,18 +179,18 @@ fun CartDetailsContent(
                                                 showMenu = false
                                                 showDeleteConfirmation = true
                                             },
-                                            leadingIcon = { Icon(Icons.Default.Delete, null) }
+                                            leadingIcon = { Icon(Icons.Default.Delete, null) },
                                         )
                                     }
                                 }
-                            }
+                            },
                         )
                     }
                     if (state.cart != null) {
                         CartHeader(
                             total = state.total,
                             productCount = state.products.size,
-                            volumes = state.volumes
+                            volumes = state.volumes,
                         )
                     }
                 }
@@ -200,12 +200,12 @@ fun CartDetailsContent(
             FloatingActionButton(onClick = actions.onShareCart) {
                 Icon(Icons.Default.Share, contentDescription = stringResource(R.string.send_cart))
             }
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -218,14 +218,14 @@ fun CartDetailsContent(
                             stringResource(R.string.search_no_results, state.searchTerms)
                         } else {
                             stringResource(R.string.products_empty)
-                        }
+                        },
                     )
                 }
             } else {
                 LazyColumn {
                     items(state.products) { product ->
                         ProductItem(
-                            product = product
+                            product = product,
                         )
                     }
                 }

@@ -30,12 +30,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.core.graphics.toColorInt
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModel()
     private var interstitialAd: InterstitialAd? = null
-    private var _alertDialog: AlertDialog? = null
+    private var alertDialog: AlertDialog? = null
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val permissionTag = Manifest.permission.POST_NOTIFICATIONS
@@ -55,8 +56,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             navigationBarStyle = SystemBarStyle.dark(
-                android.graphics.Color.parseColor("#2196F3")
-            )
+                "#2196F3".toColorInt(),
+            ),
         )
 
         if (!isDebug()) {
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity() {
             MyAppTheme {
                 MainScreen(
                     mainViewModel = viewModel,
-                    onShowInterstitialAd = { showInterstitialAd() }
+                    onShowInterstitialAd = { showInterstitialAd() },
                 )
             }
         }
@@ -79,7 +80,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        _alertDialog?.dismiss()
+        alertDialog?.dismiss()
     }
 
     fun showInterstitialAd() {
@@ -119,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onAdLoaded(loadedAd: InterstitialAd) {
                     interstitialAd = loadedAd
                 }
-            }
+            },
         )
     }
 
@@ -127,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 this,
-                permissionTag
+                permissionTag,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             if (shouldShowPushNotificationQuestionDialog()) {
@@ -153,8 +154,8 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun alertNotificationsIsImportant() {
-        if (_alertDialog == null) {
-            _alertDialog = AlertDialog.Builder(this)
+        if (alertDialog == null) {
+            alertDialog = AlertDialog.Builder(this)
                 .setTitle(R.string.notification_question_title)
                 .setMessage(R.string.notifications_important)
                 .setCancelable(false)
@@ -170,7 +171,7 @@ class MainActivity : AppCompatActivity() {
                 .create()
         }
 
-        _alertDialog?.show()
+        alertDialog?.show()
     }
 
     private fun blockPushNotificationQuestion() {

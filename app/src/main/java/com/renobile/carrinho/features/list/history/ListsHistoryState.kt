@@ -6,5 +6,5 @@ data class ListsHistoryState(
     val isLoading: Boolean = false,
     val lists: List<PurchaseListEntity> = emptyList(),
     val searchTerms: String = "",
-    val error: String? = null
+    val error: String? = null,
 )

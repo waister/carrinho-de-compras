@@ -72,7 +72,7 @@ class StartViewModelTest {
             admobInterstitialId = "inter",
             admobRemoveAdsId = "remove",
             admobOpenAppId = "open",
-            planVideoDuration = 1000L
+            planVideoDuration = 1000L,
         )
         coEvery { apiService.identify("fcm-token") } returns ConfigResponse(true, 5, 3, configs)
 

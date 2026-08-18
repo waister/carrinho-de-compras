@@ -63,7 +63,7 @@ class VersionApiServiceTest {
     @Test
     fun `given response without configs, when checkVersion, then configs is null`() = runTest {
         server.enqueue(
-            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":false,"version_last":1,"version_min":1,"configs":null}""")).build()
+            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":false,"version_last":1,"version_min":1,"configs":null}""")).build(),
         )
 
         val response = createService().checkVersion("token")
@@ -75,7 +75,7 @@ class VersionApiServiceTest {
     @Test
     fun `given request, when checkVersion, then sends token query parameter`() = runTest {
         server.enqueue(
-            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":true,"version_last":1,"version_min":1,"configs":null}""")).build()
+            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":true,"version_last":1,"version_min":1,"configs":null}""")).build(),
         )
 
         createService().checkVersion("myToken")

@@ -12,7 +12,7 @@ data class ListDetailsState(
     val productNames: List<String> = emptyList(),
     val suggestions: List<com.renobile.carrinho.database.entities.ProductSuggestion> = emptyList(),
     val sortOrder: ProductSortOrder = ProductSortOrder.NEWEST,
-    val error: String? = null
+    val error: String? = null,
 ) {
     val volumes: Double get() = products.sumOf { it.quantity }
     val total: Double get() = products.sumOf { it.price * it.quantity }

@@ -28,7 +28,7 @@ import com.renobile.carrinho.util.Prefs
 fun AboutScreen(
     onBack: () -> Unit,
     onRemoveAds: () -> Unit,
-    onSecretAction: () -> Unit
+    onSecretAction: () -> Unit,
 ) {
     var cartClicks by remember { mutableIntStateOf(0) }
     val deviceId = remember { Prefs.getValue(PREF_DEVICE_ID, "") }
@@ -37,7 +37,7 @@ fun AboutScreen(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 TopAppBar(
                     title = { Text(stringResource(R.string.about_app)) },
@@ -51,12 +51,12 @@ fun AboutScreen(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White
-                    )
+                        navigationIconContentColor = Color.White,
+                    ),
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -65,7 +65,7 @@ fun AboutScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 25.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_cart_outline),
@@ -75,13 +75,13 @@ fun AboutScreen(
                     .size(72.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = null
+                        indication = null,
                     ) {
                         cartClicks++
                         if (cartClicks >= 50) {
                             onSecretAction()
                         }
-                    }
+                    },
             )
 
             Text(
@@ -89,7 +89,7 @@ fun AboutScreen(
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 10.dp)
+                modifier = Modifier.padding(top = 10.dp),
             )
 
             Text(
@@ -97,7 +97,7 @@ fun AboutScreen(
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp)
+                modifier = Modifier.padding(top = 12.dp),
             )
 
             if (deviceId.isNotEmpty()) {
@@ -107,18 +107,18 @@ fun AboutScreen(
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
                         fontSize = 10.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 4.dp),
                     )
                 }
             }
 
             TextButton(
                 onClick = onRemoveAds,
-                modifier = Modifier.padding(top = 10.dp)
+                modifier = Modifier.padding(top = 10.dp),
             ) {
                 Text(
                     text = stringResource(R.string.remove_ads),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         }

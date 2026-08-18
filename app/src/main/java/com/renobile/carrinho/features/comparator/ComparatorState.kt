@@ -8,5 +8,5 @@ data class ComparatorState(
     val resultFirst: String? = null,
     val resultSecond: String? = null,
     val resultPercentage: String? = null,
-    val showResult: Boolean = false
+    val showResult: Boolean = false,
 )

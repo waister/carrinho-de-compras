@@ -42,7 +42,7 @@ class ListsHistoryViewModelTest {
             dateClose = 0,
             products = 0,
             units = 0.0,
-            valueTotal = 0.0
+            valueTotal = 0.0,
         )
         val closedList = PurchaseListEntity(
             id = 2,
@@ -51,7 +51,7 @@ class ListsHistoryViewModelTest {
             dateClose = 200,
             products = 1,
             units = 1.0,
-            valueTotal = 10.0
+            valueTotal = 10.0,
         )
 
         coEvery { purchaseListRepository.getAllLists() } returns listOf(openList, closedList)
@@ -78,7 +78,7 @@ class ListsHistoryViewModelTest {
             dateClose = 200,
             products = 1,
             units = 1.0,
-            valueTotal = 10.0
+            valueTotal = 10.0,
         )
         val list2 = PurchaseListEntity(
             id = 2,
@@ -87,7 +87,7 @@ class ListsHistoryViewModelTest {
             dateClose = 200,
             products = 1,
             units = 1.0,
-            valueTotal = 10.0
+            valueTotal = 10.0,
         )
 
         coEvery { purchaseListRepository.getAllLists() } returns listOf(list1, list2)

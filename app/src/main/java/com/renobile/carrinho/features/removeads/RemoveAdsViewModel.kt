@@ -46,7 +46,7 @@ class RemoveAdsViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update {
             it.copy(
                 haveVideoPlan = haveVideoPlan(),
-                description = getApplication<Application>().getString(R.string.watch_to_by_body, panVideoDurationDays)
+                description = getApplication<Application>().getString(R.string.watch_to_by_body, panVideoDurationDays),
             )
         }
     }
@@ -104,7 +104,7 @@ class RemoveAdsViewModel(application: Application) : AndroidViewModel(applicatio
                             }
                         }
                     }
-                }
+                },
             )
         }
     }

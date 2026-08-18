@@ -11,7 +11,7 @@ import com.renobile.carrinho.util.shareApp
 
 fun NavGraphBuilder.moreScreen(
     navController: NavHostController,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
 ) {
     composable("more") {
         val activity = LocalActivity.current as? AppCompatActivity
@@ -23,7 +23,7 @@ fun NavGraphBuilder.moreScreen(
             onAbout = { navController.navigate("about") },
             onShare = { activity?.shareApp() },
             onRemoveAds = { navController.navigate("removeAds") },
-            onBack = { navController.popBackStack() }
+            onBack = { navController.popBackStack() },
         )
     }
 }

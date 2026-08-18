@@ -25,7 +25,7 @@ import org.koin.androidx.compose.koinViewModel
 fun NavGraphBuilder.cartGraph(
     navController: NavHostController,
     mainViewModel: MainViewModel,
-    onShowInterstitialAd: () -> Unit
+    onShowInterstitialAd: () -> Unit,
 ) {
     composable("cart") {
         val activity = LocalActivity.current as? AppCompatActivity
@@ -50,7 +50,7 @@ fun NavGraphBuilder.cartGraph(
             onShareApp = { activity?.shareApp() },
             onShowInterstitialAd = onShowInterstitialAd,
             onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
-            onScroll = { mainViewModel.setBarsVisible(it) }
+            onScroll = { mainViewModel.setBarsVisible(it) },
         )
 
         LaunchedEffect(Unit) {
@@ -62,7 +62,7 @@ fun NavGraphBuilder.cartGraph(
                             android.widget.Toast.makeText(
                                 it,
                                 event.messageResId,
-                                android.widget.Toast.LENGTH_SHORT
+                                android.widget.Toast.LENGTH_SHORT,
                             ).show()
                         }
                     }
@@ -73,7 +73,7 @@ fun NavGraphBuilder.cartGraph(
         CartScreen(
             state = state,
             actions = actions,
-            areBarsVisible = mainState.areBarsVisible
+            areBarsVisible = mainState.areBarsVisible,
         )
     }
 
@@ -87,7 +87,7 @@ fun NavGraphBuilder.cartGraph(
             onBackClick = { navController.popBackStack() },
             onCartClick = { cart ->
                 navController.navigate("cartDetails/${cart.id}?searchTerms=${viewModel.uiState.value.searchTerms}")
-            }
+            },
         )
     }
 
@@ -99,8 +99,8 @@ fun NavGraphBuilder.cartGraph(
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
-            }
-        )
+            },
+        ),
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
@@ -122,7 +122,7 @@ fun NavGraphBuilder.cartGraph(
                 activity?.sendCart(state.products, state.cart?.name ?: "")
             },
             onBack = { navController.popBackStack() },
-            onSortOrderChanged = { viewModel.onSortOrderChanged(cartId, it) }
+            onSortOrderChanged = { viewModel.onSortOrderChanged(cartId, it) },
         )
 
         LaunchedEffect(Unit) {

@@ -6,5 +6,5 @@ data class CartsHistoryState(
     val isLoading: Boolean = false,
     val carts: List<CartEntity> = emptyList(),
     val searchTerms: String = "",
-    val error: String? = null
+    val error: String? = null,
 )

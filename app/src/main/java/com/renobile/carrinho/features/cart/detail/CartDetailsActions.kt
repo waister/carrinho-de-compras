@@ -7,5 +7,5 @@ data class CartDetailsActions(
     val onDeleteCart: () -> Unit = {},
     val onShareCart: () -> Unit = {},
     val onBack: () -> Unit = {},
-    val onSortOrderChanged: (ProductSortOrder) -> Unit = {}
+    val onSortOrderChanged: (ProductSortOrder) -> Unit = {},
 )

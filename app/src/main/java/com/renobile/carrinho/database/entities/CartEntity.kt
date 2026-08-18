@@ -13,5 +13,5 @@ data class CartEntity(
     val products: Int,
     val units: Double,
     val valueTotal: Double,
-    val keywords: String
+    val keywords: String,
 )

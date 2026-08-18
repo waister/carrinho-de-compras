@@ -5,5 +5,5 @@ val appModules = listOf(
     repositoryModule,
     networkModule,
     commonModule,
-    viewModelModule
+    viewModelModule,
 )

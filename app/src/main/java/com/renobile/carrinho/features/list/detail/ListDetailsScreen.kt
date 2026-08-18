@@ -59,7 +59,7 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 @Composable
 fun ListDetailsScreen(
     viewModel: ListDetailsViewModel,
-    actions: ListDetailsActions
+    actions: ListDetailsActions,
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -76,9 +76,9 @@ fun ListDetailsScreen(
             },
             onSortOrderChanged = { order ->
                 state.list?.id?.let { viewModel.onSortOrderChanged(it, order) }
-            }
+            },
         ),
-        activeCartId = activeCartId
+        activeCartId = activeCartId,
     )
 }
 
@@ -87,7 +87,7 @@ fun ListDetailsScreen(
 fun ListDetailsContent(
     state: ListDetailsState,
     actions: ListDetailsActions,
-    activeCartId: Long = 0L
+    activeCartId: Long = 0L,
 ) {
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showSortOptions by remember { mutableStateOf(false) }
@@ -121,7 +121,7 @@ fun ListDetailsContent(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmation = false }) { Text(stringResource(R.string.cancel)) }
-            }
+            },
         )
     }
 
@@ -132,7 +132,7 @@ fun ListDetailsContent(
             onSortOrderSelected = { order ->
                 actions.onSortOrderChanged(order)
                 showSortOptions = false
-            }
+            },
         )
     }
 
@@ -145,7 +145,7 @@ fun ListDetailsContent(
                 text = { Text(stringResource(R.string.create_cart_needed)) },
                 confirmButton = {
                     TextButton(onClick = { productToMove = null }) { Text(stringResource(R.string.confirm)) }
-                }
+                },
             )
         } else {
             AddProductDialog(
@@ -159,7 +159,7 @@ fun ListDetailsContent(
                         actions.onMoveToCart(it, activeCartId, quantity, price)
                     }
                     productToMove = null
-                }
+                },
             )
         }
     }
@@ -168,7 +168,7 @@ fun ListDetailsContent(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                     if (isSearchActive) {
@@ -178,7 +178,7 @@ fun ListDetailsContent(
                             onCancelSearch = {
                                 actions.onSearchChanged("")
                                 isSearchActive = false
-                            }
+                            },
                         )
                     } else {
                         TopAppBar(
@@ -193,7 +193,7 @@ fun ListDetailsContent(
                                 containerColor = Color.Transparent,
                                 titleContentColor = Color.White,
                                 actionIconContentColor = Color.White,
-                                navigationIconContentColor = Color.White
+                                navigationIconContentColor = Color.White,
                             ),
                             actions = {
                                 IconButton(onClick = actions.onShareList) {
@@ -202,7 +202,7 @@ fun ListDetailsContent(
                                 IconButton(onClick = { isSearchActive = true }) {
                                     Icon(
                                         Icons.Default.Search,
-                                        contentDescription = stringResource(R.string.search_products)
+                                        contentDescription = stringResource(R.string.search_products),
                                     )
                                 }
                                 var showMenu by remember { mutableStateOf(false) }
@@ -212,7 +212,7 @@ fun ListDetailsContent(
                                     }
                                     DropdownMenu(
                                         expanded = showMenu,
-                                        onDismissRequest = { showMenu = false }
+                                        onDismissRequest = { showMenu = false },
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.sort_order)) },
@@ -220,7 +220,7 @@ fun ListDetailsContent(
                                                 showMenu = false
                                                 showSortOptions = true
                                             },
-                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) }
+                                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
                                         )
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.delete_list)) },
@@ -228,18 +228,18 @@ fun ListDetailsContent(
                                                 showMenu = false
                                                 showDeleteConfirmation = true
                                             },
-                                            leadingIcon = { Icon(Icons.Default.Delete, null) }
+                                            leadingIcon = { Icon(Icons.Default.Delete, null) },
                                         )
                                     }
                                 }
-                            }
+                            },
                         )
                     }
                     if (state.list != null) {
                         CartHeader(
                             total = state.total,
                             productCount = state.products.size,
-                            volumes = state.volumes
+                            volumes = state.volumes,
                         )
                     }
                 }
@@ -249,12 +249,12 @@ fun ListDetailsContent(
             FloatingActionButton(onClick = actions.onShareList) {
                 Icon(Icons.Default.Share, contentDescription = stringResource(R.string.send_list))
             }
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -267,7 +267,7 @@ fun ListDetailsContent(
                             stringResource(R.string.search_no_results, state.searchTerms)
                         } else {
                             stringResource(R.string.products_empty)
-                        }
+                        },
                     )
                 }
             } else {
@@ -275,7 +275,7 @@ fun ListDetailsContent(
                     items(state.products) { product ->
                         ProductItem(
                             product = product,
-                            onClick = { productToMove = product }
+                            onClick = { productToMove = product },
                         )
                     }
                 }
@@ -289,13 +289,13 @@ fun ListDetailsContent(
 private fun ListDetailsPreview() {
     val dummyState = ListDetailsState(
         list = listPreview,
-        products = listProductsPreview
+        products = listProductsPreview,
     )
     MyAppTheme {
         ListDetailsContent(
             state = dummyState,
             actions = ListDetailsActions(),
-            activeCartId = 1L
+            activeCartId = 1L,
         )
     }
 }

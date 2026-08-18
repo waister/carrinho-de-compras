@@ -234,7 +234,7 @@ class CartViewModelTest {
         coEvery { cartRepository.getActiveCart() } returns cart(1)
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "Arroz", 1.0),
-            product(20, "Feijão", 1.0)
+            product(20, "Feijão", 1.0),
         )
         val vm = CartViewModel(cartRepository, productRepository)
 

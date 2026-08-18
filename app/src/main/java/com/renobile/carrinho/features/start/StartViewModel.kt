@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class StartViewModel(
-    private val configApiService: ConfigApiService
+    private val configApiService: ConfigApiService,
 ) : ViewModel() {
 
     companion object {

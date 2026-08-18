@@ -11,10 +11,10 @@ data class ProductEntity(
     val listId: Long,
     val name: String,
     val quantity: Double,
-    val price: Double
+    val price: Double,
 )
 
 data class ProductSuggestion(
     val name: String,
-    val lastDate: Long
+    val lastDate: Long,
 )

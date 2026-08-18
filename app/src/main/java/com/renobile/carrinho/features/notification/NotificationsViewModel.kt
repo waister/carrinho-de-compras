@@ -13,11 +13,11 @@ import kotlinx.coroutines.launch
 data class NotificationsState(
     val isLoading: Boolean = false,
     val notifications: List<NotificationModel> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
 )
 
 class NotificationsViewModel(
-    private val apiService: NotificationApiService
+    private val apiService: NotificationApiService,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NotificationsState())

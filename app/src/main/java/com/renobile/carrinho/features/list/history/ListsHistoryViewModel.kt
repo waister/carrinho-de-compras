@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ListsHistoryViewModel(
-    private val purchaseListRepository: PurchaseListRepository
+    private val purchaseListRepository: PurchaseListRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ListsHistoryState())

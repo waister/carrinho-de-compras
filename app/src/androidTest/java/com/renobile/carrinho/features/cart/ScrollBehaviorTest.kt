@@ -31,8 +31,8 @@ class ScrollBehaviorTest {
         var cartState by mutableStateOf(
             CartState(
                 cart = CartEntity(1, "Test Cart 12", System.currentTimeMillis(), 0, 12, 12.0, 120.0, ""),
-                products = products12.reversed() // Reverse to have Product 12 at top
-            )
+                products = products12.reversed(), // Reverse to have Product 12 at top
+            ),
         )
 
         var areBarsVisible by mutableStateOf(true)
@@ -42,9 +42,9 @@ class ScrollBehaviorTest {
                 CartScreen(
                     state = cartState,
                     actions = CartActions(
-                        onScroll = { areBarsVisible = it }
+                        onScroll = { areBarsVisible = it },
                     ),
-                    areBarsVisible = areBarsVisible
+                    areBarsVisible = areBarsVisible,
                 )
             }
         }
@@ -76,7 +76,7 @@ class ScrollBehaviorTest {
         // 5. Switch to 8 items
         cartState = CartState(
             cart = CartEntity(1, "Test Cart 8", System.currentTimeMillis(), 0, 8, 8.0, 80.0, ""),
-            products = products8.reversed()
+            products = products8.reversed(),
         )
         areBarsVisible = true
 

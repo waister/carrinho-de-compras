@@ -59,7 +59,7 @@ fun AddProductDialog(
     message: String? = null,
     isPriceMandatory: Boolean = false,
     onDismiss: () -> Unit = {},
-    onConfirm: (String, Double, Double) -> Unit = { _, _, _ -> }
+    onConfirm: (String, Double, Double) -> Unit = { _, _, _ -> },
 ) {
     var name by remember { mutableStateOf(product?.name ?: "") }
     var quantityText by remember { mutableStateOf(product?.quantity?.formatQuantity() ?: "1") }
@@ -107,7 +107,7 @@ fun AddProductDialog(
                     Text(
                         text = validationError?.let { stringResource(it) } ?: message ?: "",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
 
@@ -125,8 +125,8 @@ fun AddProductDialog(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Sentences,
-                            imeAction = ImeAction.Next
-                        )
+                            imeAction = ImeAction.Next,
+                        ),
                     )
 
                     if (filteredSuggestions.isNotEmpty()) {
@@ -134,7 +134,7 @@ fun AddProductDialog(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
                             properties = PopupProperties(focusable = false),
-                            modifier = Modifier.fillMaxWidth(0.9f)
+                            modifier = Modifier.fillMaxWidth(0.9f),
                         ) {
                             filteredSuggestions.forEach { suggestion ->
                                 DropdownMenuItem(
@@ -142,20 +142,20 @@ fun AddProductDialog(
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
+                                            verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Text(suggestion.name, modifier = Modifier.weight(1f))
                                             Text(
                                                 text = suggestion.lastDate.formatDate(),
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
                                         }
                                     },
                                     onClick = {
                                         name = suggestion.name
                                         expanded = false
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -164,7 +164,7 @@ fun AddProductDialog(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     OutlinedTextField(
                         value = quantityText,
@@ -177,8 +177,8 @@ fun AddProductDialog(
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        )
+                            imeAction = ImeAction.Next,
+                        ),
                     )
                     IconButton(onClick = {
                         val current = quantityText.parseToDouble()
@@ -212,7 +212,7 @@ fun AddProductDialog(
                         }
                         priceTextFieldValue = TextFieldValue(
                             text = newText,
-                            selection = TextRange(newText.length)
+                            selection = TextRange(newText.length),
                         )
                         validationError = null
                     },
@@ -223,7 +223,7 @@ fun AddProductDialog(
                         .focusRequester(priceFocusRequester),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
+                        imeAction = ImeAction.Done,
                     ),
                     keyboardActions = KeyboardActions(
                         onDone = {
@@ -238,7 +238,7 @@ fun AddProductDialog(
                                 onConfirm(
                                     name,
                                     quantityText.parseToDouble(),
-                                    priceValue
+                                    priceValue,
                                 )
                                 if (product == null) {
                                     name = ""
@@ -248,8 +248,8 @@ fun AddProductDialog(
                                     focusRequester.requestFocus()
                                 }
                             }
-                        }
-                    )
+                        },
+                    ),
                 )
             }
         },
@@ -267,7 +267,7 @@ fun AddProductDialog(
                         onConfirm(
                             name,
                             quantityText.parseToDouble(),
-                            priceValue
+                            priceValue,
                         )
                         if (product == null) {
                             name = ""
@@ -277,7 +277,7 @@ fun AddProductDialog(
                             focusRequester.requestFocus()
                         }
                     }
-                }
+                },
             ) {
                 Text(stringResource(if (product == null) R.string.add else R.string.save))
             }
@@ -286,7 +286,7 @@ fun AddProductDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(if (product == null) R.string.cancel else R.string.discard))
             }
-        }
+        },
     )
 }
 
@@ -295,7 +295,7 @@ fun AddProductDialog(
 private fun AddProductDialogNewPreview() {
     MyAppTheme {
         AddProductDialog(
-            product = null
+            product = null,
         )
     }
 }
@@ -305,7 +305,7 @@ private fun AddProductDialogNewPreview() {
 private fun AddProductDialogEditPreview() {
     MyAppTheme {
         AddProductDialog(
-            product = productPreview
+            product = productPreview,
         )
     }
 }

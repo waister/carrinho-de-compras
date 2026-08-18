@@ -12,5 +12,5 @@ data class PurchaseListEntity(
     val dateClose: Long,
     val products: Int,
     val units: Double,
-    val valueTotal: Double
+    val valueTotal: Double,
 )

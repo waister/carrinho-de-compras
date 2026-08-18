@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 class ListDetailsViewModel(
     private val purchaseListRepository: PurchaseListRepository,
     private val productRepository: ProductRepository,
-    private val cartRepository: CartRepository
+    private val cartRepository: CartRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ListDetailsState())
@@ -49,7 +49,7 @@ class ListDetailsViewModel(
                 val products = productRepository.getProductsByListId(listId)
                 val suggestions = productRepository.getProductSuggestions()
                 val sortOrder = ProductSortOrder.valueOf(
-                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
+                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name),
                 )
 
                 _uiState.update {
@@ -63,7 +63,7 @@ class ListDetailsViewModel(
                             }
                             .sort(sortOrder),
                         suggestions = suggestions,
-                        sortOrder = sortOrder
+                        sortOrder = sortOrder,
                     )
                 }
             } catch (e: Exception) {
@@ -115,7 +115,7 @@ class ListDetailsViewModel(
                     cartId = cartId,
                     listId = 0L,
                     quantity = quantity,
-                    price = price
+                    price = price,
                 )
                 productRepository.insertProduct(updatedProduct)
                 _events.send(ListDetailsEvents.ShowSnackbar(R.string.product_added))

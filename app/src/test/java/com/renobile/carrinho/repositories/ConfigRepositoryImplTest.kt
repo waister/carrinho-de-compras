@@ -80,7 +80,7 @@ class ConfigRepositoryImplTest {
             admobInterstitialId = "inter",
             admobRemoveAdsId = "remove",
             admobOpenAppId = "open",
-            planVideoDuration = 1000L
+            planVideoDuration = 1000L,
         )
         repository.saveConfig(ConfigResponse(true, 5, 3, configs))
 

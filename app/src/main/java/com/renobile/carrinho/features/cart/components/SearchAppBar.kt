@@ -35,7 +35,7 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 fun SearchAppBar(
     query: String,
     onQueryChange: (String) -> Unit = {},
-    onCancelSearch: () -> Unit = {}
+    onCancelSearch: () -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -51,7 +51,7 @@ fun SearchAppBar(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.search_products),
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = Color.White.copy(alpha = 0.7f),
                     )
                 },
                 textStyle = TextStyle(color = Color.White, fontSize = 18.sp),
@@ -65,10 +65,10 @@ fun SearchAppBar(
                     disabledContainerColor = Color.Transparent,
                     cursorColor = Color.White,
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { /* Keyboard is hidden by default on enter */ })
+                keyboardActions = KeyboardActions(onSearch = { /* Keyboard is hidden by default on enter */ }),
             )
         },
         navigationIcon = {
@@ -86,8 +86,8 @@ fun SearchAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             navigationIconContentColor = Color.White,
-            actionIconContentColor = Color.White
-        )
+            actionIconContentColor = Color.White,
+        ),
     )
 }
 

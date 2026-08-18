@@ -72,7 +72,7 @@ class NotificationApiServiceTest {
     @Test
     fun `given response without notifications, when getNotifications, then notifications is null`() = runTest {
         server.enqueue(
-            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":false,"message":"erro","notifications":null}""")).build()
+            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":false,"message":"erro","notifications":null}""")).build(),
         )
 
         val response = createService().getNotifications()

@@ -28,7 +28,7 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
                 priceFirst = Prefs.getValue(PREF_PRICE_FIRST, ""),
                 sizeFirst = Prefs.getValue(PREF_SIZE_FIRST, ""),
                 priceSecond = Prefs.getValue(PREF_PRICE_SECOND, ""),
-                sizeSecond = Prefs.getValue(PREF_SIZE_SECOND, "")
+                sizeSecond = Prefs.getValue(PREF_SIZE_SECOND, ""),
             )
         }
         calculate(false)
@@ -57,7 +57,7 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
                 sizeFirst = "",
                 priceSecond = "",
                 sizeSecond = "",
-                showResult = false
+                showResult = false,
             )
         }
         savePrefs()
@@ -100,7 +100,7 @@ class ComparatorViewModel(application: Application) : AndroidViewModel(applicati
                     resultFirst = resFirst,
                     resultSecond = resSecond,
                     resultPercentage = resPercent,
-                    showResult = true
+                    showResult = true,
                 )
             }
             savePrefs()

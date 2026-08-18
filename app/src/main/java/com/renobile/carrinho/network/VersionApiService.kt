@@ -6,6 +6,6 @@ import retrofit2.http.Query
 interface VersionApiService {
     @GET("identify")
     suspend fun checkVersion(
-        @Query("token") token: String
+        @Query("token") token: String,
     ): ConfigResponse
 }

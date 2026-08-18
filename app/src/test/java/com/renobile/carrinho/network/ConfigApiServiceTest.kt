@@ -63,7 +63,7 @@ class ConfigApiServiceTest {
     @Test
     fun `given response without configs, when identify, then configs is null`() = runTest {
         server.enqueue(
-            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":false,"version_last":1,"version_min":1,"configs":null}""")).build()
+            MockResponse.Builder().code(200).body(Buffer().writeUtf8("""{"success":false,"version_last":1,"version_min":1,"configs":null}""")).build(),
         )
 
         val response = createService().identify("token")

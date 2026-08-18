@@ -59,7 +59,7 @@ fun Activity?.sendCart(products: List<ProductEntity>? = null, cartName: String) 
             volumes.addPluralCharacter(),
             volumes.formatQuantity(),
             total.formatPrice(),
-            storeAppLink()
+            storeAppLink(),
         )
 
         share(text, getString(R.string.send_list_label, cartName))
@@ -93,7 +93,7 @@ fun Activity?.sendList(products: List<ProductEntity>? = null, listName: String) 
             volumes.addPluralCharacter(),
             volumes.formatQuantity(),
             total.formatPrice(),
-            storeAppLink()
+            storeAppLink(),
         )
 
         share(text, getString(R.string.send_list_label, listName))
@@ -213,14 +213,14 @@ fun Bitmap?.getCircleCroppedBitmap(): Bitmap? {
                     (bitmap.width / 2).toFloat(),
                     (bitmap.height / 2).toFloat(),
                     (bitmap.width / 2).toFloat(),
-                    paint
+                    paint,
                 )
             } else {
                 canvas.drawCircle(
                     (bitmap.width / 2).toFloat(),
                     (bitmap.height / 2).toFloat(),
                     (bitmap.height / 2).toFloat(),
-                    paint
+                    paint,
                 )
             }
             paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)

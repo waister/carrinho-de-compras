@@ -23,7 +23,7 @@ import com.renobile.carrinho.util.formatDatetime
 @Composable
 fun NotificationDetailsScreen(
     viewModel: NotificationDetailsViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -39,22 +39,22 @@ fun NotificationDetailsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+                    navigationIconContentColor = Color.White,
+                ),
             )
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.error != null) {
                 Text(
                     text = state.error!!,
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             } else {
                 state.notification?.let { notification ->
@@ -63,7 +63,7 @@ fun NotificationDetailsScreen(
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                             .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         if (notification.image != null) {
                             AsyncImage(
@@ -72,7 +72,7 @@ fun NotificationDetailsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(200.dp),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
                             )
                         }
 
@@ -80,18 +80,18 @@ fun NotificationDetailsScreen(
                             text = notification.title,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
 
                         Text(
                             text = stringResource(R.string.label_received, notification.date.formatDatetime()),
                             fontSize = 12.sp,
-                            color = Color.Gray
+                            color = Color.Gray,
                         )
 
                         Text(
                             text = notification.body,
-                            fontSize = 16.sp
+                            fontSize = 16.sp,
                         )
                     }
                 }

@@ -24,7 +24,7 @@ import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.listGraph(
     navController: NavHostController,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
 ) {
     composable("list") {
         val activity = LocalActivity.current as? AppCompatActivity
@@ -48,12 +48,12 @@ fun NavGraphBuilder.listGraph(
             onShareApp = { activity?.shareApp() },
             onMoveToCart = { product, quantity, price -> viewModel.moveToCart(product, quantity, price) },
             onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
-            onScroll = { mainViewModel.setBarsVisible(it) }
+            onScroll = { mainViewModel.setBarsVisible(it) },
         )
         ListScreen(
             viewModel = viewModel,
             actions = actions,
-            areBarsVisible = mainState.areBarsVisible
+            areBarsVisible = mainState.areBarsVisible,
         )
 
         LaunchedEffect(Unit) {
@@ -64,7 +64,7 @@ fun NavGraphBuilder.listGraph(
                             android.widget.Toast.makeText(
                                 it,
                                 event.messageResId,
-                                android.widget.Toast.LENGTH_SHORT
+                                android.widget.Toast.LENGTH_SHORT,
                             ).show()
                         }
                     }
@@ -83,7 +83,7 @@ fun NavGraphBuilder.listGraph(
             onBackClick = { navController.popBackStack() },
             onListClick = { list ->
                 navController.navigate("listDetails/${list.id}?searchTerms=${viewModel.uiState.value.searchTerms}")
-            }
+            },
         )
     }
 
@@ -95,8 +95,8 @@ fun NavGraphBuilder.listGraph(
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
-            }
-        )
+            },
+        ),
     ) { backStackEntry ->
         val activity = LocalActivity.current as? AppCompatActivity
         LaunchedEffect(Unit) {
@@ -118,7 +118,7 @@ fun NavGraphBuilder.listGraph(
                 activity?.sendList(state.products, state.list?.name ?: "")
             },
             onSearchChanged = { viewModel.onSearchTermsChanged(listId, it) },
-            onSortOrderChanged = { viewModel.onSortOrderChanged(listId, it) }
+            onSortOrderChanged = { viewModel.onSortOrderChanged(listId, it) },
         )
 
         LaunchedEffect(Unit) {

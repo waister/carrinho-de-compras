@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ImportListDialog(
     onDismiss: () -> Unit = {},
-    onConfirm: (List<String>) -> Unit = {}
+    onConfirm: (List<String>) -> Unit = {},
 ) {
     var text by remember { mutableStateOf("") }
     val clipboard = LocalClipboard.current
@@ -55,12 +55,12 @@ fun ImportListDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp)
+                    .heightIn(max = 400.dp),
             ) {
                 Text(
                     text = stringResource(R.string.import_list_description),
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
                 )
                 OutlinedTextField(
                     value = text,
@@ -70,27 +70,27 @@ fun ImportListDialog(
                         .fillMaxWidth()
                         .weight(1f, fill = false),
                     keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences
-                    )
+                        capitalization = KeyboardCapitalization.Sentences,
+                    ),
                 )
 
                 if (processedItems.isNotEmpty()) {
                     Text(
                         text = stringResource(R.string.import_list_preview, processedItems.size),
                         style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                     )
                     Text(
                         text = processedItems.take(5).joinToString(", ") + if (processedItems.size > 5) "..." else "",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                 }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.End,
                 ) {
                     TextButton(onClick = {
                         scope.launch {
@@ -109,7 +109,7 @@ fun ImportListDialog(
         confirmButton = {
             TextButton(
                 onClick = { onConfirm(processedItems) },
-                enabled = processedItems.isNotEmpty()
+                enabled = processedItems.isNotEmpty(),
             ) {
                 Text(stringResource(R.string.save))
             }
@@ -118,7 +118,7 @@ fun ImportListDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
-        }
+        },
     )
 }
 

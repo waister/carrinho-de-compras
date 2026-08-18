@@ -46,11 +46,11 @@ fun CartTopBar(
     onShowClearCart: () -> Unit = {},
     onShowSortOptions: () -> Unit = {},
     onToggleMenu: (Boolean) -> Unit = {},
-    showMenu: Boolean = false
+    showMenu: Boolean = false,
 ) {
     Surface(
         color = MaterialTheme.colorScheme.primary,
-        contentColor = Color.White
+        contentColor = Color.White,
     ) {
         Column(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
             if (isSearchActive) {
@@ -60,21 +60,21 @@ fun CartTopBar(
                     onCancelSearch = {
                         onSearchActiveChange(false)
                         actions.onSearchChanged("")
-                    }
+                    },
                 )
             } else {
                 TopAppBar(
                     title = {
                         Text(
                             state.cart?.let { stringResource(R.string.label_cart, it.name) }
-                                ?: stringResource(R.string.app_name)
+                                ?: stringResource(R.string.app_name),
                         )
                     },
                     windowInsets = WindowInsets(0, 0, 0, 0),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = Color.White,
-                        actionIconContentColor = Color.White
+                        actionIconContentColor = Color.White,
                     ),
                     actions = {
                         IconButton(onClick = { onSearchActiveChange(true) }) {
@@ -83,7 +83,7 @@ fun CartTopBar(
                         IconButton(onClick = onShowCreateCart) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_cart_plus),
-                                contentDescription = stringResource(R.string.new_cart)
+                                contentDescription = stringResource(R.string.new_cart),
                             )
                         }
                         Box {
@@ -92,7 +92,7 @@ fun CartTopBar(
                             }
                             DropdownMenu(
                                 expanded = showMenu,
-                                onDismissRequest = { onToggleMenu(false) }
+                                onDismissRequest = { onToggleMenu(false) },
                             ) {
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.carts_history)) },
@@ -100,7 +100,7 @@ fun CartTopBar(
                                         onToggleMenu(false)
                                         actions.onOpenHistory()
                                     },
-                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.List, null) }
+                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.List, null) },
                                 )
                                 if (state.cart != null) {
                                     DropdownMenuItem(
@@ -109,7 +109,7 @@ fun CartTopBar(
                                             onToggleMenu(false)
                                             actions.onSendCart()
                                         },
-                                        leadingIcon = { Icon(Icons.Default.Share, null) }
+                                        leadingIcon = { Icon(Icons.Default.Share, null) },
                                     )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.clear_cart)) },
@@ -117,7 +117,7 @@ fun CartTopBar(
                                             onToggleMenu(false)
                                             onShowClearCart()
                                         },
-                                        leadingIcon = { Icon(Icons.Default.Delete, null) }
+                                        leadingIcon = { Icon(Icons.Default.Delete, null) },
                                     )
                                 }
                                 DropdownMenuItem(
@@ -126,7 +126,7 @@ fun CartTopBar(
                                         onToggleMenu(false)
                                         actions.onShareApp()
                                     },
-                                    leadingIcon = { Icon(Icons.Default.Share, null) }
+                                    leadingIcon = { Icon(Icons.Default.Share, null) },
                                 )
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.sort_order)) },
@@ -134,18 +134,18 @@ fun CartTopBar(
                                         onToggleMenu(false)
                                         onShowSortOptions()
                                     },
-                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) }
+                                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, null) },
                                 )
                             }
                         }
-                    }
+                    },
                 )
             }
             if (state.cart != null) {
                 CartHeader(
                     total = state.total,
                     productCount = state.products.size,
-                    volumes = state.volumes
+                    volumes = state.volumes,
                 )
             }
         }
@@ -157,7 +157,7 @@ fun CartTopBar(
 private fun CartTopBarNoCartPreview() {
     MyAppTheme {
         CartTopBar(
-            state = CartState()
+            state = CartState(),
         )
     }
 }
@@ -171,9 +171,9 @@ private fun CartTopBarWithCartPreview() {
                 cart = CartEntity(1, "Mercado", 0, 0, 0, 0.0, 100.0, ""),
                 products = listOf(
                     ProductEntity(1, 1, 0, "Arroz", 2.0, 15.0),
-                    ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0)
-                )
-            )
+                    ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0),
+                ),
+            ),
         )
     }
 }
@@ -184,7 +184,7 @@ private fun CartTopBarSearchPreview() {
     MyAppTheme {
         CartTopBar(
             state = CartState(searchTerms = "Arroz"),
-            isSearchActive = true
+            isSearchActive = true,
         )
     }
 }

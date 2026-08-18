@@ -71,7 +71,7 @@ class NotificationDetailsViewModelTest {
         coEvery { apiService.getNotificationDetail("10") } returns NotificationResponse(
             true,
             null,
-            listOf(NotificationModel("10", "Oferta", "Texto", "2026-08-08", "img.png"))
+            listOf(NotificationModel("10", "Oferta", "Texto", "2026-08-08", "img.png")),
         )
 
         val vm = newViewModel()

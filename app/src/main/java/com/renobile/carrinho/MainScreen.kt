@@ -76,7 +76,7 @@ import com.renobile.carrinho.util.storeAppLink
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
-    onShowInterstitialAd: () -> Unit
+    onShowInterstitialAd: () -> Unit,
 ) {
     val navController = rememberNavController()
     val uiState by mainViewModel.uiState.collectAsState()
@@ -85,7 +85,7 @@ fun MainScreen(
         uiState = uiState,
         navController = navController,
         onUpdatePlanStatus = { mainViewModel.updatePlanStatus() },
-        onVersionUpdateHandled = { mainViewModel.onVersionUpdateHandled() }
+        onVersionUpdateHandled = { mainViewModel.onVersionUpdateHandled() },
     ) {
         MainNavHost(navController, mainViewModel, onShowInterstitialAd)
     }
@@ -97,7 +97,7 @@ internal fun MainScreen(
     navController: NavHostController,
     onUpdatePlanStatus: () -> Unit,
     onVersionUpdateHandled: () -> Unit,
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -149,39 +149,39 @@ internal fun MainScreen(
         bottomBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                shadowElevation = if (uiState.isBottomBarVisible && uiState.areBarsVisible) 8.dp else 0.dp
+                shadowElevation = if (uiState.isBottomBarVisible && uiState.areBarsVisible) 8.dp else 0.dp,
             ) {
                 Column(
                     modifier = Modifier.windowInsetsPadding(
-                        WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-                    )
+                        WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+                    ),
                 ) {
                     AnimatedVisibility(
                         visible = uiState.isBottomBarVisible && uiState.areBarsVisible,
                         enter = expandVertically(),
-                        exit = shrinkVertically()
+                        exit = shrinkVertically(),
                     ) {
                         Column {
                             HorizontalDivider(
                                 thickness = 0.5.dp,
-                                color = Color.White.copy(alpha = 0.2f)
+                                color = Color.White.copy(alpha = 0.2f),
                             )
                             val isPreview = LocalInspectionMode.current
                             AdBanner(
                                 adUnitId = if (isPreview) "" else Prefs.getValue(PREF_ADMOB_AD_MAIN_ID, ""),
-                                havePlan = uiState.havePlan
+                                havePlan = uiState.havePlan,
                             )
                             MainBottomNavigation(navController)
                         }
                     }
                 }
             }
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             content(paddingValues)
         }
@@ -191,7 +191,7 @@ internal fun MainScreen(
 @Composable
 fun AdBanner(
     adUnitId: String,
-    havePlan: Boolean
+    havePlan: Boolean,
 ) {
     if (havePlan || adUnitId.isEmpty()) {
         return
@@ -214,10 +214,10 @@ fun AdBanner(
                     shimmer = null,
                     onAdLoaded = { success ->
                         isAdVisible = success
-                    }
+                    },
                 )
             }
-        }
+        },
     )
 }
 
@@ -228,14 +228,14 @@ fun MainBottomNavigation(navController: NavHostController) {
         BottomNavItem("list", R.drawable.ic_format_list_checks, R.string.list),
         BottomNavItem("comparator", R.drawable.ic_select_compare, R.string.compare),
         BottomNavItem("removeAds", R.drawable.ic_crown, R.string.premium),
-        BottomNavItem("more", R.drawable.ic_dots_horizontal, R.string.more)
+        BottomNavItem("more", R.drawable.ic_dots_horizontal, R.string.more),
     )
 
     NavigationBar(
         containerColor = Color.Transparent,
         contentColor = Color.White,
         tonalElevation = 0.dp,
-        windowInsets = WindowInsets(0, 0, 0, 0)
+        windowInsets = WindowInsets(0, 0, 0, 0),
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -266,7 +266,7 @@ fun MainBottomNavigation(navController: NavHostController) {
                     selectedTextColor = Color.White,
                     unselectedIconColor = Color.White.copy(alpha = 0.7f),
                     unselectedTextColor = Color.White.copy(alpha = 0.7f),
-                    indicatorColor = Color.Transparent
+                    indicatorColor = Color.Transparent,
                 ),
                 onClick = {
                     navController.navigate(item.route) {
@@ -276,7 +276,7 @@ fun MainBottomNavigation(navController: NavHostController) {
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
             )
         }
     }
@@ -286,7 +286,7 @@ fun MainBottomNavigation(navController: NavHostController) {
 fun MainNavHost(
     navController: NavHostController,
     mainViewModel: MainViewModel,
-    onShowInterstitialAd: () -> Unit
+    onShowInterstitialAd: () -> Unit,
 ) {
     NavHost(navController, startDestination = "start") {
         startScreen(navController, mainViewModel)
@@ -312,12 +312,12 @@ fun MainScreenPreview() {
             products = 2,
             units = 5.0,
             valueTotal = 50.0,
-            keywords = ""
+            keywords = "",
         ),
         products = listOf(
             ProductEntity(1, 1, 0, "Arroz", 2.0, 15.0),
-            ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0)
-        )
+            ProductEntity(2, 1, 0, "Feijão", 3.0, 10.0),
+        ),
     )
 
     MyAppTheme {
@@ -325,7 +325,7 @@ fun MainScreenPreview() {
             uiState = MainState(
                 isBottomBarVisible = true,
                 areBarsVisible = true,
-                havePlan = false
+                havePlan = false,
             ),
             navController = rememberNavController(),
             onUpdatePlanStatus = {},
@@ -333,9 +333,9 @@ fun MainScreenPreview() {
             content = {
                 CartScreen(
                     state = dummyState,
-                    actions = CartActions()
+                    actions = CartActions(),
                 )
-            }
+            },
         )
     }
 }

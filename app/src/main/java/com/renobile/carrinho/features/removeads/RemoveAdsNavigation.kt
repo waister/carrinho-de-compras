@@ -15,7 +15,7 @@ import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.removeAdsScreen(
     navController: NavHostController,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
 ) {
     composable("removeAds") {
         val activity = LocalActivity.current as? AppCompatActivity
@@ -46,8 +46,8 @@ fun NavGraphBuilder.removeAdsScreen(
                 onWatchClick = { activity?.let { viewModel.showAd(it) } },
                 onBack = { navController.popBackStack() },
                 onRestart = { activity?.restartApp() },
-                onDismissRestart = { viewModel.dismissRestartDialog() }
-            )
+                onDismissRestart = { viewModel.dismissRestartDialog() },
+            ),
         )
     }
 }

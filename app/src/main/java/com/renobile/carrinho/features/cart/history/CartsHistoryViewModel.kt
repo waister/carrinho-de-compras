@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class CartsHistoryViewModel(
     private val cartRepository: CartRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartsHistoryState())

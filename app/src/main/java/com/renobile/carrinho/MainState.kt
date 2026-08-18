@@ -4,7 +4,7 @@ data class MainState(
     val versionUpdate: VersionUpdate? = null,
     val isBottomBarVisible: Boolean = false,
     val areBarsVisible: Boolean = true,
-    val havePlan: Boolean = false
+    val havePlan: Boolean = false,
 )
 
 sealed class VersionUpdate {
@@ -15,5 +15,5 @@ sealed class VersionUpdate {
 data class BottomNavItem(
     val route: String,
     val iconRes: Int,
-    val labelRes: Int
+    val labelRes: Int,
 )

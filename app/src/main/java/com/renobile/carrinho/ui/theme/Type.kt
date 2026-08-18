@@ -13,8 +13,8 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.sp
-    )
+        letterSpacing = 0.sp,
+    ),
     /* Other default text styles to override
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,

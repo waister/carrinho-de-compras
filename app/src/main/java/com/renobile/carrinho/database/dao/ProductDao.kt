@@ -24,7 +24,7 @@ interface ProductDao {
             JOIN purchase_lists l ON p.listId = l.id
             GROUP BY p.name
         ) GROUP BY name ORDER BY lastDate DESC
-    """
+    """,
     )
     suspend fun getProductSuggestions(): List<com.renobile.carrinho.database.entities.ProductSuggestion>
 

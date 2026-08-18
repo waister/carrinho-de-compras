@@ -63,7 +63,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun ComparatorScreen(
     viewModel: ComparatorViewModel,
-    onShare: () -> Unit
+    onShare: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -75,7 +75,7 @@ fun ComparatorScreen(
         onSizeSecondChanged = viewModel::onSizeSecondChanged,
         onClear = viewModel::clear,
         onCalculate = { viewModel.calculate() },
-        onShare = onShare
+        onShare = onShare,
     )
 }
 
@@ -89,7 +89,7 @@ fun ComparatorScreen(
     onSizeSecondChanged: (String) -> Unit = {},
     onClear: () -> Unit = {},
     onCalculate: () -> Unit = {},
-    onShare: () -> Unit = {}
+    onShare: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     var showClearDialog by remember { mutableStateOf(false) }
@@ -114,7 +114,7 @@ fun ComparatorScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.cancel)) }
-            }
+            },
         )
     }
 
@@ -123,7 +123,7 @@ fun ComparatorScreen(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 TopAppBar(
                     title = { Text(stringResource(R.string.comparator)) },
@@ -132,7 +132,7 @@ fun ComparatorScreen(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = Color.White,
-                        actionIconContentColor = Color.White
+                        actionIconContentColor = Color.White,
                     ),
                     actions = {
                         IconButton(onClick = { showClearDialog = true }) {
@@ -141,10 +141,10 @@ fun ComparatorScreen(
                         IconButton(onClick = onShare) {
                             Icon(Icons.Default.Share, contentDescription = null)
                         }
-                    }
+                    },
                 )
             }
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -152,14 +152,14 @@ fun ComparatorScreen(
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             ProductInputSection(
                 title = stringResource(R.string.label_first),
                 price = state.priceFirst,
                 onPriceChange = onPriceFirstChanged,
                 size = state.sizeFirst,
-                onSizeChange = onSizeFirstChanged
+                onSizeChange = onSizeFirstChanged,
             )
 
             HorizontalDivider()
@@ -171,12 +171,12 @@ fun ComparatorScreen(
                 size = state.sizeSecond,
                 onSizeChange = onSizeSecondChanged,
                 imeAction = ImeAction.Done,
-                onDone = onCalculate
+                onDone = onCalculate,
             )
 
             Button(
                 onClick = onCalculate,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.button_submit))
             }
@@ -198,7 +198,7 @@ private fun ProductInputSection(
     size: String,
     onSizeChange: (String) -> Unit,
     imeAction: ImeAction = ImeAction.Next,
-    onDone: () -> Unit = {}
+    onDone: () -> Unit = {},
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = title, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
@@ -208,7 +208,7 @@ private fun ProductInputSection(
                 value = price,
                 onValueChange = onPriceChange,
                 label = stringResource(R.string.text_price),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             OutlinedTextField(
                 value = size,
@@ -217,7 +217,7 @@ private fun ProductInputSection(
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = imeAction),
                 keyboardActions = KeyboardActions(onDone = { onDone() }),
-                singleLine = true
+                singleLine = true,
             )
         }
     }
@@ -228,7 +228,7 @@ private fun MoneyField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
     val textFieldValue = remember(value) {
@@ -256,7 +256,7 @@ private fun MoneyField(
         label = { Text(label) },
         modifier = modifier,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-        singleLine = true
+        singleLine = true,
     )
 }
 
@@ -264,19 +264,19 @@ private fun MoneyField(
 private fun ResultSection(state: ComparatorState) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.resultFirst?.let {
                 Text(
                     text = it.fromHtml().toString(),
-                    color = TextSecondary
+                    color = TextSecondary,
                 )
             }
             state.resultSecond?.let {
                 Text(
                     text = it.fromHtml().toString(),
-                    color = TextSecondary
+                    color = TextSecondary,
                 )
             }
             state.resultPercentage?.let {
@@ -284,7 +284,7 @@ private fun ResultSection(state: ComparatorState) {
                     text = it.fromHtml().toString(),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    color = TextPrimary,
                 )
             }
         }
@@ -304,8 +304,8 @@ private fun ComparatorScreenPreview() {
                 resultFirst = "O primeiro custa R$ 0,01 por unidade",
                 resultSecond = "O segundo custa R$ 0,16 por unidade",
                 resultPercentage = "O primeiro é 37,5% mais barato",
-                showResult = true
-            )
+                showResult = true,
+            ),
         )
     }
 }

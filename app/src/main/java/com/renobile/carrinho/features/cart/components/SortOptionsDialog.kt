@@ -22,7 +22,7 @@ import com.renobile.carrinho.util.ProductSortOrder
 fun SortOptionsDialog(
     currentOrder: ProductSortOrder,
     onDismiss: () -> Unit,
-    onSortOrderSelected: (ProductSortOrder) -> Unit
+    onSortOrderSelected: (ProductSortOrder) -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -32,32 +32,32 @@ fun SortOptionsDialog(
                 SortOptionItem(
                     label = stringResource(R.string.sort_newest),
                     selected = currentOrder == ProductSortOrder.NEWEST,
-                    onClick = { onSortOrderSelected(ProductSortOrder.NEWEST) }
+                    onClick = { onSortOrderSelected(ProductSortOrder.NEWEST) },
                 )
                 SortOptionItem(
                     label = stringResource(R.string.sort_oldest),
                     selected = currentOrder == ProductSortOrder.OLDEST,
-                    onClick = { onSortOrderSelected(ProductSortOrder.OLDEST) }
+                    onClick = { onSortOrderSelected(ProductSortOrder.OLDEST) },
                 )
                 SortOptionItem(
                     label = stringResource(R.string.sort_name_asc),
                     selected = currentOrder == ProductSortOrder.NAME_ASC,
-                    onClick = { onSortOrderSelected(ProductSortOrder.NAME_ASC) }
+                    onClick = { onSortOrderSelected(ProductSortOrder.NAME_ASC) },
                 )
                 SortOptionItem(
                     label = stringResource(R.string.sort_name_desc),
                     selected = currentOrder == ProductSortOrder.NAME_DESC,
-                    onClick = { onSortOrderSelected(ProductSortOrder.NAME_DESC) }
+                    onClick = { onSortOrderSelected(ProductSortOrder.NAME_DESC) },
                 )
                 SortOptionItem(
                     label = stringResource(R.string.sort_price_asc),
                     selected = currentOrder == ProductSortOrder.PRICE_ASC,
-                    onClick = { onSortOrderSelected(ProductSortOrder.PRICE_ASC) }
+                    onClick = { onSortOrderSelected(ProductSortOrder.PRICE_ASC) },
                 )
                 SortOptionItem(
                     label = stringResource(R.string.sort_price_desc),
                     selected = currentOrder == ProductSortOrder.PRICE_DESC,
-                    onClick = { onSortOrderSelected(ProductSortOrder.PRICE_DESC) }
+                    onClick = { onSortOrderSelected(ProductSortOrder.PRICE_DESC) },
                 )
             }
         },
@@ -65,7 +65,7 @@ fun SortOptionsDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.confirm))
             }
-        }
+        },
     )
 }
 
@@ -73,23 +73,23 @@ fun SortOptionsDialog(
 private fun SortOptionItem(
     label: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(
             selected = selected,
-            onClick = onClick
+            onClick = onClick,
         )
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 8.dp)
+            modifier = Modifier.padding(start = 8.dp),
         )
     }
 }

@@ -18,7 +18,7 @@ fun NavGraphBuilder.comparatorScreen(mainViewModel: MainViewModel) {
         val viewModel: ComparatorViewModel = koinViewModel()
         ComparatorScreen(
             viewModel = viewModel,
-            onShare = { activity?.shareApp() }
+            onShare = { activity?.shareApp() },
         )
     }
 }

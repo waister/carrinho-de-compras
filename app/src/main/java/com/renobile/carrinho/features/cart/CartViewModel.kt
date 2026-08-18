@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class CartViewModel(
     private val cartRepository: CartRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartState())
@@ -42,7 +42,7 @@ class CartViewModel(
                 val products = activeCart?.let { productRepository.getProductsByCartId(it.id) } ?: emptyList()
                 val suggestions = productRepository.getProductSuggestions()
                 val sortOrder = ProductSortOrder.valueOf(
-                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
+                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name),
                 )
 
                 _uiState.update {
@@ -56,7 +56,7 @@ class CartViewModel(
                             }
                             .sort(sortOrder),
                         suggestions = suggestions,
-                        sortOrder = sortOrder
+                        sortOrder = sortOrder,
                     )
                 }
             } catch (e: Exception) {
@@ -104,7 +104,7 @@ class CartViewModel(
                             products = currentProducts.size,
                             units = currentProducts.sumOf { it.quantity },
                             valueTotal = currentProducts.sumOf { it.price * it.quantity },
-                            keywords = currentProducts.joinToString(", ") { it.name }
+                            keywords = currentProducts.joinToString(", ") { it.name },
                         )
                         cartRepository.updateCart(updatedCart)
                     }
@@ -120,7 +120,7 @@ class CartViewModel(
                     products = 0,
                     units = 0.0,
                     valueTotal = 0.0,
-                    keywords = ""
+                    keywords = "",
                 )
                 cartRepository.insertCart(newCart)
                 loadData()

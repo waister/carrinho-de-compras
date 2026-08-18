@@ -47,7 +47,7 @@ class CartsHistoryViewModelTest {
             products = 1,
             units = 1.0,
             valueTotal = 10.0,
-            keywords = ""
+            keywords = "",
         )
         val product = ProductEntity(
             id = 1,
@@ -55,7 +55,7 @@ class CartsHistoryViewModelTest {
             listId = 0,
             name = "Product A",
             quantity = 1.0,
-            price = 10.0
+            price = 10.0,
         )
 
         coEvery { cartRepository.getAllCarts() } returns listOf(cartWithoutKeywords)
@@ -86,7 +86,7 @@ class CartsHistoryViewModelTest {
             products = 1,
             units = 1.0,
             valueTotal = 10.0,
-            keywords = "apple, banana"
+            keywords = "apple, banana",
         )
         val cart2 = CartEntity(
             id = 2,
@@ -96,7 +96,7 @@ class CartsHistoryViewModelTest {
             products = 1,
             units = 1.0,
             valueTotal = 10.0,
-            keywords = "phone"
+            keywords = "phone",
         )
 
         coEvery { cartRepository.getAllCarts() } returns listOf(cart1, cart2)

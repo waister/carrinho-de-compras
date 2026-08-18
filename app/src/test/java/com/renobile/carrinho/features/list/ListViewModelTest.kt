@@ -52,7 +52,7 @@ class ListViewModelTest {
             dateClose = 0,
             products = 0,
             units = 0.0,
-            valueTotal = 0.0
+            valueTotal = 0.0,
         )
         coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
 
@@ -74,7 +74,7 @@ class ListViewModelTest {
                         it[1].listId == 1L &&
                         it[2].name == "Café" &&
                         it[2].listId == 1L
-                }
+                },
             )
         }
     }
@@ -89,7 +89,7 @@ class ListViewModelTest {
             dateClose = 0,
             products = 0,
             units = 0.0,
-            valueTotal = 0.0
+            valueTotal = 0.0,
         )
         coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
 
@@ -110,7 +110,7 @@ class ListViewModelTest {
                         it[1].quantity == 2.5 &&
                         it[2].name == "Feijão" &&
                         it[2].quantity == 1.0
-                }
+                },
             )
         }
     }

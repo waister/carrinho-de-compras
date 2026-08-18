@@ -8,7 +8,7 @@ data class ConfigResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("version_last") val versionLast: Int,
     @SerializedName("version_min") val versionMin: Int,
-    @SerializedName("configs") val configs: AppConfigs?
+    @SerializedName("configs") val configs: AppConfigs?,
 )
 
 data class AppConfigs(
@@ -19,12 +19,12 @@ data class AppConfigs(
     @SerializedName("admob_interstitial_id") val admobInterstitialId: String?,
     @SerializedName("admob_remove_ads_id") val admobRemoveAdsId: String?,
     @SerializedName("admob_open_app_id") val admobOpenAppId: String?,
-    @SerializedName("plan_video_duration") val planVideoDuration: Long?
+    @SerializedName("plan_video_duration") val planVideoDuration: Long?,
 )
 
 interface ConfigApiService {
     @GET("identify")
     suspend fun identify(
-        @Query("token") token: String
+        @Query("token") token: String,
     ): ConfigResponse
 }

@@ -28,7 +28,7 @@ class ListViewModel(
     private val purchaseListRepository: PurchaseListRepository,
     private val productRepository: ProductRepository,
     private val cartRepository: CartRepository,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ListState())
@@ -57,7 +57,7 @@ class ListViewModel(
             } ?: emptyList()
             val suggestions = withContext(ioDispatcher) { productRepository.getProductSuggestions() }
             val sortOrder = ProductSortOrder.valueOf(
-                Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
+                Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name),
             )
 
             _uiState.update {
@@ -69,7 +69,7 @@ class ListViewModel(
                         .sort(sortOrder),
                     suggestions = suggestions,
                     sortOrder = sortOrder,
-                    error = null
+                    error = null,
                 )
             }
         } catch (e: Exception) {
@@ -107,7 +107,7 @@ class ListViewModel(
                         dateClose = System.currentTimeMillis(),
                         products = currentProducts.size,
                         units = currentProducts.sumOf { it.quantity },
-                        valueTotal = currentProducts.sumOf { it.price * it.quantity }
+                        valueTotal = currentProducts.sumOf { it.price * it.quantity },
                     )
                     withContext(ioDispatcher) { purchaseListRepository.insertList(updatedList) }
                 }
@@ -122,7 +122,7 @@ class ListViewModel(
                     dateClose = 0L,
                     products = 0,
                     units = 0.0,
-                    valueTotal = 0.0
+                    valueTotal = 0.0,
                 )
                 withContext(ioDispatcher) { purchaseListRepository.insertList(newList) }
                 fetchData()
@@ -202,7 +202,7 @@ class ListViewModel(
                     cartId = activeCart.id,
                     listId = 0L,
                     quantity = quantity,
-                    price = price
+                    price = price,
                 )
                 withContext(ioDispatcher) {
                     productRepository.deleteProduct(product)
@@ -250,7 +250,7 @@ class ListViewModel(
                         listId = currentList.id,
                         name = name,
                         quantity = quantity,
-                        price = 0.0
+                        price = 0.0,
                     )
                 }
 
@@ -266,7 +266,7 @@ class ListViewModel(
                     it.copy(
                         isLoading = false,
                         products = updatedProducts,
-                        error = null
+                        error = null,
                     )
                 }
 

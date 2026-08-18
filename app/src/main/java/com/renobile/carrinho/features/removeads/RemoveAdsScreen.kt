@@ -19,7 +19,7 @@ import com.renobile.carrinho.R
 @Composable
 fun RemoveAdsScreen(
     state: RemoveAdsState,
-    actions: RemoveAdsActions
+    actions: RemoveAdsActions,
 ) {
     if (state.showRestartDialog) {
         AlertDialog(
@@ -35,7 +35,7 @@ fun RemoveAdsScreen(
                 TextButton(onClick = actions.onDismissRestart) {
                     Text(stringResource(R.string.later))
                 }
-            }
+            },
         )
     }
 
@@ -44,7 +44,7 @@ fun RemoveAdsScreen(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 TopAppBar(
                     title = { Text(stringResource(R.string.remove_ads)) },
@@ -58,11 +58,11 @@ fun RemoveAdsScreen(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White
-                    )
+                        navigationIconContentColor = Color.White,
+                    ),
                 )
             }
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -70,7 +70,7 @@ fun RemoveAdsScreen(
                 .padding(paddingValues)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             if (state.haveVideoPlan) {
                 Text(
@@ -78,14 +78,14 @@ fun RemoveAdsScreen(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             } else {
                 Text(
                     text = stringResource(R.string.watch_to_by_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -93,7 +93,7 @@ fun RemoveAdsScreen(
                 Text(
                     text = state.description,
                     fontSize = 16.sp,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -104,7 +104,7 @@ fun RemoveAdsScreen(
                     Button(
                         onClick = actions.onWatchClick,
                         enabled = state.isAdReady,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.watch_to_by_button))
                     }

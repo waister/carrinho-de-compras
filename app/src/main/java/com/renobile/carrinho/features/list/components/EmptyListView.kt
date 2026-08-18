@@ -17,13 +17,13 @@ import com.renobile.carrinho.R
 
 @Composable
 fun EmptyListView(
-    onCreateList: () -> Unit = {}
+    onCreateList: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.lists_empty),
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             )
             Button(onClick = onCreateList) {
                 Text(stringResource(R.string.create_list))

@@ -26,7 +26,7 @@ import com.renobile.carrinho.R
 @Composable
 fun CreateListDialog(
     onDismiss: () -> Unit = {},
-    onConfirm: (String) -> Unit = {}
+    onConfirm: (String) -> Unit = {},
 ) {
     var listName by remember { mutableStateOf("") }
 
@@ -39,7 +39,7 @@ fun CreateListDialog(
                     text = stringResource(R.string.create_list_notice),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 16.dp),
                 )
                 OutlinedTextField(
                     value = listName,
@@ -53,11 +53,11 @@ fun CreateListDialog(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
-                        capitalization = KeyboardCapitalization.Sentences
+                        capitalization = KeyboardCapitalization.Sentences,
                     ),
                     keyboardActions = KeyboardActions(onDone = {
                         onConfirm(listName)
-                    })
+                    }),
                 )
             }
         },
@@ -72,7 +72,7 @@ fun CreateListDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
             }
-        }
+        },
     )
 }
 

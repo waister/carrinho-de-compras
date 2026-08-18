@@ -13,7 +13,7 @@ import com.renobile.carrinho.util.restartApp
 
 fun NavGraphBuilder.aboutScreen(
     navController: NavHostController,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
 ) {
     composable("about") {
         val activity = LocalActivity.current as? AppCompatActivity
@@ -26,7 +26,7 @@ fun NavGraphBuilder.aboutScreen(
             onSecretAction = {
                 Prefs.putValue(PREF_HAVE_PLAN, true)
                 activity?.restartApp()
-            }
+            },
         )
     }
 }

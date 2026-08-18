@@ -27,7 +27,7 @@ import com.renobile.carrinho.network.models.NotificationModel
 fun NotificationsScreen(
     viewModel: NotificationsViewModel,
     onBackClick: () -> Unit,
-    onNotificationClick: (String) -> Unit
+    onNotificationClick: (String) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -35,7 +35,7 @@ fun NotificationsScreen(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 TopAppBar(
                     title = { Text(stringResource(R.string.notifications)) },
@@ -49,16 +49,16 @@ fun NotificationsScreen(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White
-                    )
+                        navigationIconContentColor = Color.White,
+                    ),
                 )
             }
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -66,12 +66,12 @@ fun NotificationsScreen(
                 Text(
                     text = state.error!!,
                     modifier = Modifier.align(Alignment.Center),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 )
             } else if (state.notifications.isEmpty()) {
                 Text(
                     text = stringResource(R.string.notifications_empty),
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -102,10 +102,10 @@ fun NotificationItem(notification: NotificationModel, onClick: () -> Unit) {
                     model = notification.image,
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
             }
         },
-        modifier = Modifier.clickable { onClick() }
+        modifier = Modifier.clickable { onClick() },
     )
 }

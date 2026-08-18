@@ -17,11 +17,11 @@ import kotlinx.coroutines.launch
 data class NotificationDetailsState(
     val isLoading: Boolean = false,
     val notification: NotificationModel? = null,
-    val error: String? = null
+    val error: String? = null,
 )
 
 class NotificationDetailsViewModel(
-    private val apiService: NotificationApiService
+    private val apiService: NotificationApiService,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NotificationDetailsState())
@@ -37,7 +37,7 @@ class NotificationDetailsViewModel(
                 title = cachedObj.getStringVal("title"),
                 body = cachedObj.getStringVal("body"),
                 date = cachedObj.getStringVal("date"),
-                image = cachedObj.getStringVal("image")
+                image = cachedObj.getStringVal("image"),
             )
             _uiState.update { it.copy(notification = notification) }
         } else {

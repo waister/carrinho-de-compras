@@ -33,7 +33,7 @@ fun Context?.loadBannerAd(
     adSize: AdSize? = null,
     collapsible: Boolean = false,
     shimmer: ShimmerFrameLayout? = null,
-    onAdLoaded: (Boolean) -> Unit = {}
+    onAdLoaded: (Boolean) -> Unit = {},
 ) {
     val logTag = "LOAD_ADMOB_BANNER"
 

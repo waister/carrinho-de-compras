@@ -48,7 +48,7 @@ import com.renobile.carrinho.util.formatQuantity
 fun ListsHistoryScreen(
     viewModel: ListsHistoryViewModel,
     onBackClick: () -> Unit,
-    onListClick: (PurchaseListEntity) -> Unit
+    onListClick: (PurchaseListEntity) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
     var isSearchActive by remember { mutableStateOf(false) }
@@ -64,7 +64,7 @@ fun ListsHistoryScreen(
         topBar = {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = Color.White,
             ) {
                 Box(modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
                     if (isSearchActive) {
@@ -74,7 +74,7 @@ fun ListsHistoryScreen(
                             onCancelSearch = {
                                 isSearchActive = false
                                 viewModel.onSearchTermsChanged("")
-                            }
+                            },
                         )
                     } else {
                         TopAppBar(
@@ -94,18 +94,18 @@ fun ListsHistoryScreen(
                                 containerColor = Color.Transparent,
                                 titleContentColor = Color.White,
                                 navigationIconContentColor = Color.White,
-                                actionIconContentColor = Color.White
-                            )
+                                actionIconContentColor = Color.White,
+                            ),
                         )
                     }
                 }
             }
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -116,7 +116,7 @@ fun ListsHistoryScreen(
                     } else {
                         stringResource(R.string.lists_archive_empty)
                     },
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -141,21 +141,21 @@ fun ListHistoryItem(list: PurchaseListEntity, onClick: () -> Unit) {
                         list.products,
                         list.products.addPluralCharacter(),
                         list.units.formatQuantity(),
-                        list.units.addPluralCharacter()
-                    )
+                        list.units.addPluralCharacter(),
+                    ),
                 )
                 Text(
                     text = "Data: ${list.dateOpen.formatDate()}",
-                    color = Color.Gray
+                    color = Color.Gray,
                 )
             }
         },
         trailingContent = {
             Text(
                 text = list.valueTotal.formatPrice(),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         },
-        modifier = Modifier.clickable { onClick() }
+        modifier = Modifier.clickable { onClick() },
     )
 }

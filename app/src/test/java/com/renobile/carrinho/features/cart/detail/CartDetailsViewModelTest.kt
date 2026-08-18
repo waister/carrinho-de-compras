@@ -69,7 +69,7 @@ class CartDetailsViewModelTest {
         val products = listOf(
             product(10, "Arroz", 1.0, 5.0),
             product(20, "Feijão", 2.0, 4.0),
-            product(30, "Carne", 0.5, 8.0)
+            product(30, "Carne", 0.5, 8.0),
         )
         coEvery { cartRepository.getAllCarts() } returns listOf(cart(1))
         coEvery { productRepository.getProductsByCartId(1) } returns products
@@ -118,7 +118,7 @@ class CartDetailsViewModelTest {
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "Arroz", 1.0, 5.0),
             product(20, "Feijão", 1.0, 3.0),
-            product(30, "Carne", 1.0, 8.0)
+            product(30, "Carne", 1.0, 8.0),
         )
 
         val vm = CartDetailsViewModel(cartRepository, productRepository)
@@ -126,7 +126,7 @@ class CartDetailsViewModelTest {
 
         assertEquals(
             listOf("Feijão", "Arroz", "Carne"),
-            vm.uiState.value.products.map { it.name }
+            vm.uiState.value.products.map { it.name },
         )
         assertEquals(ProductSortOrder.PRICE_ASC, vm.uiState.value.sortOrder)
     }
@@ -138,7 +138,7 @@ class CartDetailsViewModelTest {
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "banana", 1.0, 5.0),
             product(20, "Abacaxi", 1.0, 3.0),
-            product(30, "Arroz", 1.0, 8.0)
+            product(30, "Arroz", 1.0, 8.0),
         )
 
         val vm = CartDetailsViewModel(cartRepository, productRepository)
@@ -146,7 +146,7 @@ class CartDetailsViewModelTest {
 
         assertEquals(
             listOf("Abacaxi", "Arroz", "banana"),
-            vm.uiState.value.products.map { it.name }
+            vm.uiState.value.products.map { it.name },
         )
     }
 
@@ -157,7 +157,7 @@ class CartDetailsViewModelTest {
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(30, "Carne", 1.0, 8.0),
             product(10, "Arroz", 1.0, 5.0),
-            product(20, "Feijão", 1.0, 3.0)
+            product(20, "Feijão", 1.0, 3.0),
         )
 
         val vm = CartDetailsViewModel(cartRepository, productRepository)
@@ -165,7 +165,7 @@ class CartDetailsViewModelTest {
 
         assertEquals(
             listOf("Arroz", "Feijão", "Carne"),
-            vm.uiState.value.products.map { it.name }
+            vm.uiState.value.products.map { it.name },
         )
     }
 
@@ -174,7 +174,7 @@ class CartDetailsViewModelTest {
         coEvery { cartRepository.getAllCarts() } returns listOf(cart(1))
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "Arroz", 1.0, 5.0),
-            product(20, "Feijão", 1.0, 4.0)
+            product(20, "Feijão", 1.0, 4.0),
         )
 
         val vm = CartDetailsViewModel(cartRepository, productRepository)
@@ -190,7 +190,7 @@ class CartDetailsViewModelTest {
         coEvery { cartRepository.getAllCarts() } returns listOf(cart(1))
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "Arroz", 2.0, 5.0),
-            product(20, "Feijão", 1.5, 4.0)
+            product(20, "Feijão", 1.5, 4.0),
         )
 
         val vm = CartDetailsViewModel(cartRepository, productRepository)
@@ -206,7 +206,7 @@ class CartDetailsViewModelTest {
         coEvery { cartRepository.getAllCarts() } returns listOf(cart(1))
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "Arroz", 1.0, 5.0),
-            product(20, "Feijão", 1.0, 3.0)
+            product(20, "Feijão", 1.0, 3.0),
         )
         val vm = CartDetailsViewModel(cartRepository, productRepository)
         vm.init(1)
@@ -223,7 +223,7 @@ class CartDetailsViewModelTest {
         coEvery { cartRepository.getAllCarts() } returns listOf(cart(1))
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "Arroz", 1.0, 5.0),
-            product(20, "Feijão", 1.0, 4.0)
+            product(20, "Feijão", 1.0, 4.0),
         )
         val vm = CartDetailsViewModel(cartRepository, productRepository)
         vm.init(1)
@@ -240,7 +240,7 @@ class CartDetailsViewModelTest {
         coEvery { cartRepository.getAllCarts() } returns listOf(cart(1))
         coEvery { productRepository.getProductsByCartId(1) } returns listOf(
             product(10, "Arroz", 1.0, 5.0),
-            product(20, "Feijão", 1.0, 4.0)
+            product(20, "Feijão", 1.0, 4.0),
         )
         val vm = CartDetailsViewModel(cartRepository, productRepository)
         vm.init(1, "Feijão")

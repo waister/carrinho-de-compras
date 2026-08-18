@@ -23,12 +23,12 @@ fun StartScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primary),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Image(
             painter = painterResource(R.drawable.logo_splash_96dp),
             contentDescription = null,
-            modifier = Modifier.size(96.dp)
+            modifier = Modifier.size(96.dp),
         )
 
         CircularProgressIndicator(
@@ -37,7 +37,7 @@ fun StartScreen() {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 80.dp)
                 .size(24.dp),
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onPrimary,
         )
     }
 }

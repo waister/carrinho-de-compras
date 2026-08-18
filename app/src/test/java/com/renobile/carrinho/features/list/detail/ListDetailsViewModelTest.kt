@@ -68,7 +68,7 @@ class ListDetailsViewModelTest {
         coEvery { purchaseListRepository.getAllLists() } returns listOf(list(1))
         coEvery { productRepository.getProductsByListId(1) } returns listOf(
             product(20, "Feijão", 1),
-            product(10, "Arroz", 1)
+            product(10, "Arroz", 1),
         )
         coEvery { productRepository.getProductSuggestions() } returns emptyList()
 
@@ -96,7 +96,7 @@ class ListDetailsViewModelTest {
         coEvery { purchaseListRepository.getAllLists() } returns listOf(list(1))
         coEvery { productRepository.getProductsByListId(1) } returns listOf(
             product(10, "Arroz", 1),
-            product(20, "Feijão", 1)
+            product(20, "Feijão", 1),
         )
         coEvery { productRepository.getProductSuggestions() } returns emptyList()
         val vm = ListDetailsViewModel(purchaseListRepository, productRepository, cartRepository)
@@ -113,7 +113,7 @@ class ListDetailsViewModelTest {
         coEvery { purchaseListRepository.getAllLists() } returns listOf(list(1))
         coEvery { productRepository.getProductsByListId(1) } returns listOf(
             product(20, "Zebra", 1),
-            product(10, "Arroz", 1)
+            product(10, "Arroz", 1),
         )
         coEvery { productRepository.getProductSuggestions() } returns emptyList()
         val vm = ListDetailsViewModel(purchaseListRepository, productRepository, cartRepository)
@@ -156,7 +156,7 @@ class ListDetailsViewModelTest {
         }
         coVerify(exactly = 1) {
             productRepository.insertProduct(
-                match { it.cartId == 7L && it.listId == 0L && it.quantity == 3.0 && it.price == 12.5 }
+                match { it.cartId == 7L && it.listId == 0L && it.quantity == 3.0 && it.price == 12.5 },
             )
         }
     }
@@ -183,7 +183,7 @@ class ListDetailsViewModelTest {
         coEvery { purchaseListRepository.getAllLists() } returns listOf(list(1))
         coEvery { productRepository.getProductsByListId(1) } returns listOf(
             product(10, "Arroz", 1).copy(quantity = 2.0),
-            product(20, "Feijão", 1).copy(quantity = 3.0, price = 10.0)
+            product(20, "Feijão", 1).copy(quantity = 3.0, price = 10.0),
         )
         coEvery { productRepository.getProductSuggestions() } returns emptyList()
         val vm = ListDetailsViewModel(purchaseListRepository, productRepository, cartRepository)

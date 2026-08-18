@@ -64,7 +64,7 @@ class CartRepositoryImplTest {
     fun `when getAllCarts, then returns all carts`() = runTest {
         val carts = listOf(
             CartEntity(1, "A", 100, 0, 0, 0.0, 0.0, ""),
-            CartEntity(2, "B", 100, 0, 0, 0.0, 0.0, "")
+            CartEntity(2, "B", 100, 0, 0, 0.0, 0.0, ""),
         )
         coEvery { cartDao.getAll() } returns carts
 

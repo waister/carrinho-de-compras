@@ -57,7 +57,7 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 fun ListScreen(
     viewModel: ListViewModel,
     actions: ListActions,
-    areBarsVisible: Boolean = true
+    areBarsVisible: Boolean = true,
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -70,7 +70,7 @@ fun ListScreen(
         state = state,
         actions = actions,
         activeCartId = activeCartId,
-        areBarsVisible = areBarsVisible
+        areBarsVisible = areBarsVisible,
     )
 }
 
@@ -79,7 +79,7 @@ fun ListScreen(
     state: ListState,
     actions: ListActions,
     activeCartId: Long = 0L,
-    areBarsVisible: Boolean = true
+    areBarsVisible: Boolean = true,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -122,7 +122,7 @@ fun ListScreen(
             onConfirm = {
                 actions.onClearList()
                 showClearConfirmation = false
-            }
+            },
         )
     }
 
@@ -132,7 +132,7 @@ fun ListScreen(
             onConfirm = {
                 showDeleteConfirmation?.let { actions.onDeleteProduct(it) }
                 showDeleteConfirmation = null
-            }
+            },
         )
     }
 
@@ -142,7 +142,7 @@ fun ListScreen(
             onConfirm = { name ->
                 actions.onCreateList(name)
                 showCreateListDialog = false
-            }
+            },
         )
     }
 
@@ -153,7 +153,7 @@ fun ListScreen(
             onSortOrderSelected = { order ->
                 actions.onSortOrderChanged(order)
                 showSortOptions = false
-            }
+            },
         )
     }
 
@@ -169,21 +169,21 @@ fun ListScreen(
                 val newProduct = productToEdit?.copy(
                     name = name,
                     quantity = quantity,
-                    price = price
+                    price = price,
                 ) ?: ProductEntity(
                     id = System.currentTimeMillis(),
                     cartId = 0L,
                     listId = state.list?.id ?: 0,
                     name = name,
                     quantity = quantity,
-                    price = price
+                    price = price,
                 )
                 actions.onAddOrEditProduct(newProduct)
 
                 if (productToEdit != null) {
                     productToEdit = null
                 }
-            }
+            },
         )
     }
 
@@ -206,7 +206,7 @@ fun ListScreen(
             onDelete = {
                 showDeleteConfirmation = it
                 productOptionsToShow = null
-            }
+            },
         )
     }
 
@@ -218,7 +218,7 @@ fun ListScreen(
                 text = { Text(stringResource(R.string.create_cart_needed)) },
                 confirmButton = {
                     TextButton(onClick = { productToMove = null }) { Text(stringResource(R.string.confirm)) }
-                }
+                },
             )
         } else {
             AddProductDialog(
@@ -232,7 +232,7 @@ fun ListScreen(
                         actions.onMoveToCart(it, quantity, price)
                     }
                     productToMove = null
-                }
+                },
             )
         }
     }
@@ -243,7 +243,7 @@ fun ListScreen(
             onConfirm = { items ->
                 actions.onImportList(items)
                 showImportDialog = false
-            }
+            },
         )
     }
 
@@ -254,7 +254,7 @@ fun ListScreen(
             AnimatedVisibility(
                 visible = areBarsVisible,
                 enter = expandVertically(),
-                exit = shrinkVertically()
+                exit = shrinkVertically(),
             ) {
                 ListTopBar(
                     state = state,
@@ -266,7 +266,7 @@ fun ListScreen(
                     onShowImportList = { showImportDialog = true },
                     onShowSortOptions = { showSortOptions = true },
                     onToggleMenu = { showMenu = it },
-                    showMenu = showMenu
+                    showMenu = showMenu,
                 )
             }
         },
@@ -279,15 +279,15 @@ fun ListScreen(
                     } else {
                         showAddProductDialog = true
                     }
-                }
+                },
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
             }
-        }
+        },
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 if (state.isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -298,12 +298,12 @@ fun ListScreen(
                         Text(
                             text = state.error,
                             color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier.padding(16.dp),
                         )
                     }
                 } else if (state.list == null) {
                     EmptyListView(
-                        onCreateList = { showCreateListDialog = true }
+                        onCreateList = { showCreateListDialog = true },
                     )
                 } else if (state.products.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -312,19 +312,19 @@ fun ListScreen(
                                 stringResource(R.string.search_no_results, state.searchTerms)
                             } else {
                                 stringResource(R.string.products_empty)
-                            }
+                            },
                         )
                     }
                 } else {
                     LazyColumn(
                         state = scrollState,
-                        contentPadding = paddingValues
+                        contentPadding = paddingValues,
                     ) {
                         items(state.products, key = { it.id }) { product ->
                             ProductItem(
                                 product = product,
                                 onClick = { productOptionsToShow = product },
-                                onMoveToCart = { productToMove = product }
+                                onMoveToCart = { productToMove = product },
                             )
                         }
                     }
@@ -339,7 +339,7 @@ fun ListScreen(
 private fun ListScreenPreview() {
     val dummyState = ListState(
         list = listPreview,
-        products = listProductsPreview
+        products = listProductsPreview,
     )
     MyAppTheme {
         ListScreen(state = dummyState, actions = ListActions())

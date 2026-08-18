@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class CartDetailsViewModel(
     private val cartRepository: CartRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartDetailsState())
@@ -45,7 +45,7 @@ class CartDetailsViewModel(
 
                 val products = productRepository.getProductsByCartId(cartId)
                 val sortOrder = ProductSortOrder.valueOf(
-                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name)
+                    Prefs.getValue(PREF_SORT_ORDER, ProductSortOrder.NEWEST.name),
                 )
 
                 _uiState.update {
@@ -58,7 +58,7 @@ class CartDetailsViewModel(
                                     p.name.contains(it.searchTerms, ignoreCase = true)
                             }
                             .sort(sortOrder),
-                        sortOrder = sortOrder
+                        sortOrder = sortOrder,
                     )
                 }
             } catch (e: Exception) {

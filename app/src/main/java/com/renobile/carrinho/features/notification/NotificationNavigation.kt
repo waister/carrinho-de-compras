@@ -13,7 +13,7 @@ import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.notificationGraph(
     navController: NavHostController,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
 ) {
     composable("notifications") {
         LaunchedEffect(Unit) {
@@ -25,13 +25,13 @@ fun NavGraphBuilder.notificationGraph(
             onNotificationClick = { notificationId ->
                 navController.navigate("notificationDetails/$notificationId")
             },
-            onBackClick = { navController.popBackStack() }
+            onBackClick = { navController.popBackStack() },
         )
     }
 
     composable(
         route = "notificationDetails/{itemId}",
-        arguments = listOf(navArgument("itemId") { type = NavType.StringType })
+        arguments = listOf(navArgument("itemId") { type = NavType.StringType }),
     ) { backStackEntry ->
         LaunchedEffect(Unit) {
             mainViewModel.setBottomBarVisible(true)
@@ -45,7 +45,7 @@ fun NavGraphBuilder.notificationGraph(
 
         NotificationDetailsScreen(
             viewModel = viewModel,
-            onBack = { navController.popBackStack() }
+            onBack = { navController.popBackStack() },
         )
     }
 }

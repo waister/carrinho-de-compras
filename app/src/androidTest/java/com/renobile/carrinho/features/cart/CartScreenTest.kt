@@ -23,7 +23,7 @@ class CartScreenTest {
             MyAppTheme {
                 CartScreen(
                     state = CartState(),
-                    actions = CartActions()
+                    actions = CartActions(),
                 )
             }
         }

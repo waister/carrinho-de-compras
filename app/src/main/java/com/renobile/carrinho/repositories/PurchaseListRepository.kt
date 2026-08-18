@@ -10,7 +10,7 @@ interface PurchaseListRepository {
 }
 
 class PurchaseListRepositoryImpl(
-    private val purchaseListDao: PurchaseListDao
+    private val purchaseListDao: PurchaseListDao,
 ) : PurchaseListRepository {
     override suspend fun getAllLists(): List<PurchaseListEntity> = purchaseListDao.getAll()
 
