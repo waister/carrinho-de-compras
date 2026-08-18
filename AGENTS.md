@@ -147,3 +147,13 @@ The project has two main variants (flavors): `stg` and `prod`.
 *   **Commits:** Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 *   **Secrets:** Secrets are managed in a `keystore.properties` file in the root directory. This file is not version-controlled. The developer should have already provided this file.
 *   **Dependencies:** All dependencies are managed in `gradle/libs.versions.toml`. Use aliases (e.g., `libs.my.dependency`) in `build.gradle.kts` files. Do not use hardcoded dependency strings.
+
+## 7. Always-Rules
+
+These apply to every change.
+
+*   *Dependencies:* All dependencies are managed in gradle/libs.versions.toml. Use aliases (e.g., libs.my.dependency) in build.gradle.kts files. Do not use hardcoded dependency strings. Always verify the latest stable version before writing a version entry.
+*   *Compile verification:* After making changes to Kotlin source files (.kt), and before reporting the task complete, run ./gradlew compileProdDebugKotlin -q --console=plain 2>&1 | grep "^e:" to verify the project still compiles. If the command prints any e: lines, those are Kotlin compile errors — fix them and re-run before finishing the turn. Skip this step for turns that only touch markdown, configuration, or resource files (no .kt changes).
+*   *Code Style:* Run ./gradlew ktlintCheck before submitting changes.
+*   *Commits:* Follow the Conventional Commits specification.
+*   *Secrets:* Secrets are managed in a keystore.properties file in the root directory. This file is not version-controlled. The developer should have already provided this file.
