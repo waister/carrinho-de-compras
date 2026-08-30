@@ -31,14 +31,14 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
 
     signingConfigs {
         create("release") {
-            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            val keystorePropertiesFile = rootProject.file("keystore/signing.properties")
             if (keystorePropertiesFile.exists()) {
                 val keystoreProperties = Properties().apply {
                     keystorePropertiesFile.inputStream().use { load(it) }
                 }
                 keyAlias = keystoreProperties["keyAlias"] as String?
                 keyPassword = keystoreProperties["keyPassword"] as String?
-                storeFile = keystoreProperties["storeFile"]?.let { rootProject.file(it) }
+                storeFile = rootProject.file("keystore/keystore.jks")
                 storePassword = keystoreProperties["storePassword"] as String?
             }
         }

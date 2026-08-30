@@ -24,6 +24,7 @@ network_security_config_proxy_local.xml
 *.iws
 out/
 .artifacts/
+keystore/
 
 # OS / Logs
 .DS_Store
