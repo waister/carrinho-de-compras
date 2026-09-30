@@ -208,6 +208,11 @@ fun ListScreen(
                     productToEdit = null
                 }
             },
+            onImport = {
+                showAddProductDialog = false
+                productToEdit = null
+                showImportDialog = true
+            },
         )
     }
 

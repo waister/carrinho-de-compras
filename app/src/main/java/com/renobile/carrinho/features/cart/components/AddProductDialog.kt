@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -60,6 +62,7 @@ fun AddProductDialog(
     isPriceMandatory: Boolean = false,
     onDismiss: () -> Unit = {},
     onConfirm: (String, Double, Double) -> Unit = { _, _, _ -> },
+    onImport: (() -> Unit)? = null,
 ) {
     var name by remember { mutableStateOf(product?.name ?: "") }
     var quantityText by remember { mutableStateOf(product?.quantity?.formatQuantity() ?: "1") }
@@ -254,39 +257,66 @@ fun AddProductDialog(
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    val priceValue = priceTextFieldValue.text.parseCurrencyToDouble()
-                    if (name.isBlank()) {
-                        validationError = R.string.error_name_mandatory
-                        focusRequester.requestFocus()
-                    } else if (isPriceMandatory && priceValue <= 0.0) {
-                        validationError = R.string.error_price_mandatory
-                        priceFocusRequester.requestFocus()
-                    } else {
-                        onConfirm(
-                            name,
-                            quantityText.parseToDouble(),
-                            priceValue,
-                        )
-                        if (product == null) {
-                            name = ""
-                            quantityText = "1"
-                            priceTextFieldValue = TextFieldValue("")
-                            validationError = null
-                            focusRequester.requestFocus()
-                        }
-                    }
-                },
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(if (product == null) R.string.add else R.string.save))
+                if (onImport != null && product == null) {
+                    IconButton(
+                        onClick = {
+                            onDismiss()
+                            onImport()
+                        },
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_format_list_checks),
+                            contentDescription = stringResource(R.string.import_list),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(if (product == null) R.string.cancel else R.string.discard))
+                    }
+                    TextButton(
+                        onClick = {
+                            val priceValue = priceTextFieldValue.text.parseCurrencyToDouble()
+                            if (name.isBlank()) {
+                                validationError = R.string.error_name_mandatory
+                                focusRequester.requestFocus()
+                            } else if (isPriceMandatory && priceValue <= 0.0) {
+                                validationError = R.string.error_price_mandatory
+                                priceFocusRequester.requestFocus()
+                            } else {
+                                onConfirm(
+                                    name,
+                                    quantityText.parseToDouble(),
+                                    priceValue,
+                                )
+                                if (product == null) {
+                                    name = ""
+                                    quantityText = "1"
+                                    priceTextFieldValue = TextFieldValue("")
+                                    validationError = null
+                                    focusRequester.requestFocus()
+                                }
+                            }
+                        },
+                    ) {
+                        Text(stringResource(if (product == null) R.string.add else R.string.save))
+                    }
+                }
             }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(if (product == null) R.string.cancel else R.string.discard))
-            }
-        },
+        dismissButton = null,
     )
 }
 
@@ -296,6 +326,7 @@ private fun AddProductDialogNewPreview() {
     MyAppTheme {
         AddProductDialog(
             product = null,
+            onImport = {},
         )
     }
 }
