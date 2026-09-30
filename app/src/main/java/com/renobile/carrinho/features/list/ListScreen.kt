@@ -333,11 +333,21 @@ fun ListScreen(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 if (state.isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         CircularProgressIndicator()
                     }
                 } else if (state.error != null) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Text(
                             text = state.error,
                             color = MaterialTheme.colorScheme.error,
@@ -345,12 +355,23 @@ fun ListScreen(
                         )
                     }
                 } else if (state.list == null) {
-                    EmptyListView(
-                        onCreateList = { showCreateListDialog = true },
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                    ) {
+                        EmptyListView(
+                            onCreateList = { showCreateListDialog = true },
+                        )
+                    }
                 } else if (state.products.isEmpty()) {
                     if (state.searchTerms.isNotEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center,
+                        ) {
                             Text(
                                 text = stringResource(R.string.search_no_results, state.searchTerms),
                             )
@@ -358,6 +379,7 @@ fun ListScreen(
                     } else {
                         EmptyProductsListView(
                             onImportList = { showImportDialog = true },
+                            modifier = Modifier.padding(paddingValues),
                         )
                     }
                 } else {
