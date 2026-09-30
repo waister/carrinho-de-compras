@@ -127,6 +127,13 @@
     <string name="processing_image">Lendo texto da imagem…</string>
     <string name="no_items_found_in_image">Nenhum item reconhecido na imagem.</string>
     <string name="image_read_error">Não foi possível ler o texto da imagem.</string>
+    <string name="ocr_notice_title">Importe listas por Print ou Foto!</string>
+    <string name="ocr_notice_description">Agora você pode importar produtos tirando print da lista de compras da Alexa ou foto de anotações no papel.</string>
+    <string name="ocr_notice_step_1">Tire um print da lista na Alexa ou foto do papel.</string>
+    <string name="ocr_notice_step_2">Compartilhe o print com este app ou vá em Importar lista > Print / Foto.</string>
+    <string name="ocr_notice_step_3">O app reconhece os produtos e preenche sua lista automaticamente!</string>
+    <string name="ocr_notice_try_now">Experimentar agora</string>
+    <string name="ocr_notice_got_it">Entendi</string>
     <string name="sort_order">Ordem de exibição</string>
     <string name="sort_newest">Mais recentes primeiro</string>
     <string name="sort_oldest">Mais antigos primeiro</string>

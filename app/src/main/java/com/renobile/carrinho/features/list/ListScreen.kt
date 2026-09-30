@@ -49,9 +49,12 @@ import com.renobile.carrinho.features.list.components.ClearListDialog
 import com.renobile.carrinho.features.list.components.CreateListDialog
 import com.renobile.carrinho.features.list.components.EmptyListView
 import com.renobile.carrinho.features.list.components.ImportListDialog
+import com.renobile.carrinho.features.list.components.ImportOcrNoticeDialog
 import com.renobile.carrinho.features.list.components.ListOptionsDialog
 import com.renobile.carrinho.features.list.components.ListTopBar
 import com.renobile.carrinho.ui.theme.MyAppTheme
+import com.renobile.carrinho.util.PREF_OCR_IMPORT_ANNOUNCED
+import com.renobile.carrinho.util.Prefs
 
 @Composable
 fun ListScreen(
@@ -99,9 +102,14 @@ fun ListScreen(
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
     var importInitialText by remember { mutableStateOf("") }
+    var showOcrNotice by remember {
+        mutableStateOf(!Prefs.getValue(PREF_OCR_IMPORT_ANNOUNCED, false))
+    }
 
     LaunchedEffect(pendingImportText) {
         if (!pendingImportText.isNullOrBlank()) {
+            Prefs.putValue(PREF_OCR_IMPORT_ANNOUNCED, true)
+            showOcrNotice = false
             importInitialText = pendingImportText
             showImportDialog = true
             onClearPendingImport()
@@ -263,6 +271,20 @@ fun ListScreen(
                 actions.onImportList(items)
                 showImportDialog = false
                 importInitialText = ""
+            },
+        )
+    }
+
+    if (showOcrNotice && !showImportDialog) {
+        ImportOcrNoticeDialog(
+            onDismiss = {
+                Prefs.putValue(PREF_OCR_IMPORT_ANNOUNCED, true)
+                showOcrNotice = false
+            },
+            onTryNow = {
+                Prefs.putValue(PREF_OCR_IMPORT_ANNOUNCED, true)
+                showOcrNotice = false
+                showImportDialog = true
             },
         )
     }
