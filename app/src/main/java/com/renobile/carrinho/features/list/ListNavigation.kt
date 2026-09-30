@@ -1,5 +1,6 @@
 package com.renobile.carrinho.features.list
 
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.LaunchedEffect
@@ -64,10 +65,10 @@ fun NavGraphBuilder.listGraph(
                 when (event) {
                     is ListEvents.ShowSnackbar -> {
                         activity?.let {
-                            android.widget.Toast.makeText(
+                            Toast.makeText(
                                 it,
                                 event.messageResId,
-                                android.widget.Toast.LENGTH_SHORT,
+                                Toast.LENGTH_SHORT,
                             ).show()
                         }
                     }

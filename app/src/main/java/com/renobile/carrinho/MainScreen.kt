@@ -2,6 +2,7 @@ package com.renobile.carrinho
 
 import android.content.Intent
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -49,7 +50,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -84,13 +84,13 @@ fun MainScreen(
 
     LaunchedEffect(uiState.voiceProductAdded) {
         uiState.voiceProductAdded?.let { productName ->
-            android.widget.Toast.makeText(
+            Toast.makeText(
                 context,
                 context.getString(R.string.voice_product_added_message, productName),
-                android.widget.Toast.LENGTH_SHORT,
+                Toast.LENGTH_SHORT,
             ).show()
             navController.navigate("list") {
-                popUpTo(navController.graph.findStartDestination().id) {
+                popUpTo("cart") {
                     saveState = true
                 }
                 launchSingleTop = true
@@ -164,7 +164,7 @@ internal fun MainScreen(
     LaunchedEffect(uiState.pendingImportText) {
         if (!uiState.pendingImportText.isNullOrBlank()) {
             navController.navigate("list") {
-                popUpTo(navController.graph.findStartDestination().id) {
+                popUpTo("cart") {
                     saveState = true
                 }
                 launchSingleTop = true

@@ -1,5 +1,6 @@
 package com.renobile.carrinho.features.cart
 
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.LaunchedEffect
@@ -59,10 +60,10 @@ fun NavGraphBuilder.cartGraph(
                     is CartEvents.ShowInterstitialAd -> onShowInterstitialAd()
                     is CartEvents.ShowSnackbar -> {
                         activity?.let {
-                            android.widget.Toast.makeText(
+                            Toast.makeText(
                                 it,
                                 event.messageResId,
-                                android.widget.Toast.LENGTH_SHORT,
+                                Toast.LENGTH_SHORT,
                             ).show()
                         }
                     }
