@@ -48,6 +48,7 @@ import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 import com.renobile.carrinho.features.list.components.ClearListDialog
 import com.renobile.carrinho.features.list.components.CreateListDialog
 import com.renobile.carrinho.features.list.components.EmptyListView
+import com.renobile.carrinho.features.list.components.EmptyProductsListView
 import com.renobile.carrinho.features.list.components.ImportListDialog
 import com.renobile.carrinho.features.list.components.ImportOcrNoticeDialog
 import com.renobile.carrinho.features.list.components.ListOptionsDialog
@@ -348,13 +349,15 @@ fun ListScreen(
                         onCreateList = { showCreateListDialog = true },
                     )
                 } else if (state.products.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = if (state.searchTerms.isNotEmpty()) {
-                                stringResource(R.string.search_no_results, state.searchTerms)
-                            } else {
-                                stringResource(R.string.products_empty)
-                            },
+                    if (state.searchTerms.isNotEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = stringResource(R.string.search_no_results, state.searchTerms),
+                            )
+                        }
+                    } else {
+                        EmptyProductsListView(
+                            onImportList = { showImportDialog = true },
                         )
                     }
                 } else {

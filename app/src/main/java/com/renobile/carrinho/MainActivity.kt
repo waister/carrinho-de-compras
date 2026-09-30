@@ -108,7 +108,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             "com.google.android.gms.actions.CREATE_NOTE",
-            "android.intent.action.CREATE_NOTE" -> {
+            "android.intent.action.CREATE_NOTE",
+            -> {
                 val noteText = intent.getStringExtra(Intent.EXTRA_TEXT)
                     ?: intent.getStringExtra("android.intent.extra.TEXT")
                     ?: intent.getStringExtra("note.text")
