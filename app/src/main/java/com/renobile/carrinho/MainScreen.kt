@@ -81,12 +81,16 @@ fun MainScreen(
     val navController = rememberNavController()
     val uiState by mainViewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val voiceProductAdded = uiState.voiceProductAdded
+    val voiceProductAddedMessage = voiceProductAdded?.let { productName ->
+        stringResource(R.string.voice_product_added_message, productName)
+    }
 
-    LaunchedEffect(uiState.voiceProductAdded) {
-        uiState.voiceProductAdded?.let { productName ->
+    LaunchedEffect(voiceProductAdded) {
+        if (voiceProductAdded != null && voiceProductAddedMessage != null) {
             Toast.makeText(
                 context,
-                context.getString(R.string.voice_product_added_message, productName),
+                voiceProductAddedMessage,
                 Toast.LENGTH_SHORT,
             ).show()
             navController.navigate("list") {
