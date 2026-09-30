@@ -159,6 +159,7 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
     implementation(libs.play.services.ads)
+    implementation(libs.play.services.mlkit.text.recognition)
     implementation(libs.app.update.ktx)
 
     // Utils & Network (Legacy)

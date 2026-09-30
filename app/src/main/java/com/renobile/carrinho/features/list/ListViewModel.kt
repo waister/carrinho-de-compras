@@ -221,13 +221,25 @@ class ListViewModel(
 
         viewModelScope.launch {
             try {
-                val currentList = _uiState.value.list
+                var currentList = _uiState.value.list
                 if (currentList == null) {
-                    _events.send(ListEvents.ShowSnackbar(R.string.error_list_not_found))
-                    return@launch
+                    val finalName = createCartListNameGeneric()
+                    val lists = withContext(ioDispatcher) { purchaseListRepository.getAllLists() }
+                    val newId = (lists.maxOfOrNull { it.id } ?: 0L) + 1
+                    val newList = PurchaseListEntity(
+                        id = newId,
+                        name = finalName,
+                        dateOpen = System.currentTimeMillis(),
+                        dateClose = 0L,
+                        products = 0,
+                        units = 0.0,
+                        valueTotal = 0.0,
+                    )
+                    withContext(ioDispatcher) { purchaseListRepository.insertList(newList) }
+                    currentList = newList
                 }
 
-                _uiState.update { it.copy(isLoading = true, searchTerms = "") }
+                _uiState.update { it.copy(isLoading = true, searchTerms = "", list = currentList) }
 
                 val baseTimestamp = System.currentTimeMillis()
                 val products = items.mapIndexed { index, itemText ->

@@ -47,6 +47,7 @@ fun NavGraphBuilder.listGraph(
             },
             onShareApp = { activity?.shareApp() },
             onMoveToCart = { product, quantity, price -> viewModel.moveToCart(product, quantity, price) },
+            onImportList = { viewModel.importList(it) },
             onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
             onScroll = { mainViewModel.setBarsVisible(it) },
         )
@@ -54,6 +55,8 @@ fun NavGraphBuilder.listGraph(
             viewModel = viewModel,
             actions = actions,
             areBarsVisible = mainState.areBarsVisible,
+            pendingImportText = mainState.pendingImportText,
+            onClearPendingImport = { mainViewModel.clearPendingImport() },
         )
 
         LaunchedEffect(Unit) {

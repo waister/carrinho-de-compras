@@ -75,4 +75,27 @@ class MainViewModel(private val configRepository: ConfigRepository) : ViewModel(
     fun onVersionUpdateHandled() {
         _uiState.update { it.copy(versionUpdate = null) }
     }
+
+    fun handleSharedText(text: String?) {
+        if (!text.isNullOrBlank()) {
+            _uiState.update { it.copy(pendingImportText = text) }
+        }
+    }
+
+    fun handleSharedImage(context: android.content.Context, imageUri: android.net.Uri?) {
+        if (imageUri != null) {
+            viewModelScope.launch {
+                com.renobile.carrinho.util.TextRecognitionHelper.extractShoppingListFromImage(context, imageUri)
+                    .onSuccess { items ->
+                        if (items.isNotEmpty()) {
+                            _uiState.update { it.copy(pendingImportText = items.joinToString("\n")) }
+                        }
+                    }
+            }
+        }
+    }
+
+    fun clearPendingImport() {
+        _uiState.update { it.copy(pendingImportText = null) }
+    }
 }

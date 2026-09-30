@@ -1,7 +1,9 @@
 package com.renobile.carrinho
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -13,6 +15,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
@@ -30,7 +33,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import androidx.core.graphics.toColorInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         initAdMob()
         viewModel.checkTokenFcm()
         requestNotificationPermission()
+        handleSendIntent(intent)
 
         setContent {
             MyAppTheme {
@@ -75,6 +78,31 @@ class MainActivity : AppCompatActivity() {
                     onShowInterstitialAd = { showInterstitialAd() },
                 )
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleSendIntent(intent)
+    }
+
+    private fun handleSendIntent(intent: Intent?) {
+        if (intent == null || intent.action != Intent.ACTION_SEND) return
+
+        val type = intent.type ?: return
+        if (type.startsWith("image/")) {
+            val imageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            } ?: intent.clipData?.getItemAt(0)?.uri ?: intent.data
+
+            imageUri?.let { viewModel.handleSharedImage(this, it) }
+        } else if (type == "text/plain") {
+            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+            text?.let { viewModel.handleSharedText(it) }
         }
     }
 

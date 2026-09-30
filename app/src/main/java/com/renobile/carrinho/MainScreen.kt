@@ -142,6 +142,18 @@ internal fun MainScreen(
         }
     }
 
+    LaunchedEffect(uiState.pendingImportText) {
+        if (!uiState.pendingImportText.isNullOrBlank()) {
+            navController.navigate("list") {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,

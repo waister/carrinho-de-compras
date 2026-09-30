@@ -58,6 +58,8 @@ fun ListScreen(
     viewModel: ListViewModel,
     actions: ListActions,
     areBarsVisible: Boolean = true,
+    pendingImportText: String? = null,
+    onClearPendingImport: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -71,6 +73,8 @@ fun ListScreen(
         actions = actions,
         activeCartId = activeCartId,
         areBarsVisible = areBarsVisible,
+        pendingImportText = pendingImportText,
+        onClearPendingImport = onClearPendingImport,
     )
 }
 
@@ -80,6 +84,8 @@ fun ListScreen(
     actions: ListActions,
     activeCartId: Long = 0L,
     areBarsVisible: Boolean = true,
+    pendingImportText: String? = null,
+    onClearPendingImport: () -> Unit = {},
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -92,6 +98,15 @@ fun ListScreen(
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
+    var importInitialText by remember { mutableStateOf("") }
+
+    LaunchedEffect(pendingImportText) {
+        if (!pendingImportText.isNullOrBlank()) {
+            importInitialText = pendingImportText
+            showImportDialog = true
+            onClearPendingImport()
+        }
+    }
 
     val scrollState = rememberLazyListState()
     val nestedScrollConnection = remember(scrollState, state.products.size, actions) {
@@ -239,10 +254,15 @@ fun ListScreen(
 
     if (showImportDialog) {
         ImportListDialog(
-            onDismiss = { showImportDialog = false },
+            initialText = importInitialText,
+            onDismiss = {
+                showImportDialog = false
+                importInitialText = ""
+            },
             onConfirm = { items ->
                 actions.onImportList(items)
                 showImportDialog = false
+                importInitialText = ""
             },
         )
     }
