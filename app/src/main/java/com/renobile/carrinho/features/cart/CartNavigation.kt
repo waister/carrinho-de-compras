@@ -52,6 +52,15 @@ fun NavGraphBuilder.cartGraph(
             onShowInterstitialAd = onShowInterstitialAd,
             onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
             onScroll = { mainViewModel.setBarsVisible(it) },
+            onNavigateToList = {
+                navController.navigate("list") {
+                    popUpTo("cart") {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            },
         )
 
         LaunchedEffect(Unit) {

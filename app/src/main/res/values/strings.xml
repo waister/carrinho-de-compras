@@ -144,4 +144,5 @@
     <string name="voice_product_added_message">\"%s\" adicionado à sua lista!</string>
     <string name="empty_list_voice_tip_title">Adicione itens por voz</string>
     <string name="empty_list_voice_tip_description">Você também pode falar com o assistente: \"Ok Google, adicione [produto] no Carrinho de Compras\".</string>
+    <string name="empty_cart_go_to_list">Ver lista de compras</string>
 </resources>

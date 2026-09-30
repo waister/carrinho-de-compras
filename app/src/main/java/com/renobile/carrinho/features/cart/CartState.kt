@@ -36,4 +36,5 @@ data class CartActions(
     val onShowInterstitialAd: () -> Unit = {},
     val onSortOrderChanged: (ProductSortOrder) -> Unit = {},
     val onScroll: (Boolean) -> Unit = {},
+    val onNavigateToList: () -> Unit = {},
 )

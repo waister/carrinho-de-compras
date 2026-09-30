@@ -301,7 +301,7 @@ fun MainBottomNavigation(navController: NavHostController) {
                 ),
                 onClick = {
                     navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
+                        popUpTo("cart") {
                             saveState = true
                         }
                         launchSingleTop = true

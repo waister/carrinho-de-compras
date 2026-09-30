@@ -220,18 +220,30 @@ fun CartScreen(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 if (state.isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         CircularProgressIndicator()
                     }
                 } else if (state.products.isEmpty()) {
                     if (state.searchTerms.isNotEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center,
+                        ) {
                             Text(stringResource(R.string.search_no_results, state.searchTerms))
                         }
                     } else {
                         EmptyCartView(
                             isCartCreated = state.cart != null,
+                            modifier = Modifier.padding(paddingValues),
                             onCreateCart = { showCreateCartDialog = true },
+                            onNavigateToList = actions.onNavigateToList,
                         )
                     }
                 } else {
