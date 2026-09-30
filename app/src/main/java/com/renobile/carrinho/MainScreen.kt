@@ -87,10 +87,10 @@ fun MainScreen(
     }
 
     LaunchedEffect(voiceProductAdded) {
-        if (voiceProductAdded != null && voiceProductAddedMessage != null) {
+        voiceProductAddedMessage?.let { message ->
             Toast.makeText(
                 context,
-                voiceProductAddedMessage,
+                message,
                 Toast.LENGTH_SHORT,
             ).show()
             navController.navigate("list") {
