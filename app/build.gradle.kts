@@ -19,7 +19,7 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
 
     defaultConfig {
         applicationId = "com.renobile.carrinho"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 37
         versionCode = 32
         versionName = "3.1.0"
