@@ -28,6 +28,8 @@ import org.junit.Test
 class MainViewModelTest {
 
     private val configRepository = mockk<ConfigRepository>(relaxed = true)
+    private val purchaseListRepository = mockk<com.renobile.carrinho.repositories.PurchaseListRepository>(relaxed = true)
+    private val productRepository = mockk<com.renobile.carrinho.repositories.ProductRepository>(relaxed = true)
     private val dispatcher = UnconfinedTestDispatcher()
 
     @Before
@@ -44,7 +46,12 @@ class MainViewModelTest {
         unmockkObject(Prefs)
     }
 
-    private fun newViewModel() = MainViewModel(configRepository)
+    private fun newViewModel() = MainViewModel(
+        configRepository,
+        purchaseListRepository,
+        productRepository,
+        dispatcher,
+    )
 
     @Test
     fun `given no fcm token, when checkVersion, then does not call repository`() = runTest {
@@ -122,5 +129,67 @@ class MainViewModelTest {
         vm.onVersionUpdateHandled()
 
         assertNull(vm.uiState.value.versionUpdate)
+    }
+
+    @Test
+    fun `given voice product name and active list, when addVoiceProductToList, then product is inserted`() = runTest {
+        val activeList = com.renobile.carrinho.database.entities.PurchaseListEntity(
+            id = 5,
+            name = "Compras",
+            dateOpen = 100,
+            dateClose = 0,
+            products = 0,
+            units = 0.0,
+            valueTotal = 0.0,
+        )
+        coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
+        coEvery { productRepository.getProductsByListId(5) } returns emptyList()
+
+        val vm = newViewModel()
+        vm.addVoiceProductToList("Leite")
+
+        coVerify {
+            productRepository.insertProduct(
+                match {
+                    it.name == "Leite" && it.listId == 5L && it.quantity == 1.0
+                },
+            )
+        }
+        assertEquals("Leite", vm.uiState.value.voiceProductAdded)
+    }
+
+    @Test
+    fun `given voice product name that already exists, when addVoiceProductToList, then increments quantity`() = runTest {
+        val activeList = com.renobile.carrinho.database.entities.PurchaseListEntity(
+            id = 5,
+            name = "Compras",
+            dateOpen = 100,
+            dateClose = 0,
+            products = 1,
+            units = 1.0,
+            valueTotal = 0.0,
+        )
+        val existingProduct = com.renobile.carrinho.database.entities.ProductEntity(
+            id = 20,
+            cartId = 0,
+            listId = 5,
+            name = "Leite",
+            quantity = 2.0,
+            price = 0.0,
+        )
+        coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
+        coEvery { productRepository.getProductsByListId(5) } returns listOf(existingProduct)
+
+        val vm = newViewModel()
+        vm.addVoiceProductToList("leite")
+
+        coVerify {
+            productRepository.insertProduct(
+                match {
+                    it.id == 20L && it.quantity == 3.0
+                },
+            )
+        }
+        assertEquals("leite", vm.uiState.value.voiceProductAdded)
     }
 }

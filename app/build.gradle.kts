@@ -19,10 +19,10 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
 
     defaultConfig {
         applicationId = "com.renobile.carrinho"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 37
-        versionCode = 31
-        versionName = "3.0.5"
+        versionCode = 32
+        versionName = "3.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 
@@ -159,6 +159,7 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
     implementation(libs.play.services.ads)
+    implementation(libs.play.services.mlkit.text.recognition)
     implementation(libs.app.update.ktx)
 
     // Utils & Network (Legacy)
@@ -173,6 +174,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.mockwebserver3)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

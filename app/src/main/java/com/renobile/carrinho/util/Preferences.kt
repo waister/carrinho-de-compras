@@ -25,6 +25,7 @@ const val PREF_ADMOB_INTERSTITIAL_ID = "PrefAdMobInterstitialId"
 const val PREF_ADMOB_REMOVE_ADS_ID = "PrefAdMobRemoveAds"
 const val PREF_ADMOB_OPEN_APP_ID = "PrefAdMobOpenAppId"
 const val PREF_PUSH_NOTIFICATION = "PrefPushNotification"
+const val PREF_OCR_IMPORT_ANNOUNCED = "PrefOcrImportAnnounced"
 
 @Suppress("unused")
 object Prefs {

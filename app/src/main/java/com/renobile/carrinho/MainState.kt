@@ -5,6 +5,8 @@ data class MainState(
     val isBottomBarVisible: Boolean = false,
     val areBarsVisible: Boolean = true,
     val havePlan: Boolean = false,
+    val pendingImportText: String? = null,
+    val voiceProductAdded: String? = null,
 )
 
 sealed class VersionUpdate {

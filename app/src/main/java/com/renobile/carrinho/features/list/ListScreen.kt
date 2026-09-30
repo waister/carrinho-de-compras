@@ -48,16 +48,22 @@ import com.renobile.carrinho.features.cart.components.SortOptionsDialog
 import com.renobile.carrinho.features.list.components.ClearListDialog
 import com.renobile.carrinho.features.list.components.CreateListDialog
 import com.renobile.carrinho.features.list.components.EmptyListView
+import com.renobile.carrinho.features.list.components.EmptyProductsListView
 import com.renobile.carrinho.features.list.components.ImportListDialog
+import com.renobile.carrinho.features.list.components.ImportOcrNoticeDialog
 import com.renobile.carrinho.features.list.components.ListOptionsDialog
 import com.renobile.carrinho.features.list.components.ListTopBar
 import com.renobile.carrinho.ui.theme.MyAppTheme
+import com.renobile.carrinho.util.PREF_OCR_IMPORT_ANNOUNCED
+import com.renobile.carrinho.util.Prefs
 
 @Composable
 fun ListScreen(
     viewModel: ListViewModel,
     actions: ListActions,
     areBarsVisible: Boolean = true,
+    pendingImportText: String? = null,
+    onClearPendingImport: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsState()
     var activeCartId by remember { mutableLongStateOf(0L) }
@@ -71,6 +77,8 @@ fun ListScreen(
         actions = actions,
         activeCartId = activeCartId,
         areBarsVisible = areBarsVisible,
+        pendingImportText = pendingImportText,
+        onClearPendingImport = onClearPendingImport,
     )
 }
 
@@ -80,6 +88,8 @@ fun ListScreen(
     actions: ListActions,
     activeCartId: Long = 0L,
     areBarsVisible: Boolean = true,
+    pendingImportText: String? = null,
+    onClearPendingImport: () -> Unit = {},
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showClearConfirmation by remember { mutableStateOf(false) }
@@ -92,6 +102,20 @@ fun ListScreen(
     var showDeleteConfirmation by remember { mutableStateOf<ProductEntity?>(null) }
     var productToMove by remember { mutableStateOf<ProductEntity?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
+    var importInitialText by remember { mutableStateOf("") }
+    var showOcrNotice by remember {
+        mutableStateOf(!Prefs.getValue(PREF_OCR_IMPORT_ANNOUNCED, false))
+    }
+
+    LaunchedEffect(pendingImportText) {
+        if (!pendingImportText.isNullOrBlank()) {
+            Prefs.putValue(PREF_OCR_IMPORT_ANNOUNCED, true)
+            showOcrNotice = false
+            importInitialText = pendingImportText
+            showImportDialog = true
+            onClearPendingImport()
+        }
+    }
 
     val scrollState = rememberLazyListState()
     val nestedScrollConnection = remember(scrollState, state.products.size, actions) {
@@ -184,6 +208,11 @@ fun ListScreen(
                     productToEdit = null
                 }
             },
+            onImport = {
+                showAddProductDialog = false
+                productToEdit = null
+                showImportDialog = true
+            },
         )
     }
 
@@ -239,10 +268,29 @@ fun ListScreen(
 
     if (showImportDialog) {
         ImportListDialog(
-            onDismiss = { showImportDialog = false },
+            initialText = importInitialText,
+            onDismiss = {
+                showImportDialog = false
+                importInitialText = ""
+            },
             onConfirm = { items ->
                 actions.onImportList(items)
                 showImportDialog = false
+                importInitialText = ""
+            },
+        )
+    }
+
+    if (showOcrNotice && !showImportDialog) {
+        ImportOcrNoticeDialog(
+            onDismiss = {
+                Prefs.putValue(PREF_OCR_IMPORT_ANNOUNCED, true)
+                showOcrNotice = false
+            },
+            onTryNow = {
+                Prefs.putValue(PREF_OCR_IMPORT_ANNOUNCED, true)
+                showOcrNotice = false
+                showImportDialog = true
             },
         )
     }
@@ -290,11 +338,21 @@ fun ListScreen(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 if (state.isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         CircularProgressIndicator()
                     }
                 } else if (state.error != null) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Text(
                             text = state.error,
                             color = MaterialTheme.colorScheme.error,
@@ -302,17 +360,31 @@ fun ListScreen(
                         )
                     }
                 } else if (state.list == null) {
-                    EmptyListView(
-                        onCreateList = { showCreateListDialog = true },
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                    ) {
+                        EmptyListView(
+                            onCreateList = { showCreateListDialog = true },
+                        )
+                    }
                 } else if (state.products.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = if (state.searchTerms.isNotEmpty()) {
-                                stringResource(R.string.search_no_results, state.searchTerms)
-                            } else {
-                                stringResource(R.string.products_empty)
-                            },
+                    if (state.searchTerms.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.search_no_results, state.searchTerms),
+                            )
+                        }
+                    } else {
+                        EmptyProductsListView(
+                            onImportList = { showImportDialog = true },
+                            modifier = Modifier.padding(paddingValues),
                         )
                     }
                 } else {

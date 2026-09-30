@@ -1,5 +1,6 @@
 package com.renobile.carrinho.features.list
 
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +48,7 @@ fun NavGraphBuilder.listGraph(
             },
             onShareApp = { activity?.shareApp() },
             onMoveToCart = { product, quantity, price -> viewModel.moveToCart(product, quantity, price) },
+            onImportList = { viewModel.importList(it) },
             onSortOrderChanged = { viewModel.onSortOrderChanged(it) },
             onScroll = { mainViewModel.setBarsVisible(it) },
         )
@@ -54,6 +56,8 @@ fun NavGraphBuilder.listGraph(
             viewModel = viewModel,
             actions = actions,
             areBarsVisible = mainState.areBarsVisible,
+            pendingImportText = mainState.pendingImportText,
+            onClearPendingImport = { mainViewModel.clearPendingImport() },
         )
 
         LaunchedEffect(Unit) {
@@ -61,10 +65,10 @@ fun NavGraphBuilder.listGraph(
                 when (event) {
                     is ListEvents.ShowSnackbar -> {
                         activity?.let {
-                            android.widget.Toast.makeText(
+                            Toast.makeText(
                                 it,
                                 event.messageResId,
-                                android.widget.Toast.LENGTH_SHORT,
+                                Toast.LENGTH_SHORT,
                             ).show()
                         }
                     }

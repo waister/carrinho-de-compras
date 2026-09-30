@@ -8,6 +8,7 @@ local.properties
 *.aab
 *.ap_
 *.dex
+app/release/
 
 # Secrets & Keys
 *.jks

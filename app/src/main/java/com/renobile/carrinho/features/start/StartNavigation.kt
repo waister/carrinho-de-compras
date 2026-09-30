@@ -48,8 +48,15 @@ fun NavGraphBuilder.startScreen(
                                 API_ABOUT_APP -> "about"
                                 else -> "cart"
                             }
-                            navController.navigate(route) {
-                                popUpTo("start") { inclusive = true }
+                            if (route != "cart") {
+                                navController.navigate("cart") {
+                                    popUpTo("start") { inclusive = true }
+                                }
+                                navController.navigate(route)
+                            } else {
+                                navController.navigate("cart") {
+                                    popUpTo("start") { inclusive = true }
+                                }
                             }
                         }
                     }

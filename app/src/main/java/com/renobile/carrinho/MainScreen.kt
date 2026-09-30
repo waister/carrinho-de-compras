@@ -2,6 +2,7 @@ package com.renobile.carrinho
 
 import android.content.Intent
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -49,7 +50,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -80,6 +80,29 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     val uiState by mainViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val voiceProductAdded = uiState.voiceProductAdded
+    val voiceProductAddedMessage = voiceProductAdded?.let { productName ->
+        stringResource(R.string.voice_product_added_message, productName)
+    }
+
+    LaunchedEffect(voiceProductAdded) {
+        voiceProductAddedMessage?.let { message ->
+            Toast.makeText(
+                context,
+                message,
+                Toast.LENGTH_SHORT,
+            ).show()
+            navController.navigate("list") {
+                popUpTo("cart") {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+            mainViewModel.clearVoiceProductAdded()
+        }
+    }
 
     MainScreen(
         uiState = uiState,
@@ -139,6 +162,18 @@ internal fun MainScreen(
             }
             builder.setOnDismissListener { onVersionUpdateHandled() }
             builder.show()
+        }
+    }
+
+    LaunchedEffect(uiState.pendingImportText) {
+        if (!uiState.pendingImportText.isNullOrBlank()) {
+            navController.navigate("list") {
+                popUpTo("cart") {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 
@@ -270,7 +305,7 @@ fun MainBottomNavigation(navController: NavHostController) {
                 ),
                 onClick = {
                     navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
+                        popUpTo("cart") {
                             saveState = true
                         }
                         launchSingleTop = true
