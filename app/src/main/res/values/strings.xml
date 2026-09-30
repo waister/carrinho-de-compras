@@ -143,5 +143,5 @@
     <string name="sort_price_desc">Maior preço</string>
     <string name="voice_product_added_message">\"%s\" adicionado à sua lista!</string>
     <string name="empty_list_voice_tip_title">Adicione itens por voz</string>
-    <string name="empty_list_voice_tip_description">Você também pode falar com o assistente: \"Ok Google, adicione [produto] na lista no Carrinho de Compras\".</string>
+    <string name="empty_list_voice_tip_description">Você também pode falar com o assistente: \"Ok Google, adicione [produto] no Carrinho de Compras\".</string>
 </resources>
