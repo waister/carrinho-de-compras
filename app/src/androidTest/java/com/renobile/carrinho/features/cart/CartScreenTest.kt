@@ -18,7 +18,7 @@ class CartScreenTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `givenEmptyCartState_whenScreenIsDisplayed_thenAddProductButtonIsShown`() {
+    fun givenEmptyCartState_whenScreenIsDisplayed_thenAddProductButtonIsShown() {
         composeTestRule.setContent {
             MyAppTheme {
                 CartScreen(
