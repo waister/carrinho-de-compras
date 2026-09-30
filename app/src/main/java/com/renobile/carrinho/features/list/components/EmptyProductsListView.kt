@@ -37,8 +37,8 @@ import com.renobile.carrinho.ui.theme.MyAppTheme
 
 @Composable
 fun EmptyProductsListView(
-    onImportList: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onImportList: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
 
