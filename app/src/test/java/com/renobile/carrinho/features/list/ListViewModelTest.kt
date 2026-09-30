@@ -114,4 +114,43 @@ class ListViewModelTest {
             )
         }
     }
+
+    @Test
+    fun `given existing products in list, when import items with duplicate names, then duplicates are not inserted`() = runTest {
+        // Given
+        val activeList = PurchaseListEntity(
+            id = 1,
+            name = "My List",
+            dateOpen = 100,
+            dateClose = 0,
+            products = 1,
+            units = 1.0,
+            valueTotal = 0.0,
+        )
+        val existingProduct = com.renobile.carrinho.database.entities.ProductEntity(
+            id = 10,
+            cartId = 0,
+            listId = 1,
+            name = "Palito de Dente",
+            quantity = 1.0,
+            price = 0.0,
+        )
+        coEvery { purchaseListRepository.getAllLists() } returns listOf(activeList)
+        coEvery { productRepository.getProductsByListId(1) } returns listOf(existingProduct)
+
+        val viewModel = ListViewModel(purchaseListRepository, productRepository, cartRepository, testDispatcher)
+        val itemsToImport = listOf("palito de dente", "Arroz")
+
+        // When
+        viewModel.importList(itemsToImport)
+
+        // Then
+        coVerify(exactly = 1) {
+            productRepository.insertProducts(
+                match {
+                    it.size == 1 && it[0].name == "Arroz"
+                },
+            )
+        }
+    }
 }

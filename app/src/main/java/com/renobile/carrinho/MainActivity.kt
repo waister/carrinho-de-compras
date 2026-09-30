@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         initAdMob()
         viewModel.checkTokenFcm()
         requestNotificationPermission()
-        handleSendIntent(intent)
+        handleIntent(intent)
 
         setContent {
             MyAppTheme {
@@ -84,25 +84,44 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleSendIntent(intent)
+        handleIntent(intent)
     }
 
-    private fun handleSendIntent(intent: Intent?) {
-        if (intent == null || intent.action != Intent.ACTION_SEND) return
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
 
-        val type = intent.type ?: return
-        if (type.startsWith("image/")) {
-            val imageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getParcelableExtra(Intent.EXTRA_STREAM)
-            } ?: intent.clipData?.getItemAt(0)?.uri ?: intent.data
+        when (intent.action) {
+            Intent.ACTION_SEND -> {
+                val type = intent.type ?: return
+                if (type.startsWith("image/")) {
+                    val imageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(Intent.EXTRA_STREAM)
+                    } ?: intent.clipData?.getItemAt(0)?.uri ?: intent.data
 
-            imageUri?.let { viewModel.handleSharedImage(this, it) }
-        } else if (type == "text/plain") {
-            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
-            text?.let { viewModel.handleSharedText(it) }
+                    imageUri?.let { viewModel.handleSharedImage(this, it) }
+                } else if (type == "text/plain") {
+                    val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+                    text?.let { viewModel.handleSharedText(it) }
+                }
+            }
+            "com.google.android.gms.actions.CREATE_NOTE",
+            "android.intent.action.CREATE_NOTE" -> {
+                val noteText = intent.getStringExtra(Intent.EXTRA_TEXT)
+                    ?: intent.getStringExtra("android.intent.extra.TEXT")
+                    ?: intent.getStringExtra("note.text")
+                    ?: intent.getStringExtra("voice_product_name")
+                noteText?.let { viewModel.addVoiceProductToList(it) }
+            }
+            Intent.ACTION_VIEW -> {
+                val voiceProduct = intent.getStringExtra("voice_product_name")
+                    ?: intent.getStringExtra("product_name")
+                    ?: intent.data?.getQueryParameter("voice_product_name")
+                    ?: intent.data?.getQueryParameter("product_name")
+                voiceProduct?.let { viewModel.addVoiceProductToList(it) }
+            }
         }
     }
 

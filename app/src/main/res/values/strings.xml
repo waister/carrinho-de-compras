@@ -141,4 +141,5 @@
     <string name="sort_name_desc">Nome (Z-A)</string>
     <string name="sort_price_asc">Menor preço</string>
     <string name="sort_price_desc">Maior preço</string>
+    <string name="voice_product_added_message">\"%s\" adicionado à sua lista!</string>
 </resources>

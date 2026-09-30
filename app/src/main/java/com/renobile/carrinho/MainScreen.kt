@@ -80,6 +80,25 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     val uiState by mainViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.voiceProductAdded) {
+        uiState.voiceProductAdded?.let { productName ->
+            android.widget.Toast.makeText(
+                context,
+                context.getString(R.string.voice_product_added_message, productName),
+                android.widget.Toast.LENGTH_SHORT,
+            ).show()
+            navController.navigate("list") {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+            mainViewModel.clearVoiceProductAdded()
+        }
+    }
 
     MainScreen(
         uiState = uiState,

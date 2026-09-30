@@ -47,6 +47,7 @@ object TextRecognitionHelper {
     fun parseRawTextToShoppingItems(rawText: String): List<String> {
         val lines = rawText.split(Regex("""\r?\n"""))
         val result = mutableListOf<String>()
+        val seen = mutableSetOf<String>()
 
         for (line in lines) {
             val trimmed = line.trim()
@@ -71,9 +72,9 @@ object TextRecognitionHelper {
             // Clean prefixes (bullets, numbers, checkboxes)
             val cleaned = trimmed.replace(PREFIX_CLEAN_REGEX, "").trim()
 
-            // Discard if cleaned line is too short or still matches stop words
+            // Discard if cleaned line is too short, matches stop words, or was already added
             val cleanedLower = cleaned.lowercase()
-            if (cleaned.length >= 2 && STOP_WORDS.none { cleanedLower == it }) {
+            if (cleaned.length >= 2 && STOP_WORDS.none { cleanedLower == it } && seen.add(cleanedLower)) {
                 result.add(cleaned)
             }
         }

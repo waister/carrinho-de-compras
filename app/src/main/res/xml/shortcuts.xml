@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <capability android:name="actions.intent.CREATE_ITEM_LIST">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.renobile.carrinho"
+            android:targetClass="com.renobile.carrinho.MainActivity">
+            <parameter
+                android:name="itemList.itemListElement.name"
+                android:key="voice_product_name" />
+            <parameter
+                android:name="itemList.name"
+                android:key="voice_list_name" />
+        </intent>
+    </capability>
+
+    <capability android:name="actions.intent.CREATE_NOTE">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.renobile.carrinho"
+            android:targetClass="com.renobile.carrinho.MainActivity">
+            <parameter
+                android:name="note.text"
+                android:key="voice_product_name" />
+        </intent>
+    </capability>
+</shortcuts>

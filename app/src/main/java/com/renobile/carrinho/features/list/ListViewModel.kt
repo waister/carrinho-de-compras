@@ -241,9 +241,18 @@ class ListViewModel(
 
                 _uiState.update { it.copy(isLoading = true, searchTerms = "", list = currentList) }
 
+                val existingProducts = withContext(ioDispatcher) {
+                    productRepository.getProductsByListId(currentList.id)
+                }
+                val existingNames = existingProducts.map { it.name.trim().lowercase() }.toMutableSet()
+
                 val baseTimestamp = System.currentTimeMillis()
-                val products = items.mapIndexed { index, itemText ->
+                val productsToInsert = mutableListOf<ProductEntity>()
+
+                items.forEachIndexed { index, itemText ->
                     val trimmed = itemText.trim()
+                    if (trimmed.isEmpty()) return@forEachIndexed
+
                     val parts = trimmed.split(" ", limit = 2)
                     val (quantity, name) = if (parts.size == 2) {
                         val q = parts[0].replace(',', '.').toDoubleOrNull()
@@ -256,18 +265,25 @@ class ListViewModel(
                         1.0 to trimmed
                     }
 
-                    ProductEntity(
-                        id = baseTimestamp + index + Random.nextLong(1000000, 9000000),
-                        cartId = 0L,
-                        listId = currentList.id,
-                        name = name,
-                        quantity = quantity,
-                        price = 0.0,
-                    )
+                    val normalizedName = name.lowercase()
+                    if (existingNames.add(normalizedName)) {
+                        productsToInsert.add(
+                            ProductEntity(
+                                id = baseTimestamp + index + Random.nextLong(1000000, 9000000),
+                                cartId = 0L,
+                                listId = currentList.id,
+                                name = name,
+                                quantity = quantity,
+                                price = 0.0,
+                            ),
+                        )
+                    }
                 }
 
-                withContext(ioDispatcher) {
-                    productRepository.insertProducts(products)
+                if (productsToInsert.isNotEmpty()) {
+                    withContext(ioDispatcher) {
+                        productRepository.insertProducts(productsToInsert)
+                    }
                 }
 
                 val updatedProducts = withContext(ioDispatcher) {
