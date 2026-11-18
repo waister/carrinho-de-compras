@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -37,10 +38,11 @@ fun SearchAppBar(
     onQueryChange: (String) -> Unit = {},
     onCancelSearch: () -> Unit = {},
 ) {
+    val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        runCatching { focusRequester.requestFocus() }
     }
 
     TopAppBar(
@@ -72,7 +74,10 @@ fun SearchAppBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onCancelSearch) {
+            IconButton(onClick = {
+                focusManager.clearFocus()
+                onCancelSearch()
+            }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
         },

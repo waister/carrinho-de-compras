@@ -1,5 +1,6 @@
 package com.renobile.carrinho.util
 
+import android.content.IntentSender
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -7,6 +8,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.InstallState
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
@@ -63,16 +65,33 @@ class InAppUpdate(private val activity: AppCompatActivity) : InstallStateUpdated
     }
 
     private fun startUpdate(info: AppUpdateInfo, type: Int) {
+        if (
+            activity.isFinishing ||
+            activity.isDestroyed ||
+            !activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        ) {
+            return
+        }
         try {
             @Suppress("DEPRECATION")
-            appUpdateManager.startUpdateFlowForResult(info, type, activity, 500)
+            appUpdateManager.startUpdateFlowForResult(
+                info,
+                activity,
+                AppUpdateOptions.newBuilder(type).build(),
+                500,
+            )
+            currentType = type
+        } catch (e: IntentSender.SendIntentException) {
+            appLog("IN_APP_UPDATE", "Failed to start update flow: ${e.message}")
         } catch (e: Throwable) {
             if (isDebug()) e.printStackTrace() else FirebaseCrashlytics.getInstance().recordException(e)
         }
-        currentType = type
     }
 
     private fun flexibleUpdateDownloadCompleted() {
+        if (activity.isFinishing || activity.isDestroyed) {
+            return
+        }
         AlertDialog.Builder(activity)
             .setTitle(R.string.update_alert_title)
             .setMessage(R.string.update_alert_message)

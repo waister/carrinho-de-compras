@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -77,6 +78,7 @@ fun AddProductDialog(
         }
     }
 
+    val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     val priceFocusRequester = remember { FocusRequester() }
 
@@ -90,16 +92,23 @@ fun AddProductDialog(
     val isPreview = LocalInspectionMode.current
     LaunchedEffect(Unit) {
         if (!isPreview) {
-            if (product == null) {
-                focusRequester.requestFocus()
-            } else if (product.price == 0.0) {
-                priceFocusRequester.requestFocus()
+            runCatching {
+                if (product == null) {
+                    focusRequester.requestFocus()
+                } else if (product.price == 0.0) {
+                    priceFocusRequester.requestFocus()
+                }
             }
         }
     }
 
+    val handleDismiss = {
+        focusManager.clearFocus()
+        onDismiss()
+    }
+
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = handleDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(title ?: stringResource(if (product == null) R.string.add_product else R.string.edit_product))
@@ -233,11 +242,14 @@ fun AddProductDialog(
                             val priceValue = priceTextFieldValue.text.parseCurrencyToDouble()
                             if (name.isBlank()) {
                                 validationError = R.string.error_name_mandatory
-                                focusRequester.requestFocus()
+                                runCatching { focusRequester.requestFocus() }
                             } else if (isPriceMandatory && priceValue <= 0.0) {
                                 validationError = R.string.error_price_mandatory
-                                priceFocusRequester.requestFocus()
+                                runCatching { priceFocusRequester.requestFocus() }
                             } else {
+                                if (product != null) {
+                                    focusManager.clearFocus()
+                                }
                                 onConfirm(
                                     name,
                                     quantityText.parseToDouble(),
@@ -248,7 +260,7 @@ fun AddProductDialog(
                                     quantityText = "1"
                                     priceTextFieldValue = TextFieldValue("")
                                     validationError = null
-                                    focusRequester.requestFocus()
+                                    runCatching { focusRequester.requestFocus() }
                                 }
                             }
                         },
@@ -265,7 +277,7 @@ fun AddProductDialog(
                 if (onImport != null && product == null) {
                     IconButton(
                         onClick = {
-                            onDismiss()
+                            handleDismiss()
                             onImport()
                         },
                     ) {
@@ -283,7 +295,7 @@ fun AddProductDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    TextButton(onClick = handleDismiss) {
                         Text(stringResource(if (product == null) R.string.cancel else R.string.discard))
                     }
                     TextButton(
@@ -291,11 +303,14 @@ fun AddProductDialog(
                             val priceValue = priceTextFieldValue.text.parseCurrencyToDouble()
                             if (name.isBlank()) {
                                 validationError = R.string.error_name_mandatory
-                                focusRequester.requestFocus()
+                                runCatching { focusRequester.requestFocus() }
                             } else if (isPriceMandatory && priceValue <= 0.0) {
                                 validationError = R.string.error_price_mandatory
-                                priceFocusRequester.requestFocus()
+                                runCatching { priceFocusRequester.requestFocus() }
                             } else {
+                                if (product != null) {
+                                    focusManager.clearFocus()
+                                }
                                 onConfirm(
                                     name,
                                     quantityText.parseToDouble(),
@@ -306,7 +321,7 @@ fun AddProductDialog(
                                     quantityText = "1"
                                     priceTextFieldValue = TextFieldValue("")
                                     validationError = null
-                                    focusRequester.requestFocus()
+                                    runCatching { focusRequester.requestFocus() }
                                 }
                             }
                         },
