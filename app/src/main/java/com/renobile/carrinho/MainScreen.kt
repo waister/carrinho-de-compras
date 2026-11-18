@@ -1,6 +1,7 @@
 package com.renobile.carrinho
 
 import android.content.Intent
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -54,6 +55,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.ads.AdView
 import com.renobile.carrinho.database.entities.CartEntity
 import com.renobile.carrinho.database.entities.ProductEntity
 import com.renobile.carrinho.features.about.aboutScreen
@@ -241,6 +243,7 @@ fun AdBanner(
         factory = { context ->
             LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
+                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
                 context.loadBannerAd(
                     adViewContainer = this,
                     adUnitId = adUnitId,
@@ -252,6 +255,13 @@ fun AdBanner(
                     },
                 )
             }
+        },
+        onRelease = { linearLayout ->
+            linearLayout.clearFocus()
+            for (i in 0 until linearLayout.childCount) {
+                (linearLayout.getChildAt(i) as? AdView)?.destroy()
+            }
+            linearLayout.removeAllViews()
         },
     )
 }

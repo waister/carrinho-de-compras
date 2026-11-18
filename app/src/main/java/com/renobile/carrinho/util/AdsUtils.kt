@@ -3,6 +3,7 @@ package com.renobile.carrinho.util
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.ads.mediation.admob.AdMobAdapter
@@ -49,6 +50,7 @@ fun Context?.loadBannerAd(
 
     appLog(logTag, "adUnitId: $adUnitId")
 
+    adViewContainer.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
     val adView = AdView(this)
     adViewContainer.addView(adView)
 
@@ -80,6 +82,7 @@ fun Context?.loadBannerAd(
         override fun onAdFailedToLoad(error: LoadAdError) {
             super.onAdFailedToLoad(error)
             shimmer?.hide()
+            adView.clearFocus()
             adViewContainer.hide()
             onAdLoaded(false)
             appLog(logTag, "onAdFailedToLoad(): ${error.message}")
@@ -113,6 +116,7 @@ fun Context.getAdSize(adViewContainer: LinearLayout): AdSize {
 fun Context?.displayWidth() = if (this != null) resources.displayMetrics.widthPixels else 0
 
 fun View.hide() {
+    clearFocus()
     visibility = View.GONE
 }
 
