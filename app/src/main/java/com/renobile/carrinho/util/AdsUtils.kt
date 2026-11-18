@@ -110,7 +110,7 @@ fun Context.getAdSize(adViewContainer: LinearLayout): AdSize {
 
     val density = resources.displayMetrics.density
     val adWidth = (adWidthPixels / density).toInt()
-    return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    return AdSize.getLargeAnchoredAdaptiveBannerAdSize(this, adWidth)
 }
 
 fun Context?.displayWidth() = if (this != null) resources.displayMetrics.widthPixels else 0
