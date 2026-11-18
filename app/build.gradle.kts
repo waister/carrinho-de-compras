@@ -21,8 +21,8 @@ extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
         applicationId = "com.renobile.carrinho"
         minSdk = 24
         targetSdk = 37
-        versionCode = 32
-        versionName = "3.1.0"
+        versionCode = 33
+        versionName = "3.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
 
